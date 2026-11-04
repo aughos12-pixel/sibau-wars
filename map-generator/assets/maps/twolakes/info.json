@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../info.schema.json",
+  "id": "TwoLakes",
+  "name": "Two Lakes",
+  "translation_key": "map.twolakes",
+  "categories": ["europe"],
+  "location": { "lat": 40.95, "lon": 20.9 },
+  "author": "Duwibi",
+  "nations": [
+    {
+      "coordinates": [1025, 750],
+      "name": "Galicica",
+      "flag": "mk"
+    },
+    {
+      "coordinates": [1815, 820],
+      "name": "Pelister",
+      "flag": "mk"
+    },
+    {
+      "coordinates": [920, 1250],
+      "name": "Podgorie",
+      "flag": "al"
+    },
+    {
+      "coordinates": [100, 1410],
+      "name": "Valamara",
+      "flag": "al"
+    },
+    {
+      "coordinates": [1320, 1485],
+      "name": "Prespa",
+      "flag": "gr"
+    }
+  ],
+  "themes": ["europe"]
+}

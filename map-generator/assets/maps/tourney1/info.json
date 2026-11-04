@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../info.schema.json",
+  "id": "Tourney1",
+  "name": "Tourney 2 Teams",
+  "translation_key": "map.tourney1",
+  "categories": ["tournament"],
+  "author": "bijx",
+  "nations": [
+    {
+      "coordinates": [177, 510],
+      "name": "Left"
+    },
+    {
+      "coordinates": [847, 511],
+      "name": "Right"
+    }
+  ]
+}

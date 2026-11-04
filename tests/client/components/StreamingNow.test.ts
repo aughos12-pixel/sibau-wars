@@ -1,0 +1,220 @@
+import type { StreamsFeed } from "@openfront/shared/ApiSchemas";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { formatViewers } from "../../../src/client/components/StreamingNow";
+import { streamsFeed, watchUrl } from "../../../src/client/StreamsFeed";
+
+const getStreams = vi.fn<() => Promise<StreamsFeed>>();
+vi.mock("../../../src/client/Api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../../src/client/Api")>()),
+  getStreams: () => getStreams(),
+}));
+
+// A MediaQueryList whose answer a test can flip, firing its change listeners like a
+// resize (or Poki's fullscreen toggle) does. `matches` answers per query string.
+function fakeMediaQueries(matches: (query: string) => boolean) {
+  const listeners = new Set<() => void>();
+  let answer = matches;
+  return {
+    matchMedia: (query: string) => ({
+      get matches() {
+        return answer(query);
+      },
+      addEventListener: (_type: string, cb: () => void) => listeners.add(cb),
+      removeEventListener: (_type: string, cb: () => void) =>
+        listeners.delete(cb),
+    }),
+    set(next: (query: string) => boolean) {
+      answer = next;
+      listeners.forEach((cb) => cb());
+    },
+  };
+}
+
+// Poki's 1031x580 frame: wide enough for lg, but short.
+const shortDesktop = (query: string) =>
+  query.includes("min-width: 1024px") || query.includes("max-height: 800px");
+
+// Every entry in the feed is a verified-live broadcast, so startedAt is always present.
+const startedAt = "2026-08-03T12:00:00Z";
+
+describe("StreamingNow", () => {
+  describe("watchUrl", () => {
+    it("derives a Twitch URL from the channel", () => {
+      expect(
+        watchUrl({
+          platform: "twitch",
+          channel: "zixer",
+          displayName: "Zixer",
+          viewers: 0,
+          startedAt,
+        }),
+      ).toBe("https://www.twitch.tv/zixer");
+    });
+
+    it("derives a YouTube URL from the channel", () => {
+      expect(
+        watchUrl({
+          platform: "youtube",
+          channel: "@ofm",
+          displayName: "OFM",
+          viewers: 0,
+          startedAt,
+        }),
+      ).toBe("https://www.youtube.com/@ofm");
+    });
+
+    it("prefers an explicit url over the derived one", () => {
+      expect(
+        watchUrl({
+          platform: "twitch",
+          channel: "zixer",
+          displayName: "Zixer",
+          viewers: 0,
+          startedAt,
+          url: "https://example.com/live",
+        }),
+      ).toBe("https://example.com/live");
+    });
+  });
+
+  describe("formatViewers", () => {
+    it("formats counts across magnitudes", () => {
+      expect(formatViewers(0)).toBe("0");
+      expect(formatViewers(932)).toBe("932");
+      expect(formatViewers(1234)).toBe("1.2K");
+      expect(formatViewers(9999)).toBe("10K"); // no stray "10.0K"
+      expect(formatViewers(12345)).toBe("12K");
+      expect(formatViewers(999_600)).toBe("1.0M"); // no "1000K"
+      expect(formatViewers(1_200_000)).toBe("1.2M");
+    });
+  });
+
+  // The panel used to own a 90s setInterval cleared only in disconnectedCallback — which
+  // never runs, because <play-page> is never removed from the DOM. These pin the
+  // replacement: it owns no timer, it renders only what the API verified, and it stops
+  // when the shared poller stops.
+  describe("panel behaviour", () => {
+    let viewport: ReturnType<typeof fakeMediaQueries>;
+
+    beforeEach(async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      getStreams.mockResolvedValue({
+        verifiedAt: new Date().toISOString(),
+        featured: [],
+        live: [
+          {
+            platform: "twitch",
+            channel: "bobthegamertwitch",
+            displayName: "Bob",
+            viewers: 14,
+            url: "https://twitch.tv/bobthegamertwitch",
+            startedAt,
+          },
+          {
+            platform: "youtube",
+            channel: "@enzo",
+            displayName: "Enzo",
+            viewers: 300,
+            url: "https://www.youtube.com/watch?v=vid1",
+            startedAt,
+          },
+        ],
+      });
+      // A desktop-sized viewport: the host stays off on compact screens.
+      viewport = fakeMediaQueries(() => false);
+      vi.stubGlobal("matchMedia", viewport.matchMedia);
+      await import("../../../src/client/components/StreamingNow");
+    });
+
+    afterEach(() => {
+      document.body.innerHTML = "";
+      streamsFeed.reset();
+      vi.useRealTimers();
+      vi.clearAllMocks();
+      vi.unstubAllGlobals();
+    });
+
+    const mount = async () => {
+      const el = document.createElement("streaming-now") as HTMLElement & {
+        updateComplete: Promise<boolean>;
+      };
+      document.body.appendChild(el);
+      await el.updateComplete;
+      await vi.waitFor(() => expect(getStreams).toHaveBeenCalled());
+      await new Promise((r) => setTimeout(r, 0));
+      await el.updateComplete;
+      return el;
+    };
+
+    it("renders a card per verified-live stream, highest viewers first", async () => {
+      const el = await mount();
+      const names = [...el.querySelectorAll("a")].map(
+        (a) => a.getAttribute("href") ?? "",
+      );
+      expect(names).toEqual([
+        "https://www.youtube.com/watch?v=vid1", // 300 viewers
+        "https://twitch.tv/bobthegamertwitch", // 14
+      ]);
+      expect(el.style.display).not.toBe("none");
+    });
+
+    // Viewer counts flow through translateText, which is stubbed to return the bare key
+    // here, so the observable proof that YouTube carries a real count is the ordering
+    // above (300 ahead of 14) plus the entry rendering at all — it used to be a
+    // hardcoded 0 for every YouTube channel.
+    it("renders each streamer's display name", async () => {
+      const el = await mount();
+      expect(el.textContent).toContain("Enzo");
+      expect(el.textContent).toContain("Bob");
+    });
+
+    it("stays collapsed when nobody is live", async () => {
+      getStreams.mockResolvedValue({
+        verifiedAt: new Date().toISOString(),
+        featured: [],
+        live: [],
+      });
+      const el = await mount();
+      expect(el.style.display).toBe("none");
+      expect(el.querySelectorAll("a")).toHaveLength(0);
+    });
+
+    it("does not subscribe on a short desktop-width screen", async () => {
+      viewport.set(shortDesktop);
+      const el = document.createElement("streaming-now") as HTMLElement & {
+        updateComplete: Promise<boolean>;
+      };
+      document.body.appendChild(el);
+      await el.updateComplete;
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(getStreams).not.toHaveBeenCalled();
+      expect(el.style.display).toBe("none");
+    });
+
+    it("drops the strip when the window turns compact and brings it back", async () => {
+      const el = await mount();
+      expect(el.style.display).not.toBe("none");
+
+      viewport.set(shortDesktop); // e.g. leaving Poki's fullscreen
+      await el.updateComplete;
+      expect(el.style.display).toBe("none");
+      expect(el.querySelectorAll("a")).toHaveLength(0);
+      const calls = getStreams.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(5 * 60_000);
+      expect(getStreams.mock.calls.length).toBe(calls); // unsubscribed, so no polling
+
+      viewport.set(() => false);
+      await vi.waitFor(() => expect(el.style.display).not.toBe("none"));
+      await el.updateComplete;
+      expect(el.querySelectorAll("a")).toHaveLength(2);
+    });
+
+    it("owns no timer: disconnecting stops all polling", async () => {
+      const el = await mount();
+      const before = getStreams.mock.calls.length;
+      el.remove();
+      await vi.advanceTimersByTimeAsync(5 * 60_000);
+      expect(getStreams.mock.calls.length).toBe(before);
+    });
+  });
+});
