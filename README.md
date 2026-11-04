@@ -48,7 +48,7 @@ The changes are kept small (see `SELF_HOSTED` in `src/server/ServerEnv.ts` and t
 
 ## License and credits
 
-**Notice (AGPL-3.0 §5a):** this is a modified version of OpenFront, changed by WolfTheDevYes on 2026-11-04 and after. It was forked from OpenFrontIO commit `4ae6e3e4c277166a457cfa5e84fb43d3ffc94fd9` (2026-11-03).
+**Notice (AGPL-3.0 §5a):** this is a modified version of OpenFront, changed by aughos12-pixel on 2026-11-04 and after. It was forked from OpenFrontIO commit `4ae6e3e4c277166a457cfa5e84fb43d3ffc94fd9` (2026-11-03).
 
 - **Code:** GNU Affero General Public License v3.0, see [LICENSE](LICENSE). If you run a modified Sibau Wars server for other people, you must offer them its source code. The footer's **Source code** link does that, so keep it pointing at your public repo.
 - **Assets** in `resources/`: Creative Commons BY-SA 4.0, see [LICENSE-ASSETS](LICENSE-ASSETS). Attribution: "OpenFront" / "OpenFront Inc.". New Sibau Wars assets are released under the same CC BY-SA 4.0 license.

@@ -54,7 +54,7 @@ The Hobby plan was $5/month at the time of checking, and that includes $5 of usa
 ## Option D: Any Linux VPS (Hetzner, DigitalOcean, a home server…)
 
 ```bash
-git clone https://github.com/WolfTheDevYes/sibau-wars.git
+git clone https://github.com/aughos12-pixel/sibau-wars.git
 cd sibau-wars
 docker build -t sibau-wars .
 docker run -d --restart unless-stopped -p 80:80 --name sibau-wars sibau-wars

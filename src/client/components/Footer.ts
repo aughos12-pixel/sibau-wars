@@ -53,7 +53,7 @@ export class Footer extends LitElement {
                  must be offered the source. Keep this link pointing at the
                  public repo you deploy from. -->
             <a
-              href="https://github.com/WolfTheDevYes/sibau-wars"
+              href="https://github.com/aughos12-pixel/sibau-wars"
               target="_blank"
               rel="noopener noreferrer"
               class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-all text-sm"
