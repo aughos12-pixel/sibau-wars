@@ -18,7 +18,7 @@ import type { AttackTroopLabel } from "../render/gl/passes/WorldTextPass";
 import { UserSettings } from "../UserSettings";
 import { GameView } from "../view";
 
-// Aquarius (#ff5a4f) for outgoing, red-400 (#f87171) for incoming.
+// Aquarius (#3fa9f5) for outgoing, red-400 (#f87171) for incoming.
 const OUTGOING_R = 0x3f / 255;
 const OUTGOING_G = 0xa9 / 255;
 const OUTGOING_B = 0xf5 / 255;

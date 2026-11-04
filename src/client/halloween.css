@@ -19,7 +19,7 @@
 
 /* Base body styles & OpenFront @theme variable overrides (Homepage & Modals)
    Note: <o-modal> is a Shadow DOM host that adopts documentStylesSheet(), where
-   Tailwind v4's @layer theme declares `:root, :host { --color-malibu-blue: #d6322e }`.
+   Tailwind v4's @layer theme declares `:root, :host { --color-malibu-blue: #0084d1 }`.
    We declare `body.halloween-theme:not(.in-game) o-modal` (excluding in-game modals)
    separately from `:host-context(...)` so browsers without `:host-context()` (Safari/Firefox)
    still apply all variable overrides cleanly. */

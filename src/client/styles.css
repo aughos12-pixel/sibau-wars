@@ -22,11 +22,11 @@
   --font-display: "SibauDisplay", Inter, Arial, sans-serif;
 
   /* Openfront.io brand palette — see Openfront_Brand_Guidelines.pdf §4 */
-  --color-malibu-blue: #d6322e;
-  --color-aquarius: #ff5a4f;
+  --color-malibu-blue: #1e5bd6;
+  --color-aquarius: #5b9bff;
   --color-dawn-blue: #cccccc;
   --color-bright-white: #ffffff;
-  --color-bright-blue: #ff3b30;
+  --color-bright-blue: #3b82f6;
 
   /* Openfront Masters sub-brand */
   --color-cyber-yellow: #ffd700;
@@ -34,21 +34,21 @@
 
   /* Background & decorative — not for standalone UI use */
   --color-deep-navy: #0a1628;
-  --color-hex-cyan: #ff3b30;
+  --color-hex-cyan: #3b82f6;
   --color-frame-orange: #f97316;
 
   /* App-specific surface colors */
   --color-surface: #0a1628;
 
-  --shadow-malibu-blue: 0 0 15px rgba(214, 50, 46, 0.2);
-  --shadow-malibu-blue-soft: 0 0 12px rgba(214, 50, 46, 0.2);
-  --shadow-malibu-blue-strong: 0 0 15px rgba(214, 50, 46, 0.3);
-  --shadow-malibu-blue-pill: 0 0 6px rgba(214, 50, 46, 0.35);
-  --shadow-malibu-blue-ring-sm: 0 0 0 4px rgba(214, 50, 46, 0.2);
-  --shadow-malibu-blue-ring-lg: 0 0 0 6px rgba(214, 50, 46, 0.3);
-  --shadow-lobby-card-hover: 0 0 0 2px #d6322e, 0 0 20px rgba(214, 50, 46, 0.5);
+  --shadow-malibu-blue: 0 0 15px rgba(30, 91, 214, 0.2);
+  --shadow-malibu-blue-soft: 0 0 12px rgba(30, 91, 214, 0.2);
+  --shadow-malibu-blue-strong: 0 0 15px rgba(30, 91, 214, 0.3);
+  --shadow-malibu-blue-pill: 0 0 6px rgba(30, 91, 214, 0.35);
+  --shadow-malibu-blue-ring-sm: 0 0 0 4px rgba(30, 91, 214, 0.2);
+  --shadow-malibu-blue-ring-lg: 0 0 0 6px rgba(30, 91, 214, 0.3);
+  --shadow-lobby-card-hover: 0 0 0 2px #1e5bd6, 0 0 20px rgba(30, 91, 214, 0.5);
   --shadow-action-card-hover:
-    0 0 0 1px #d6322e, 0 0 12px rgba(214, 50, 46, 0.35);
+    0 0 0 1px #1e5bd6, 0 0 12px rgba(30, 91, 214, 0.35);
 }
 
 /* Match the in-game HUD surface; opacity affects the surface, not the controls. */

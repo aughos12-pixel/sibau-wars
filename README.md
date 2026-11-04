@@ -42,7 +42,7 @@ Sibau Wars sets `SELF_HOSTED=true` (the default in the Docker image), so the ser
 - All of OpenFront's ad, analytics and tracking scripts (Google, Playwire/RAMP, AdShield, CrazyGames, Cloudflare Insights, Turnstile) are removed.
 - The client and server send their API calls to the server's own `/sibau-api` stub, which answers `404` right away.
 - The OpenFront-only `proprietary/` assets (logos, display font, music, one sound effect) are removed. In their place are an original Sibau Wars logo and favicon, the open Overpass font, and simple placeholder music and a game-start chime made for this fork.
-- The theme is red instead of blue, and every text says "Sibau Wars".
+- The theme is Sibau blue and white, and every text says "Sibau Wars".
 
 The changes are kept small (see `SELF_HOSTED` in `src/server/ServerEnv.ts` and the "Sibau Wars" block at the end of `src/client/styles.css`), so pulling in later OpenFront updates stays manageable.
 

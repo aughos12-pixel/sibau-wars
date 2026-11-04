@@ -414,13 +414,13 @@ export class WinModal extends LitElement implements Controller {
         transform: translateY(0) scale(0.98);
       }
       .win-action:focus-visible {
-        outline: 2px solid #ff5a4f;
+        outline: 2px solid #3fa9f5;
         outline-offset: 2px;
       }
       .win-action-main {
         background: linear-gradient(
           to top,
-          rgba(214, 50, 46, 0.95) 0%,
+          rgba(0, 132, 209, 0.95) 0%,
           rgba(0, 101, 170, 0.8) 100%
         );
         border-color: rgba(63, 169, 245, 0.55);
