@@ -46,6 +46,7 @@ export const PACKED_UNIT_TYPES: readonly UnitType[] = [
   UnitType.MIRVWarhead, // 14
   UnitType.Train, // 15
   UnitType.Factory, // 16
+  UnitType.EMP, // 17 (Sibau Wars)
 ] as const;
 
 const UNIT_TYPE_TO_INT = new Map<UnitType, number>(
@@ -148,6 +149,10 @@ export const packB = (update: UnitUpdate): number => {
   if (update.transportShipState) {
     val |= 1 << 27;
     if (update.transportShipState.isRetreating) val |= 1 << 28;
+  } else if (update.disabled) {
+    // Sibau Wars: bit 28 is only "retreating" alongside bit 27; without a
+    // transport state (structures) it marks an EMP-disabled unit.
+    val |= 1 << 28;
   }
 
   if (update.nukeState) {
@@ -181,6 +186,9 @@ export const unpackBLoaded = (packed: number): boolean | undefined => {
 };
 export const unpackBTrainType = (packed: number): TrainType | undefined =>
   intToTrainType((packed >> 15) & 0x3);
+
+export const unpackBDisabled = (packed: number): boolean =>
+  (packed & (1 << 27)) === 0 && (packed & (1 << 28)) !== 0;
 
 export const unpackBHasWarshipState = (packed: number): boolean =>
   (packed & (1 << 17)) !== 0;
@@ -271,6 +279,9 @@ export class PackedUnitUpdateDecoder {
   }
   get hasTrainStation(): boolean {
     return unpackBHasTrainStation(this.buffer[this.offset + OFFSET_PACKED_B]);
+  }
+  get disabled(): boolean {
+    return unpackBDisabled(this.buffer[this.offset + OFFSET_PACKED_B]);
   }
   get loaded(): boolean | undefined {
     return unpackBLoaded(this.buffer[this.offset + OFFSET_PACKED_B]);
@@ -408,6 +419,7 @@ export class PackedUnitUpdateDecoder {
       targetTile: this.targetTile,
       health: this.health,
       underConstruction: this.underConstruction,
+      disabled: this.disabled,
       level: this.level,
       hasTrainStation: this.hasTrainStation,
       trainType: this.trainType,

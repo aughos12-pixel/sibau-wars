@@ -214,6 +214,8 @@ export enum UnitType {
   MIRVWarhead = "MIRV Warhead",
   Train = "Train",
   Factory = "Factory",
+  // Sibau Wars: silo-launched missile that switches buildings off.
+  EMP = "EMP",
 }
 
 export enum TrainType {
@@ -225,6 +227,7 @@ export enum TrainType {
 export const Nukes = unitTypeGroup([
   UnitType.AtomBomb,
   UnitType.HydrogenBomb,
+  UnitType.EMP,
   UnitType.MIRVWarhead,
   UnitType.MIRV,
 ] as const);
@@ -232,6 +235,7 @@ export const Nukes = unitTypeGroup([
 export const BuildableAttacks = unitTypeGroup([
   UnitType.AtomBomb,
   UnitType.HydrogenBomb,
+  UnitType.EMP,
   UnitType.MIRV,
   UnitType.Warship,
 ] as const);
@@ -478,6 +482,8 @@ export enum MessageType {
   DONATION_RECEIVED,
   CHAT,
   RENEW_ALLIANCE,
+  // Sibau Wars
+  NATURAL_DISASTER,
 }
 
 // Message categories used for filtering events in the EventsDisplay
@@ -506,6 +512,7 @@ export const MESSAGE_TYPE_CATEGORIES: Record<MessageType, MessageCategory> = {
   [MessageType.UNIT_DESTROYED]: MessageCategory.ATTACK,
   [MessageType.ALLIANCE_ACCEPTED]: MessageCategory.ALLIANCE,
   [MessageType.ALLIANCE_REJECTED]: MessageCategory.ALLIANCE,
+  [MessageType.NATURAL_DISASTER]: MessageCategory.ATTACK,
   [MessageType.ALLIANCE_REQUEST]: MessageCategory.ALLIANCE,
   [MessageType.ALLIANCE_BROKEN]: MessageCategory.ALLIANCE,
   [MessageType.ALLIANCE_EXPIRED]: MessageCategory.ALLIANCE,

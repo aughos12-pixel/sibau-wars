@@ -184,6 +184,9 @@ export class UnitView implements UnitLike {
   isUnderConstruction(): boolean {
     return this.state.underConstruction;
   }
+  isDisabled(): boolean {
+    return this.state.disabled ?? false;
+  }
   isInCooldown(): boolean {
     return this.state.missileTimerQueue.length === this.state.level;
   }

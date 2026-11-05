@@ -825,7 +825,6 @@
       "Lagoon"
     ]
   },
-
   "space": {
     "prefixes": [
       "Andromedan",
@@ -1661,6 +1660,57 @@
       "Union",
       "Federation",
       "Confederation"
+    ]
+  },
+  "sibau": {
+    "prefixes": [
+      "Sibau",
+      "Grand Sibau",
+      "Old Sibau",
+      "New Sibau",
+      "Royal Sibau",
+      "Free Sibau",
+      "Holy Sibau",
+      "Iron Sibau",
+      "North Sibau",
+      "South Sibau",
+      "East Sibau",
+      "West Sibau",
+      "Great Sibau",
+      "Little Sibau",
+      "High Sibau",
+      "United Sibau",
+      "Golden Sibau",
+      "Wild Sibau",
+      "Mighty Sibau",
+      "Eternal Sibau"
+    ],
+    "suffixes": [
+      "Empire",
+      "Horde",
+      "Kingdom",
+      "Republic",
+      "Clan",
+      "Legion",
+      "Tribe",
+      "Dominion",
+      "Federation",
+      "Union",
+      "Alliance",
+      "Order",
+      "Dynasty",
+      "Confederacy",
+      "Sultanate",
+      "Khanate",
+      "Realm",
+      "Commonwealth",
+      "Brotherhood",
+      "Army",
+      "Raiders",
+      "Guard",
+      "Nation",
+      "Pact",
+      "Crusaders"
     ]
   }
 }

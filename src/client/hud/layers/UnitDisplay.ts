@@ -27,6 +27,7 @@ import {
   atomBombIcon,
   cityIcon,
   defensePostIcon,
+  empIcon,
   factoryIcon,
   goldCoinIcon,
   hydrogenBombIcon,
@@ -422,6 +423,7 @@ export class UnitDisplay extends LitElement implements Controller {
     switch (item) {
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
+      case UnitType.EMP:
       case UnitType.MIRV:
         return (
           this.cost(item) <= (player?.gold() ?? 0n) &&
@@ -569,6 +571,13 @@ export class UnitDisplay extends LitElement implements Controller {
               UnitType.MIRV,
               "mirv",
               this.getHotkey("buildMIRV", "Digit0"),
+            )}
+            ${this.renderUnitItem(
+              empIcon,
+              null,
+              UnitType.EMP,
+              "emp",
+              this.getHotkey("buildEMP", "KeyV"),
             )}
           </div>
         </div>

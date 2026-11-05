@@ -308,6 +308,9 @@ export const GameConfigSchema = z.object({
   // that only know publicIds at create_game); resolved to clientID at lookup.
   nameRevealPublicIds: z.string().array().max(200).optional(),
   waterNukes: z.boolean().nullable().optional(),
+  // Sibau Wars: earthquakes, wildfires, tsunamis and gold rushes. Unset
+  // means on; null clears a lobby override back to the default.
+  naturalDisasters: z.boolean().nullable().optional(),
   randomSpawn: z.boolean(),
   // The onboarding tutorial (docs/OnboardingTutorial.md): nations and tribes
   // only grow into free land, and the game ends once the human is alone.

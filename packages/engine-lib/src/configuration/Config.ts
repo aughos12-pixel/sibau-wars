@@ -251,6 +251,7 @@ export class Config {
       case UnitType.SAMMissile:
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
+      case UnitType.EMP:
       case UnitType.MIRV:
       case UnitType.MIRVWarhead:
       case UnitType.TradeShip:
@@ -345,7 +346,7 @@ export class Config {
     const cityTroops = withCities
       ? player
           .units(UnitType.City)
-          .filter((u) => !u.isUnderConstruction())
+          .filter((u) => !u.isUnderConstruction() && !u.isDisabled())
           .map((city) => city.level())
           .reduce((a, b) => a + b, 0) * this.cityTroopIncrease()
       : 0;
@@ -427,8 +428,41 @@ export class Config {
         return { inner: 12, outer: 30 };
       case UnitType.HydrogenBomb:
         return { inner: 80, outer: 100 };
+      case UnitType.EMP:
+        // Sibau Wars: an EMP only switches buildings off, so inner == outer.
+        return { inner: this.empRadius(), outer: this.empRadius() };
     }
     throw new Error(`Unknown nuke type: ${unitType}`);
+  }
+
+  /** Sibau Wars: ticks after the spawn phase before the first disaster. */
+  disasterFirstDelayTicks(): number {
+    return 3 * 60 * 10;
+  }
+
+  /** Sibau Wars: shortest and longest gap between two disasters, in ticks. */
+  disasterIntervalTicks(): { min: number; max: number } {
+    return { min: 2 * 60 * 10, max: 3.5 * 60 * 10 };
+  }
+
+  /** Sibau Wars: how long a disaster's zone is shown before it strikes. */
+  disasterWarningTicks(): number {
+    return 5 * 10;
+  }
+
+  /** Sibau Wars: how long a gold rush keeps paying out. */
+  goldRushTicks(): number {
+    return 60 * 10;
+  }
+
+  /** Sibau Wars: radius of an EMP blast, in tiles. */
+  empRadius(): number {
+    return 45;
+  }
+
+  /** Sibau Wars: how long an EMP keeps buildings switched off (10 ticks = 1s). */
+  empDisableTicks(): number {
+    return 30 * 10;
   }
 
   nukeAllianceBreakThreshold(): number {

@@ -154,6 +154,9 @@ export class SoundEffectController implements Controller {
       case UnitType.HydrogenBomb:
         this.emit("hydrogen-launch");
         break;
+      case UnitType.EMP:
+        this.emit("atom-launch");
+        break;
       case UnitType.MIRV:
         this.emit("mirv-launch");
         break;

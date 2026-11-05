@@ -137,6 +137,7 @@ export function highlightTypesForUnit(
   switch (unitType) {
     case UnitType.AtomBomb:
     case UnitType.HydrogenBomb:
+    case UnitType.EMP:
       return [UnitType.MissileSilo, UnitType.SAMLauncher];
     case UnitType.Warship:
       return [UnitType.Port];
@@ -600,6 +601,7 @@ export class InputHandler {
       "buildSamLauncher",
       "buildAtomBomb",
       "buildHydrogenBomb",
+      "buildEMP",
       "buildWarship",
       "buildMIRV",
     ];
@@ -1838,6 +1840,7 @@ export class InputHandler {
       { key: "buildSamLauncher", type: UnitType.SAMLauncher },
       { key: "buildAtomBomb", type: UnitType.AtomBomb },
       { key: "buildHydrogenBomb", type: UnitType.HydrogenBomb },
+      { key: "buildEMP", type: UnitType.EMP },
       { key: "buildWarship", type: UnitType.Warship },
       { key: "buildMIRV", type: UnitType.MIRV },
     ];

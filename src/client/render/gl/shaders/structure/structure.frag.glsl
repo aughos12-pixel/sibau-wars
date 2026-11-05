@@ -153,7 +153,7 @@ void main() {
     vec3 ac = texelFetch(uAffiliation, ivec2(int(vOwnerID), 1), 0).rgb;
     fillColor = vec4(darken(ac, uFillDarken), 1.0);
     borderColor = vec4(darken(ac, uBorderDarken), 1.0);
-  } else if (vUnderConstruction > 0.5) {
+  } else if (vUnderConstruction > 0.5 && vUnderConstruction < 1.5) {
     fillColor = vec4(198.0/255.0, 198.0/255.0, 198.0/255.0, 1.0);
     borderColor = vec4(127.0/255.0, 127.0/255.0, 127.0/255.0, 1.0);
   } else {
@@ -169,6 +169,14 @@ void main() {
     borderColor.rgb = darken(borderColor.rgb, uBorderDarken);
     fillColor.a = 1.0;
     borderColor.a = 1.0;
+  }
+
+  // Sibau Wars: 2.0 = switched off by an EMP. Dim the owner's colors and
+  // pulse an electric blue over them so it reads as "offline", not gone.
+  if (vUnderConstruction > 1.5) {
+    float pulse = 0.5 + 0.5 * sin(uTime * 6.0);
+    fillColor.rgb = mix(fillColor.rgb * 0.45, vec3(0.30, 0.55, 1.0), 0.35 + 0.2 * pulse);
+    borderColor.rgb = vec3(0.10, 0.20, 0.55);
   }
 
   // structures cosmetic: recolor the fill with the owner's effect (raw catalog

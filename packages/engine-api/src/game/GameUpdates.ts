@@ -124,6 +124,8 @@ export enum GameUpdateType {
   SpawnPhaseEnd,
   GamePaused,
   DonateEvent,
+  // Sibau Wars (appended so earlier ids stay stable)
+  DisasterEvent,
 }
 
 export type GameUpdate =
@@ -142,6 +144,7 @@ export type GameUpdate =
   | UnitIncomingUpdate
   | AllianceExtensionUpdate
   | BonusEventUpdate
+  | DisasterEventUpdate
   | RailroadConstructionUpdate
   | RailroadDestructionUpdate
   | RailroadSnapUpdate
@@ -150,6 +153,21 @@ export type GameUpdate =
   | SpawnPhaseEndUpdate
   | GamePausedUpdate
   | DonateEventUpdate;
+
+export type DisasterKind = "earthquake" | "wildfire" | "tsunami" | "goldrush";
+
+/**
+ * Sibau Wars: a natural disaster's zone changed phase. Clients draw a circle
+ * from "warning" until "end"; the effect itself happens in the simulation.
+ */
+export interface DisasterEventUpdate {
+  type: GameUpdateType.DisasterEvent;
+  id: number;
+  kind: DisasterKind;
+  tile: number;
+  radius: number;
+  phase: "warning" | "active" | "end";
+}
 
 export interface BonusEventUpdate {
   type: GameUpdateType.BonusEvent;
@@ -215,6 +233,8 @@ export interface UnitUpdate {
   targetTile?: TileRef; // Only for nukes
   health?: number;
   underConstruction?: boolean;
+  /** Sibau Wars: switched off by an EMP. */
+  disabled?: boolean;
   missileTimerQueue: number[];
   level: number;
   hasTrainStation: boolean;

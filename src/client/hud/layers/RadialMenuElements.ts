@@ -578,7 +578,8 @@ function createMenuElements(
             } else if (buildableUnit.canBuild !== false) {
               const rocketDirectionUp =
                 item.unitType === UnitType.AtomBomb ||
-                item.unitType === UnitType.HydrogenBomb
+                item.unitType === UnitType.HydrogenBomb ||
+                item.unitType === UnitType.EMP
                   ? params.uiState?.rocketDirectionUp
                   : undefined;
               params.eventBus.emit(

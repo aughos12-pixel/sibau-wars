@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Sibau Wars EMP icon: a lightning bolt inside a pulse ring. -->
+  <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="1.6" stroke-dasharray="3 2.2"/>
+  <path d="M13.2 3.8 L6.8 13.1 H11.2 L10.4 20.2 L17.2 10.6 H12.6 Z" fill="#ffffff"/>
+</svg>

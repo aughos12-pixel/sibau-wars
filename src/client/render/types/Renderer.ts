@@ -110,6 +110,8 @@ export interface UnitState {
   markedForDeletion: number | false; // -1 -> false, else tick
   health: number | null;
   underConstruction: boolean;
+  /** Sibau Wars: switched off by an EMP. */
+  disabled?: boolean;
   targetUnitId: number | null;
   targetTile: number | null;
   troops: number;

@@ -23,6 +23,7 @@ const DISABLED_UNIT_KEYS: Record<string, string> = {
   Factory: "unit_type.factory",
   "Atom Bomb": "unit_type.atom_bomb",
   "Hydrogen Bomb": "unit_type.hydrogen_bomb",
+  EMP: "unit_type.emp",
   MIRV: "unit_type.mirv",
   "Trade Ship": "player_stats_table.unit.trade",
   Transport: "player_stats_table.unit.trans",
@@ -127,6 +128,12 @@ export function notableLobbySettings(
     items.push({
       label: translateText("game_settings.water_nukes"),
       value: enabled,
+    });
+  // Sibau Wars: disasters are on by default, so only "off" is news.
+  if (c.naturalDisasters === false)
+    items.push({
+      label: translateText("game_settings.natural_disasters"),
+      value: translateText("common.disabled"),
     });
   if (c.doomsdayClock?.enabled)
     items.push({

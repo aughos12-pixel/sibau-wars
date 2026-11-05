@@ -1606,6 +1606,7 @@ export class PlayerImpl implements Player {
         return this.nukeSpawn(targetTile, unitType);
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
+      case UnitType.EMP:
         return this.nukeSpawn(targetTile, unitType);
       case UnitType.MIRVWarhead:
         return targetTile;
@@ -1673,10 +1674,14 @@ export class PlayerImpl implements Player {
       }
     }
 
-    // only get missilesilos that are not on cooldown and not under construction
+    // only get missilesilos that are not on cooldown, not under construction
+    // and not switched off by an EMP
     const readySilos = this.units(UnitType.MissileSilo).filter(
       (silo) =>
-        silo.isActive() && !silo.isInCooldown() && !silo.isUnderConstruction(),
+        silo.isActive() &&
+        !silo.isInCooldown() &&
+        !silo.isUnderConstruction() &&
+        !silo.isDisabled(),
     );
     readySilos.sort(
       (a, b) =>
@@ -1707,6 +1712,7 @@ export class PlayerImpl implements Player {
       (port) =>
         port.isActive() &&
         !port.isUnderConstruction() &&
+        !port.isDisabled() &&
         tileComponent !== null &&
         this.mg.hasWaterComponent(port.tile(), tileComponent),
     );

@@ -47,6 +47,7 @@ const UNIT_LABEL_KEYS = {
   hbomb: "unit_type.hydrogen_bomb",
   mirv: "unit_type.mirv",
   mirvw: "player_stats_table.unit.mirvw",
+  emp: "unit_type.emp",
   trade: "player_stats_table.unit.trade",
   trans: "player_stats_table.unit.trans",
 } as const satisfies Record<

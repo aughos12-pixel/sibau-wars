@@ -75,6 +75,9 @@ class ReplayUnitView {
   isUnderConstruction(): boolean {
     return this.state.underConstruction;
   }
+  isDisabled(): boolean {
+    return this.state.disabled ?? false;
+  }
   missileTimerQueue(): number[] {
     return this.state.missileTimerQueue;
   }

@@ -29,6 +29,7 @@ import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
 import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
 import { simpleHash } from "@openfront/engine-lib/Util";
 import { EngineConfig } from "./configuration/EngineConfig";
+import { DisasterExecution } from "./execution/DisasterExecution";
 import { DoomsdayClockExecution } from "./execution/DoomsdayClockExecution";
 import { Executor } from "./execution/ExecutionManager";
 import { RecomputeRailClusterExecution } from "./execution/RecomputeRailClusterExecution";
@@ -198,6 +199,12 @@ export class GameRunner {
     this.game.addExecution(new WinCheckExecution());
     if (this.game.config().doomsdayClockConfig().enabled) {
       this.game.addExecution(new DoomsdayClockExecution());
+    }
+    if (this.game.config().naturalDisasters()) {
+      // Sibau Wars: seeded from the game id so every client agrees.
+      this.game.addExecution(
+        new DisasterExecution(simpleHash(this.execManager.gameID()) + 2),
+      );
     }
     if (!this.game.config().isUnitDisabled(UnitType.Factory)) {
       this.game.addExecution(

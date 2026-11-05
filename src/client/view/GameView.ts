@@ -37,7 +37,11 @@ import { UnitGrid } from "@openfront/engine-lib/game/UnitGrid";
 import { PlayerCosmetics, WirePlayer } from "@openfront/shared/WireSchemas";
 import { computeAllianceClusters } from "../render/frame/derive/AllianceClusters";
 import { extractAttackRings } from "../render/frame/derive/AttackRings";
-import { extractNukeTelegraphs } from "../render/frame/derive/NukeTelegraphs";
+import {
+  extractNukeTelegraphs,
+  TELEGRAPH_ENEMY,
+  TELEGRAPH_FRIENDLY,
+} from "../render/frame/derive/NukeTelegraphs";
 import { computePlayerStatus } from "../render/frame/derive/PlayerStatus";
 import { buildRelationMatrix } from "../render/frame/derive/RelationMatrix";
 import { RailroadCache } from "../render/frame/RailroadCache";
@@ -112,6 +116,11 @@ export class GameView implements GameLike {
    */
   private _frame: FrameData;
   private _structuresDirty = false;
+  /** Sibau Wars: natural disaster zones, from warning until they end. */
+  private _disasterZones = new Map<
+    number,
+    { tile: number; radius: number; goldRush: boolean }
+  >();
   /** True until first populateFrame() — controls full-vs-delta tile upload. */
   private _firstPopulate = true;
 
@@ -244,6 +253,18 @@ export class GameView implements GameLike {
   public update(gu: GameUpdateViewData) {
     // Unit set/ownership changes below; rebuild the owner index on demand.
     this._unitsByOwnerStale = true;
+
+    for (const d of gu.updates[GameUpdateType.DisasterEvent] ?? []) {
+      if (d.phase === "end") {
+        this._disasterZones.delete(d.id);
+      } else {
+        this._disasterZones.set(d.id, {
+          tile: d.tile,
+          radius: d.radius,
+          goldRush: d.kind === "goldrush",
+        });
+      }
+    }
 
     this.toDelete.forEach((id) => {
       this._units.delete(id);
@@ -429,6 +450,8 @@ export class GameView implements GameLike {
           (unit.state.ownerID !== update.ownerID ||
             unit.state.level !== update.level ||
             unit.state.isActive !== update.isActive ||
+            // Sibau Wars: redraw when an EMP switches it off or back on.
+            (unit.state.disabled ?? false) !== (update.disabled ?? false) ||
             (unit.state.underConstruction &&
               !(update.underConstruction ?? false)))
         ) {
@@ -579,6 +602,18 @@ export class GameView implements GameLike {
       this.motion.gridPlans(),
       gu.tick,
     );
+    // Sibau Wars: disaster zones reuse the nuke target circles: red for
+    // danger, the friendly color for a gold rush.
+    const mapW = this._map.width();
+    for (const z of this._disasterZones.values()) {
+      f.nukeTelegraphs.push({
+        x: z.tile % mapW,
+        y: (z.tile - (z.tile % mapW)) / mapW,
+        innerRadius: z.radius,
+        outerRadius: z.radius,
+        relation: z.goldRush ? TELEGRAPH_FRIENDLY : TELEGRAPH_ENEMY,
+      });
+    }
     f.attackRings = this._myPlayer
       ? extractAttackRings(
           this._unitStates,

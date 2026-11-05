@@ -268,7 +268,12 @@ class SAMTargetingSystem {
     const nukes = this.mg.nearbyUnits(
       samTile,
       detectionRange,
-      [UnitType.AtomBomb, UnitType.HydrogenBomb, UnitType.MIRVWarhead],
+      [
+        UnitType.AtomBomb,
+        UnitType.HydrogenBomb,
+        UnitType.EMP,
+        UnitType.MIRVWarhead,
+      ],
       this.isTargetableNearbyUnit,
     );
 
@@ -355,7 +360,7 @@ export class SAMLauncherExecution implements Execution {
       this.targetingSystem.onLevelUp();
     }
 
-    if (this.sam.isUnderConstruction()) {
+    if (this.sam.isUnderConstruction() || this.sam.isDisabled()) {
       return;
     }
 
@@ -394,6 +399,7 @@ export class SAMLauncherExecution implements Execution {
     if (
       this.mg.unitCount(UnitType.AtomBomb) === 0 &&
       this.mg.unitCount(UnitType.HydrogenBomb) === 0 &&
+      this.mg.unitCount(UnitType.EMP) === 0 &&
       this.mg.unitCount(UnitType.MIRVWarhead) === 0
     ) {
       return;

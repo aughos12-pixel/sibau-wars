@@ -132,3 +132,18 @@ describe("createRandomName (deterministic)", () => {
     expect(name2).toBeTruthy();
   });
 });
+
+describe("Sibau Wars bot names", () => {
+  test("every map names its bots from the sibau theme", () => {
+    for (const mapType of Object.values(GameMapType)) {
+      const data = resolveTribeNameData(mapType);
+      expect(data.customTribes).toBeUndefined();
+      for (const prefix of data.prefixes) expect(prefix).toContain("Sibau");
+      expect(data.suffixes).toContain("Horde");
+    }
+  });
+
+  test("anonymised human names still use the default theme", () => {
+    expect(resolveTribeNameData().prefixes).toContain("Roman");
+  });
+});

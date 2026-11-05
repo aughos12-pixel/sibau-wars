@@ -16,6 +16,9 @@ Sibau Wars is a fork of [OpenFront](https://github.com/openfrontio/OpenFrontIO),
 - Solo vs bots, and a tutorial
 - Cities, ports, factories, SAMs, missile silos, warships, trade, nukes and MIRVs
 - Alliances, betrayal, emojis and quick chat
+- **Sibau Wars only:** the **EMP** (hotkey V), a silo missile that switches off every building in its blast for 30 seconds without taking land or killing anyone, and SAMs can shoot it down
+- **Sibau Wars only:** **natural disasters** (earthquakes, wildfires, tsunamis and gold rushes) with a warning circle before each one hits; on by default, and there's a switch in the lobby settings
+- **Sibau Wars only:** bots get Sibau names like "Grand Sibau Horde"
 - Free-for-all, teams and other game modes
 
 ## Play locally

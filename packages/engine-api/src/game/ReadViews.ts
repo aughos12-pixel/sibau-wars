@@ -36,6 +36,8 @@ export interface UnitLike {
   lastTile(): TileRef;
   isActive(): boolean;
   isUnderConstruction(): boolean;
+  /** Sibau Wars: switched off by an EMP. */
+  isDisabled(): boolean;
   level(): number;
 }
 

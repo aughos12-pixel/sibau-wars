@@ -376,6 +376,15 @@ export class AttackExecution implements Execution {
         this.mg.config().defensePostRange(),
         UnitType.DefensePost,
         defender.id(),
+      ) &&
+      // Sibau Wars: posts switched off by an EMP give no bonus. The cheap
+      // check above stays first; this predicate scan only runs near a post.
+      this.mg.anyUnitNearby(
+        tile,
+        this.mg.config().defensePostRange(),
+        [UnitType.DefensePost],
+        (post) => !post.isDisabled(),
+        defender.id(),
       );
     return {
       terrain: this.map.terrainType(tile),

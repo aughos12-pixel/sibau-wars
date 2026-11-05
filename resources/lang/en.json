@@ -201,7 +201,8 @@
       "missile_silo": "Used to launch nukes",
       "port": "Sends trade ships to generate gold",
       "sam_launcher": "Defends against incoming nukes",
-      "warship": "Captures trade ships, destroys ships and boats"
+      "warship": "Captures trade ships, destroys ships and boats",
+      "emp": "Disables every building in its blast for 30 seconds. Takes no land and kills no one. SAMs can shoot it down."
     },
     "not_enough_money": "Not enough money",
     "upgrade_amount": "x{amount}",
@@ -934,7 +935,16 @@
     "trade_ship_captured": "Your trade ship was captured by {name}",
     "unit_destroyed": "Your {unit} was destroyed",
     "unit_voluntarily_deleted": "Unit voluntarily deleted",
-    "wants_to_renew_alliance": "{name} wants to renew your alliance"
+    "wants_to_renew_alliance": "{name} wants to renew your alliance",
+    "emp_inbound": "{name} - EMP inbound",
+    "emp_detonated": "{name}'s EMP knocked out {count} of your buildings for 30 seconds",
+    "disaster_earthquake_warning": "Earthquake warning! It will hit {name}'s land in a few seconds",
+    "disaster_wildfire_warning": "Wildfire warning! A blaze is about to spread through {name}'s land",
+    "disaster_tsunami_warning": "Tsunami warning! A huge wave is heading for {name}'s coast",
+    "disaster_goldrush_warning": "Gold rush! Gold was found in {name}'s land. Own it to cash in for a minute",
+    "disaster_earthquake_hit": "An earthquake wrecked {count} of your buildings",
+    "disaster_wildfire_hit": "A wildfire killed {count} of your troops",
+    "disaster_tsunami_hit": "A tsunami wrecked {count} of your buildings"
   },
   "featured_stream": {
     "expand": "Expand",
@@ -1043,7 +1053,8 @@
     "starting": "Starting…",
     "starting_gold": "Starting Gold (Millions)",
     "water_nukes": "Water nukes",
-    "win_threshold": "Win threshold (%)"
+    "win_threshold": "Win threshold (%)",
+    "natural_disasters": "Natural disasters"
   },
   "game_starting_modal": {
     "code_license": "Code licensed under AGPL-3.0 (no warranty)",
@@ -2667,7 +2678,8 @@
     "missile_silo": "Missile Silo",
     "port": "Port",
     "sam_launcher": "SAM Launcher",
-    "warship": "Warship"
+    "warship": "Warship",
+    "emp": "EMP"
   },
   "update_available": {
     "desktop": "A new version of Sibau Wars is available. It will download in the background; reload from the update bar once it is ready.",
@@ -2871,7 +2883,9 @@
     "zoom_in": "Zoom In",
     "zoom_in_desc": "Zoom in the map",
     "zoom_out": "Zoom Out",
-    "zoom_out_desc": "Zoom out the map"
+    "zoom_out_desc": "Zoom out the map",
+    "build_emp": "Build EMP",
+    "build_emp_desc": "Launch an EMP that switches off buildings in an area"
   },
   "username": {
     "account_invalid_chars": "Username can only contain letters, numbers, underscores, hyphens, and single spaces between words.",

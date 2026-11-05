@@ -163,6 +163,12 @@ export class EngineConfig extends Config {
   waterNukes(): boolean {
     return this._gameConfig.waterNukes ?? false;
   }
+
+  /** Sibau Wars: natural disasters are on unless the lobby turned them off. */
+  naturalDisasters(): boolean {
+    if (this._gameConfig.tutorial) return false;
+    return this._gameConfig.naturalDisasters ?? true;
+  }
   infiniteGold(): boolean {
     return this._gameConfig.infiniteGold;
   }
@@ -353,6 +359,8 @@ export class EngineConfig extends Config {
         return this.costWrapper(() => 750_000, UnitType.AtomBomb);
       case UnitType.HydrogenBomb:
         return this.costWrapper(() => 5_000_000, UnitType.HydrogenBomb);
+      case UnitType.EMP:
+        return this.costWrapper(() => 1_000_000, UnitType.EMP);
       case UnitType.MIRV:
         return (game: Game, player: Player) => {
           if (
@@ -679,6 +687,7 @@ export class EngineConfig extends Config {
     switch (unitType) {
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
+      case UnitType.EMP:
         return 10;
       case UnitType.MIRV:
         return 15;

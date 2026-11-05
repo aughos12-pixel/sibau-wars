@@ -50,6 +50,8 @@ export class UnitImpl implements Unit {
   private _destroyer: Player | undefined = undefined;
   private _lastSetSafeFromPirates: number; // Only for trade ships
   private _underConstruction: boolean = false;
+  // Sibau Wars: switched off by an EMP until this tick.
+  private _disabledUntil: number = 0;
   private _lastOwner: PlayerImpl | null = null;
   private _troops: number;
   // Number of missiles in cooldown, if empty all missiles are ready.
@@ -191,6 +193,7 @@ export class UnitImpl implements Unit {
       lastPos: this._lastTile,
       health: this.hasHealth() ? Number(this._health) : undefined,
       underConstruction: this._underConstruction,
+      disabled: this.isDisabled(),
       targetUnitId: this._targetUnit?.id() ?? undefined,
       targetTile: this.targetTile() ?? undefined,
       missileTimerQueue: this._missileTimerQueue,
@@ -542,6 +545,20 @@ export class UnitImpl implements Unit {
     return this._underConstruction;
   }
 
+  isDisabled(): boolean {
+    return this.mg.ticks() < this._disabledUntil;
+  }
+
+  disabledUntil(): number {
+    return this._disabledUntil;
+  }
+
+  disableUntil(tick: number): void {
+    if (tick <= this._disabledUntil) return;
+    this._disabledUntil = tick;
+    this.mg.addUpdate(this.toUpdate());
+  }
+
   setUnderConstruction(underConstruction: boolean): void {
     if (this._underConstruction !== underConstruction) {
       this._underConstruction = underConstruction;
@@ -842,6 +859,7 @@ export class UnitImpl implements Unit {
       destroyer: w.playerOrNull(this._destroyer),
       lastSetSafeFromPirates: this._lastSetSafeFromPirates,
       underConstruction: this._underConstruction,
+      disabledUntil: this._disabledUntil,
       lastOwner: w.playerOrNull(this._lastOwner),
       troops: this._troops,
       missileTimerQueue: [...this._missileTimerQueue],
@@ -894,6 +912,7 @@ export class UnitImpl implements Unit {
     this._destroyer = r.playerOrNull(s.destroyer) ?? undefined;
     this._lastSetSafeFromPirates = s.lastSetSafeFromPirates;
     this._underConstruction = s.underConstruction;
+    this._disabledUntil = s.disabledUntil;
     this._lastOwner = r.playerOrNull(s.lastOwner) as PlayerImpl | null;
     this._troops = s.troops;
     this._missileTimerQueue = [...s.missileTimerQueue];
@@ -911,7 +930,9 @@ export class UnitImpl implements Unit {
 
 export const UnitSnapshot = snapshotType({
   name: "Unit",
-  version: 1,
+  version: 2,
+  // v1 units predate Sibau Wars' EMP: none was ever disabled.
+  migrations: { 1: (d) => ({ ...d, disabledUntil: 0 }) },
   schema: z.object({
     id: zInt(),
     type: UnitTypeSchema,
@@ -950,6 +971,7 @@ export const UnitSnapshot = snapshotType({
     destroyer: zPlayerRef().nullable(),
     lastSetSafeFromPirates: zInt(),
     underConstruction: z.boolean(),
+    disabledUntil: zInt(),
     lastOwner: zPlayerRef().nullable(),
     troops: zNum(),
     missileTimerQueue: z.array(zInt()),

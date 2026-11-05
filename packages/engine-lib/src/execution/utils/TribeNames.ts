@@ -33,6 +33,15 @@ function getMapInfo(mapType: GameMapType): MapInfo | undefined {
  * 3. Default theme if no theme is specified or the referenced theme is missing
  */
 export function resolveTribeNameData(mapType?: GameMapType): TribeNameData {
+  // Sibau Wars: every map's bots are named from the "sibau" theme
+  // ("Grand Sibau Horde", "Free Sibau Republic"…). Called without a map,
+  // this still returns the default theme, which anonymised human names use.
+  if (mapType !== undefined) {
+    const sibau = tribeNameThemes["sibau"];
+    if (sibau !== undefined) {
+      return { prefixes: sibau.prefixes, suffixes: sibau.suffixes };
+    }
+  }
   if (mapType !== undefined) {
     const mapInfo = getMapInfo(mapType);
     if (mapInfo !== undefined) {

@@ -9,12 +9,14 @@ import { CityExecutionSnapshot } from "../execution/CityExecution";
 import { ConstructionExecutionSnapshot } from "../execution/ConstructionExecution";
 import { DefensePostExecutionSnapshot } from "../execution/DefensePostExecution";
 import { DeleteUnitExecutionSnapshot } from "../execution/DeleteUnitExecution";
+import { DisasterExecutionSnapshot } from "../execution/DisasterExecution";
 import { DonateGoldExecutionSnapshot } from "../execution/DonateGoldExecution";
 import { DonateTroopsExecutionSnapshot } from "../execution/DonateTroopExecution";
 import { DoomsdayClockExecutionSnapshot } from "../execution/DoomsdayClockExecution";
 import { EmbargoAllExecutionSnapshot } from "../execution/EmbargoAllExecution";
 import { EmbargoExecutionSnapshot } from "../execution/EmbargoExecution";
 import { EmojiExecutionSnapshot } from "../execution/EmojiExecution";
+import { EmpRecoveryExecutionSnapshot } from "../execution/EmpRecoveryExecution";
 import { FactoryExecutionSnapshot } from "../execution/FactoryExecution";
 import { MarkDisconnectedExecutionSnapshot } from "../execution/MarkDisconnectedExecution";
 import { MirvExecutionSnapshot } from "../execution/MIRVExecution";
@@ -77,6 +79,8 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   NationExecutionSnapshot,
   NoOpExecutionSnapshot,
   NukeExecutionSnapshot,
+  EmpRecoveryExecutionSnapshot,
+  DisasterExecutionSnapshot,
   PauseExecutionSnapshot,
   PlayerExecutionSnapshot,
   PortExecutionSnapshot,

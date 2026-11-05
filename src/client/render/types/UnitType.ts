@@ -16,6 +16,8 @@ export const UT_TRADE_SHIP = "Trade Ship" as const;
 export const UT_WARSHIP = "Warship" as const;
 export const UT_ATOM_BOMB = "Atom Bomb" as const;
 export const UT_HYDROGEN_BOMB = "Hydrogen Bomb" as const;
+/** Sibau Wars: drawn with the atom bomb sprite, lit blue. */
+export const UT_EMP = "EMP" as const;
 export const UT_MIRV = "MIRV" as const;
 export const UT_SAM_MISSILE = "SAMMissile" as const;
 export const UT_SHELL = "Shell" as const;
@@ -44,6 +46,7 @@ export const STRUCTURE_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 export const NUKE_TYPES: ReadonlySet<string> = new Set([
+  UT_EMP,
   UT_ATOM_BOMB,
   UT_HYDROGEN_BOMB,
   UT_MIRV,
@@ -53,6 +56,7 @@ export const NUKE_TYPES: ReadonlySet<string> = new Set([
  *  frame (UnitPass). Their trails stamp only up to lastPos so the tail never
  *  leads the smoothly-moving missile. */
 export const SMOOTHED_NUKE_TYPES: ReadonlySet<string> = new Set([
+  UT_EMP,
   UT_ATOM_BOMB,
   UT_HYDROGEN_BOMB,
   UT_MIRV,
@@ -61,6 +65,7 @@ export const SMOOTHED_NUKE_TYPES: ReadonlySet<string> = new Set([
 
 /** Units that leave a trail on the map (TrailManager). */
 export const TRAIL_TYPES: ReadonlySet<string> = new Set([
+  UT_EMP,
   UT_TRANSPORT,
   UT_ATOM_BOMB,
   UT_HYDROGEN_BOMB,
@@ -73,6 +78,7 @@ export const NUKE_MAGNITUDES: Readonly<
   Record<string, { inner: number; outer: number }>
 > = {
   [UT_ATOM_BOMB]: { inner: 12, outer: 30 },
+  [UT_EMP]: { inner: 45, outer: 45 },
   [UT_HYDROGEN_BOMB]: { inner: 80, outer: 100 },
   [UT_MIRV_WARHEAD]: { inner: 12, outer: 18 },
 };

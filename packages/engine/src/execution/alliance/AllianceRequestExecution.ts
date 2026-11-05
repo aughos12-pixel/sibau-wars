@@ -103,6 +103,7 @@ export class AllianceRequestExecution implements Execution {
       for (const unit of launcher.units([
         UnitType.AtomBomb,
         UnitType.HydrogenBomb,
+        UnitType.EMP,
         UnitType.MIRV,
         UnitType.MIRVWarhead,
       ])) {
