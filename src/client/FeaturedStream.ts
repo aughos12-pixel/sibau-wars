@@ -113,23 +113,9 @@ function isCoarsePointer(): boolean {
   );
 }
 
-const SDK_SRC = "https://embed.twitch.tv/embed/v1.js";
-let sdkPromise: Promise<TwitchGlobal> | undefined;
+// Sibau Wars: no featured streams, so Twitch's embed script is never loaded.
 function loadTwitchSdk(): Promise<TwitchGlobal> {
-  if (sdkPromise) return sdkPromise;
-  sdkPromise = new Promise((resolve, reject) => {
-    if (window.Twitch?.Player) return resolve(window.Twitch);
-    const s = document.createElement("script");
-    s.src = SDK_SRC;
-    s.async = true;
-    s.onload = () =>
-      window.Twitch?.Player
-        ? resolve(window.Twitch)
-        : reject(new Error("Twitch SDK missing"));
-    s.onerror = () => reject(new Error("Twitch SDK failed to load"));
-    document.head.appendChild(s);
-  });
-  return sdkPromise;
+  return Promise.reject(new Error("featured streams are off in Sibau Wars"));
 }
 
 @customElement("featured-stream")

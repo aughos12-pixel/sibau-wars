@@ -823,8 +823,10 @@ class Client {
       }
       const isAdFree =
         userMeResponse !== false && userMeResponse.player?.adfree === true;
-      window.adsEnabled =
-        !isAdFree && !gamePortal.isOnGamePortal() && !isDesktopShell();
+      // Sibau Wars has no ads: OpenFront's ad stack (Playwire, Admiral's
+      // ad-block popup, promos) stays off for everyone.
+      void isAdFree;
+      window.adsEnabled = false;
       syncHashedEmail(userMeResponse, window.adsEnabled).catch((e) =>
         console.warn("Hashed email sync failed", e),
       );
