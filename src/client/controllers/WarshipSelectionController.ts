@@ -16,9 +16,13 @@ import {
 import { MapRenderer } from "../render/gl";
 import { TransformHandler } from "../TransformHandler";
 import { MoveWarshipIntentEvent } from "../Transport";
+import type { UIState } from "../UIState";
 import { GameView, UnitView } from "../view";
 
 const WARSHIP_SELECTION_RADIUS = 10;
+/** Sibau Wars: tanks sit among land the player also clicks to attack, so
+ *  their pick radius is small. */
+const TANK_SELECTION_RADIUS = 3;
 
 /**
  * Controller for warship selection state + click handling.
@@ -48,6 +52,7 @@ export class WarshipSelectionController implements Controller {
     private eventBus: EventBus,
     private transformHandler: TransformHandler,
     private view: MapRenderer,
+    private uiState?: UIState,
   ) {}
 
   tick() {
@@ -61,6 +66,9 @@ export class WarshipSelectionController implements Controller {
 
   init() {
     this.eventBus.on(UnitSelectionEvent, (e) => this.onUnitSelection(e));
+    if (this.uiState !== undefined) {
+      this.uiState.claimLandClick = (tile) => this.claimLandClick(tile);
+    }
 
     this.ensureDragRectEl();
     this.eventBus.on(WarshipSelectionBoxUpdateEvent, (e) => {
@@ -179,6 +187,12 @@ export class WarshipSelectionController implements Controller {
     }
     if (!this.game.isWater(clickRef)) return;
 
+    // Sibau Wars: a selected tank can't go on water; the click deselects it.
+    if (this.selectedUnit?.type() === UnitType.Tank) {
+      this.eventBus.emit(new UnitSelectionEvent(null, false));
+      return;
+    }
+
     if (this.multiSelectedWarships.length > 0) {
       const myPlayer = this.game.myPlayer();
       const activeIds = this.multiSelectedWarships
@@ -207,6 +221,41 @@ export class WarshipSelectionController implements Controller {
   }
 
   /**
+   * Sibau Wars: a left click (or tap) on land. With a tank selected it is a
+   * move order; next to one of the player's tanks it selects that tank.
+   * Returns true when the click was used, so it must not also attack.
+   */
+  public claimLandClick(clickRef: TileRef): boolean {
+    const myPlayer = this.game.myPlayer();
+    if (!myPlayer || !this.game.isLand(clickRef)) return false;
+    if (this.selectedUnit?.type() === UnitType.Tank) {
+      if (this.selectedUnit.isActive()) {
+        this.eventBus.emit(
+          new MoveWarshipIntentEvent([this.selectedUnit.id()], clickRef),
+        );
+      }
+      this.eventBus.emit(new UnitSelectionEvent(null, false));
+      return true;
+    }
+    const near = this.game
+      .units(UnitType.Tank)
+      .filter(
+        (u) =>
+          u.isActive() &&
+          u.owner() === myPlayer &&
+          this.game.manhattanDist(u.tile(), clickRef) <= TANK_SELECTION_RADIUS,
+      )
+      .sort(
+        (a, b) =>
+          this.game.manhattanDist(a.tile(), clickRef) -
+          this.game.manhattanDist(b.tile(), clickRef),
+      );
+    if (near.length === 0) return false;
+    this.eventBus.emit(new UnitSelectionEvent(near[0], true));
+    return true;
+  }
+
+  /**
    * Touch handler mirroring mouse-up. On dry land with no selection, falls
    * back to opening the radial menu.
    */
@@ -230,6 +279,7 @@ export class WarshipSelectionController implements Controller {
       return;
     }
     if (!this.game.isWater(clickRef)) {
+      if (this.claimLandClick(clickRef)) return;
       this.eventBus.emit(new ContextMenuEvent(event.x, event.y));
       return;
     }

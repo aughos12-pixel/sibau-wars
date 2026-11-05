@@ -236,6 +236,14 @@ export class NewLobbyEvent implements GameEvent {
   constructor(public readonly gameID: string) {}
 }
 
+/** Sibau Wars: throw troops at an enemy tank ("Focus"). */
+export class SendFocusTankIntentEvent implements GameEvent {
+  constructor(
+    public readonly unitId: number,
+    public readonly troops: number,
+  ) {}
+}
+
 export class MoveWarshipIntentEvent implements GameEvent {
   constructor(
     public readonly unitIds: number[],
@@ -362,6 +370,14 @@ export class Transport {
 
     this.subscribe(MoveWarshipIntentEvent, (e) => {
       this.onMoveWarshipEvent(e);
+    });
+
+    this.subscribe(SendFocusTankIntentEvent, (e) => {
+      this.sendIntent({
+        type: "focus_tank",
+        unitId: e.unitId,
+        troops: Math.max(0, Math.floor(e.troops)),
+      });
     });
 
     this.subscribe(SendDeleteUnitIntentEvent, (e) =>

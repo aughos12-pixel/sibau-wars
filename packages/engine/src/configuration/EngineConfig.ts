@@ -36,6 +36,8 @@ export interface AttackLogicInput {
   } | null;
   /** A defense post owned by the defender is in range of the tile. */
   defenderHasDefensePost: boolean;
+  /** Sibau Wars: one of the attacker's tanks is near the tile. */
+  attackerHasTank?: boolean;
   /** Fraction of land tiles with fallout, or null if the tile has no fallout. */
   falloutRatio: number | null;
   /** Tiles on the attack front this tick (plus jitter); fixed for the tick. */
@@ -394,6 +396,17 @@ export class EngineConfig extends Config {
           UnitType.Factory,
           UnitType.Port,
         );
+      // Sibau Wars: ground forces.
+      case UnitType.Barracks:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(1_000_000, (numUnits + 1) * 250_000),
+          UnitType.Barracks,
+        );
+      case UnitType.Tank:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(800_000, (numUnits + 1) * 200_000),
+          UnitType.Tank,
+        );
       case UnitType.TransportShip:
       case UnitType.Shell:
       case UnitType.SAMMissile:
@@ -535,6 +548,12 @@ export class EngineConfig extends Config {
     if (defender !== null && input.defenderHasDefensePost) {
       mag *= this.defensePostDefenseBonus();
       tileCost *= this.defensePostSpeedBonus();
+    }
+    // Sibau Wars: a nearby tank makes the tile ~15% cheaper and faster to
+    // take. One tank or ten, the bonus is the same.
+    if (input.attackerHasTank === true) {
+      mag *= this.tankAttackBoostMultiplier();
+      tileCost *= this.tankAttackBoostMultiplier();
     }
     if (input.falloutRatio !== null) {
       const fallout = this.falloutDefenseModifier(input.falloutRatio);
@@ -826,5 +845,60 @@ export class EngineConfig extends Config {
 
   defensePostTargettingRange(): number {
     return 75;
+  }
+
+  // --- Sibau Wars: tanks ---
+
+  /** Ticks per tile a tank drives (10 ticks = 1 second). */
+  tankTicksPerTile(): number {
+    return 2;
+  }
+
+  /** How far a tank sees and shoots enemy tanks. */
+  tankTargettingRange(): number {
+    return 15;
+  }
+
+  tankShellAttackRate(): number {
+    return 15;
+  }
+
+  /** Enemy buildings this close to a tank get wrecked. */
+  tankWreckRange(): number {
+    return 3;
+  }
+
+  /** Ticks a tank needs next to a building to wreck it. */
+  tankWreckTicks(): number {
+    return 30;
+  }
+
+  /** An idle tank on enemy land drives to enemy buildings this close. */
+  tankRaidSearchRange(): number {
+    return 20;
+  }
+
+  /** Own attacks near one of your tanks are this much cheaper and faster. */
+  tankAttackBoostRange(): number {
+    return 15;
+  }
+
+  tankAttackBoostMultiplier(): number {
+    return 0.85;
+  }
+
+  /** Defense posts fire at enemy tanks inside their range this often. */
+  defensePostTankShellAttackRate(): number {
+    return 30;
+  }
+
+  /** Troops a Focus order spends per point of tank health. */
+  focusTroopsPerHealth(): number {
+    return 150;
+  }
+
+  /** A Focus order only reaches tanks within this distance of your land. */
+  focusRange(): number {
+    return 5;
   }
 }

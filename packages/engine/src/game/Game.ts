@@ -112,6 +112,13 @@ export interface UnitParamsMap {
 
   [UnitType.DefensePost]: Record<string, never>;
 
+  // Sibau Wars
+  [UnitType.Barracks]: Record<string, never>;
+
+  [UnitType.Tank]: {
+    targetTile?: TileRef;
+  };
+
   [UnitType.SAMLauncher]: Record<string, never>;
 
   [UnitType.City]: Record<string, never>;

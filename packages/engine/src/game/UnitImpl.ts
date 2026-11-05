@@ -405,7 +405,8 @@ export class UnitImpl implements Unit {
     // else is either visible on the map or too low-stakes to surface.
     if (
       this._type !== UnitType.Warship &&
-      this._type !== UnitType.TransportShip
+      this._type !== UnitType.TransportShip &&
+      this._type !== UnitType.Tank
     ) {
       return;
     }
@@ -419,7 +420,9 @@ export class UnitImpl implements Unit {
         unit:
           this._type === UnitType.TransportShip
             ? "unit_type.boat"
-            : "unit_type.warship",
+            : this._type === UnitType.Tank
+              ? "unit_type.tank"
+              : "unit_type.warship",
       },
       this.id(),
     );

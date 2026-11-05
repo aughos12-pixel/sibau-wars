@@ -1,3 +1,4 @@
+import { UnitType } from "@openfront/engine-api/game/GameTypes";
 import { zInt, zRef } from "@openfront/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Unit } from "../game/Game";
@@ -46,6 +47,48 @@ export class DefensePostExecution implements Execution {
     }
   }
 
+  private shootTanks(): void {
+    const config = this.mg.config();
+    const owner = this.post.owner();
+    if (
+      this.target !== null &&
+      (this.target.owner() === owner ||
+        this.mg.euclideanDistSquared(this.target.tile(), this.post.tile()) >
+          config.defensePostRange() ** 2)
+    ) {
+      this.target = null;
+    }
+    if (this.target === null) {
+      let bestDist = Infinity;
+      for (const { unit, distSquared } of this.mg.nearbyUnits(
+        this.post.tile(),
+        config.defensePostRange(),
+        UnitType.Tank,
+      )) {
+        if (
+          unit.owner() === owner ||
+          !owner.canAttackPlayer(unit.owner(), true)
+        )
+          continue;
+        if (distSquared < bestDist) {
+          bestDist = distSquared;
+          this.target = unit;
+        }
+      }
+    }
+    if (this.target === null) return;
+    if (
+      this.mg.ticks() - this.lastShellAttack <
+      config.defensePostTankShellAttackRate()
+    ) {
+      return;
+    }
+    this.lastShellAttack = this.mg.ticks();
+    this.mg.addExecution(
+      new ShellExecution(this.post.tile(), owner, this.post, this.target),
+    );
+  }
+
   tick(ticks: number): void {
     if (!this.post.isActive()) {
       this.active = false;
@@ -59,6 +102,12 @@ export class DefensePostExecution implements Execution {
 
     if (this.target !== null && !this.target.isActive()) {
       this.target = null;
+    }
+
+    // Sibau Wars: defense posts shoot enemy tanks in range. A post switched
+    // off by an EMP holds fire.
+    if (!this.post.isDisabled()) {
+      this.shootTanks();
     }
 
     // TODO: Reconsider how/if defense posts target ships.

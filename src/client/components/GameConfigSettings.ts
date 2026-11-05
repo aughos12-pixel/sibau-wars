@@ -120,6 +120,8 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
   { type: UnitType.EMP, translationKey: "unit_type.emp" },
   { type: UnitType.MIRV, translationKey: "unit_type.mirv" },
   { type: UnitType.Factory, translationKey: "unit_type.factory" },
+  { type: UnitType.Barracks, translationKey: "unit_type.barracks" },
+  { type: UnitType.Tank, translationKey: "unit_type.tank" },
 ];
 
 const MAP_ICON = svg`<path

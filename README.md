@@ -19,6 +19,8 @@ Sibau Wars is a fork of [OpenFront](https://github.com/openfrontio/OpenFrontIO),
 - **Sibau Wars only:** the **EMP** (hotkey V), a silo missile that switches off every building in its blast for 30 seconds without taking land or killing anyone, and SAMs can shoot it down
 - **Sibau Wars only:** **natural disasters** (earthquakes, wildfires, tsunamis and gold rushes) with a warning circle before each one hits; on by default, and there's a switch in the lobby settings
 - **Sibau Wars only:** bots get Sibau names like "Grand Sibau Horde"
+- **Sibau Wars only:** **precise attacks**: Shift+click aims a spearhead at a point, and Shift+drag draws a route for your army to follow (toggle in Settings)
+- **Sibau Wars only:** **Barracks and tanks** (hotkeys J and Z). Tanks drive over any land, shoot enemy tanks, wreck enemy buildings and make your attacks nearby about 15% cheaper and faster. Defense posts shoot them, and you can right-click an enemy tank near your land and pick **Focus** to throw troops at it
 - Free-for-all, teams and other game modes
 
 ## Play locally

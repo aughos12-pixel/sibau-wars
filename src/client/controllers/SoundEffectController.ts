@@ -181,6 +181,13 @@ export class SoundEffectController implements Controller {
       case UnitType.Factory:
         if (unit.owner() === myPlayer) this.emit("build-factory");
         break;
+      // Sibau Wars: borrow the closest existing sounds.
+      case UnitType.Barracks:
+        if (unit.owner() === myPlayer) this.emit("build-defense-post");
+        break;
+      case UnitType.Tank:
+        if (unit.owner() === myPlayer) this.emit("build-warship");
+        break;
       case UnitType.TransportShip:
         if (unit.owner() === myPlayer) this.emit("transport-ship");
         break;

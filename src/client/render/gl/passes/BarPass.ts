@@ -16,7 +16,7 @@ import { UnitType } from "@openfront/engine-api/game/GameTypes";
 import type { Config } from "@openfront/engine-lib/configuration/Config";
 import { maxHealthWithVeterancy } from "@openfront/engine-lib/game/Veterancy";
 import type { RendererConfig, UnitState } from "../../types";
-import { UT_MISSILE_SILO, UT_SAM_LAUNCHER } from "../../types";
+import { UT_MISSILE_SILO, UT_SAM_LAUNCHER, UT_TANK } from "../../types";
 import type { RenderSettings } from "../RenderSettings";
 import { createProgram } from "../utils/GlUtils";
 
@@ -65,6 +65,8 @@ export class BarPass {
 
   private mapW: number;
   private warshipMaxHealth: number;
+  /** Sibau Wars: tanks carry health too. */
+  private tankMaxHealth: number;
   private veterancyHealthBonus: number;
 
   constructor(
@@ -77,6 +79,7 @@ export class BarPass {
     this.settings = settings;
     this.mapW = header.mapWidth;
     this.warshipMaxHealth = config.unitInfo(UnitType.Warship).maxHealth ?? 0;
+    this.tankMaxHealth = config.unitInfo(UnitType.Tank).maxHealth ?? 0;
     this.veterancyHealthBonus = config.warshipVeterancyHealthBonus();
 
     // --- Shader program ---
@@ -147,7 +150,7 @@ export class BarPass {
       // Veteran warships have a higher effective max health, so a full veteran
       // ship reads as full. Shared with the engine's UnitImpl.maxHealth().
       const maxHealth = maxHealthWithVeterancy(
-        this.warshipMaxHealth,
+        unit.unitType === UT_TANK ? this.tankMaxHealth : this.warshipMaxHealth,
         unit.veterancy,
         this.veterancyHealthBonus,
       );

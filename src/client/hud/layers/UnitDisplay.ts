@@ -36,6 +36,8 @@ import {
   portIcon,
   samLauncherIcon,
   warshipIcon,
+  barracksIcon,
+  tankIcon,
 } from "../HotbarIcons";
 import { TutorialHighlight, TutorialHighlightEvent } from "../Tutorial";
 
@@ -55,6 +57,8 @@ export class UnitDisplay extends LitElement implements Controller {
   private keyboardLayout = new KeyboardLayoutController(this);
   private _cities = 0;
   private _warships = 0;
+  private _barracks = 0;
+  private _tanks = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -434,6 +438,11 @@ export class UnitDisplay extends LitElement implements Controller {
           this.cost(item) <= (player?.gold() ?? 0n) &&
           (player?.units(UnitType.Port).length ?? 0) > 0
         );
+      case UnitType.Tank:
+        return (
+          this.cost(item) <= (player?.gold() ?? 0n) &&
+          (player?.units(UnitType.Barracks).length ?? 0) > 0
+        );
       default:
         return this.cost(item) <= (player?.gold() ?? 0n);
     }
@@ -462,6 +471,8 @@ export class UnitDisplay extends LitElement implements Controller {
     this._samLauncher = player.totalUnitLevels(UnitType.SAMLauncher);
     this._factories = player.totalUnitLevels(UnitType.Factory);
     this._warships = player.totalUnitLevels(UnitType.Warship);
+    this._barracks = player.totalUnitLevels(UnitType.Barracks);
+    this._tanks = player.totalUnitLevels(UnitType.Tank);
     this.requestUpdate();
   }
 
@@ -578,6 +589,20 @@ export class UnitDisplay extends LitElement implements Controller {
               UnitType.EMP,
               "emp",
               this.getHotkey("buildEMP", "KeyV"),
+            )}
+            ${this.renderUnitItem(
+              barracksIcon,
+              this._barracks,
+              UnitType.Barracks,
+              "barracks",
+              this.getHotkey("buildBarracks", "KeyJ"),
+            )}
+            ${this.renderUnitItem(
+              tankIcon,
+              this._tanks,
+              UnitType.Tank,
+              "tank",
+              this.getHotkey("buildTank", "KeyZ"),
             )}
           </div>
         </div>

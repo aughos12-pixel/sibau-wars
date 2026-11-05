@@ -193,16 +193,18 @@
   "build_menu": {
     "desc": {
       "atom_bomb": "Small explosion",
+      "barracks": "Builds tanks",
       "city": "Increases max population",
       "defense_post": "Increases defenses of nearby borders",
+      "emp": "Disables every building in its blast for 30 seconds. Takes no land and kills no one. SAMs can shoot it down.",
       "factory": "Creates railroads and spawns trains",
       "hydrogen_bomb": "Large explosion",
       "mirv": "Huge explosion, only targets selected player",
       "missile_silo": "Used to launch nukes",
       "port": "Sends trade ships to generate gold",
       "sam_launcher": "Defends against incoming nukes",
-      "warship": "Captures trade ships, destroys ships and boats",
-      "emp": "Disables every building in its blast for 30 seconds. Takes no land and kills no one. SAMs can shoot it down."
+      "tank": "Drives over land, wrecks enemy buildings and speeds up your attacks nearby. Needs a Barracks",
+      "warship": "Captures trade ships, destroys ships and boats"
     },
     "not_enough_money": "Not enough money",
     "upgrade_amount": "x{amount}",
@@ -910,8 +912,17 @@
     "betrayal_description": "You broke your alliance with {name}, making you a TRAITOR ({malusPercent}% defense debuff for {durationText})",
     "betrayed_you": "{name} broke their alliance with you",
     "conquered_no_gold": "Conquered {name} (didn't play, no gold awarded)",
+    "disaster_earthquake_hit": "An earthquake wrecked {count} of your buildings",
+    "disaster_earthquake_warning": "Earthquake warning! It will hit {name}'s land in a few seconds",
+    "disaster_goldrush_warning": "Gold rush! Gold was found in {name}'s land. Own it to cash in for a minute",
+    "disaster_tsunami_hit": "A tsunami wrecked {count} of your buildings",
+    "disaster_tsunami_warning": "Tsunami warning! A huge wave is heading for {name}'s coast",
+    "disaster_wildfire_hit": "A wildfire killed {count} of your troops",
+    "disaster_wildfire_warning": "Wildfire warning! A blaze is about to spread through {name}'s land",
     "duration_second": "1 second",
     "duration_seconds_plural": "{seconds} seconds",
+    "emp_detonated": "{name}'s EMP knocked out {count} of your buildings for 30 seconds",
+    "emp_inbound": "{name} - EMP inbound",
     "focus": "Focus",
     "hydrogen_bomb_detonated": "{name} - hydrogen bomb detonated",
     "hydrogen_bomb_inbound": "{name} - hydrogen bomb inbound",
@@ -935,16 +946,7 @@
     "trade_ship_captured": "Your trade ship was captured by {name}",
     "unit_destroyed": "Your {unit} was destroyed",
     "unit_voluntarily_deleted": "Unit voluntarily deleted",
-    "wants_to_renew_alliance": "{name} wants to renew your alliance",
-    "emp_inbound": "{name} - EMP inbound",
-    "emp_detonated": "{name}'s EMP knocked out {count} of your buildings for 30 seconds",
-    "disaster_earthquake_warning": "Earthquake warning! It will hit {name}'s land in a few seconds",
-    "disaster_wildfire_warning": "Wildfire warning! A blaze is about to spread through {name}'s land",
-    "disaster_tsunami_warning": "Tsunami warning! A huge wave is heading for {name}'s coast",
-    "disaster_goldrush_warning": "Gold rush! Gold was found in {name}'s land. Own it to cash in for a minute",
-    "disaster_earthquake_hit": "An earthquake wrecked {count} of your buildings",
-    "disaster_wildfire_hit": "A wildfire killed {count} of your troops",
-    "disaster_tsunami_hit": "A tsunami wrecked {count} of your buildings"
+    "wants_to_renew_alliance": "{name} wants to renew your alliance"
   },
   "featured_stream": {
     "expand": "Expand",
@@ -1046,6 +1048,7 @@
     "max_timer": "Game length (minutes)",
     "mins_placeholder": "Mins",
     "nations": "Nations: ",
+    "natural_disasters": "Natural disasters",
     "options": "Options",
     "overtime": "Overtime after (minutes)",
     "random_spawn": "Random spawn",
@@ -1053,8 +1056,7 @@
     "starting": "Starting…",
     "starting_gold": "Starting Gold (Millions)",
     "water_nukes": "Water nukes",
-    "win_threshold": "Win threshold (%)",
-    "natural_disasters": "Natural disasters"
+    "win_threshold": "Win threshold (%)"
   },
   "game_starting_modal": {
     "code_license": "Code licensed under AGPL-3.0 (no warranty)",
@@ -2209,6 +2211,8 @@
   "radial_menu": {
     "delete_unit_description": "Click to delete the nearest unit",
     "delete_unit_title": "Delete Unit",
+    "focus_tank_description": "Throw troops (your attack ratio) at the enemy tank",
+    "focus_tank_title": "Focus",
     "upgrade_x": "Upgrade x{amount}"
   },
   "relation": {
@@ -2669,17 +2673,19 @@
   },
   "unit_type": {
     "atom_bomb": "Atom Bomb",
+    "barracks": "Barracks",
     "boat": "Boat",
     "city": "City",
     "defense_post": "Defense Post",
+    "emp": "EMP",
     "factory": "Factory",
     "hydrogen_bomb": "Hydrogen Bomb",
     "mirv": "MIRV",
     "missile_silo": "Missile Silo",
     "port": "Port",
     "sam_launcher": "SAM Launcher",
-    "warship": "Warship",
-    "emp": "EMP"
+    "tank": "Tank",
+    "warship": "Warship"
   },
   "update_available": {
     "desktop": "A new version of Sibau Wars is available. It will download in the background; reload from the update bar once it is ready.",
@@ -2731,11 +2737,15 @@
     "break_alliance_desc": "Break alliance with the player whose tile is under your cursor.",
     "build_atom_bomb": "Build Atom Bomb",
     "build_atom_bomb_desc": "Build an Atom Bomb under your cursor.",
+    "build_barracks": "Build Barracks",
+    "build_barracks_desc": "Build a Barracks under your cursor",
     "build_city": "Build City",
     "build_city_desc": "Build a City under your cursor.",
     "build_controls": "Build Controls",
     "build_defense_post": "Build Defense Post",
     "build_defense_post_desc": "Build a Defense Post under your cursor.",
+    "build_emp": "Build EMP",
+    "build_emp_desc": "Launch an EMP that switches off buildings in an area",
     "build_factory": "Build Factory",
     "build_factory_desc": "Build a Factory under your cursor.",
     "build_hydrogen_bomb": "Build Hydrogen Bomb",
@@ -2752,6 +2762,8 @@
     "build_sam_launcher_desc": "Build a SAM Launcher under your cursor.",
     "build_scroll_modifier": "Build Scroll Modifier",
     "build_scroll_modifier_desc": "Hold this key and scroll to change build amount.",
+    "build_tank": "Build Tank",
+    "build_tank_desc": "Send a tank from your nearest Barracks to your cursor",
     "build_warship": "Build Warship",
     "build_warship_desc": "Build a Warship under your cursor.",
     "camera_movement": "Camera Movement",
@@ -2840,6 +2852,8 @@
     "pause_game_desc": "Pause or resume the game (single player and custom games for host).",
     "performance_overlay_desc": "Toggle the performance overlay. When enabled, the performance overlay will be displayed. Press shift-D during game to toggle.",
     "performance_overlay_label": "Performance Overlay",
+    "precise_attacks_desc": "Shift+click attacks from the nearest point toward where you click. Shift+drag from land draws a route your army follows. A plain click still attacks along the whole border.",
+    "precise_attacks_label": "Precise attacks",
     "press_a_key": "Press a key",
     "prevent_stacking": "Prevent Building Stacking",
     "prevent_stacking_desc": "Hold to build a new structure instead of upgrading a nearby one. Normal placement restrictions still apply.",
@@ -2883,11 +2897,7 @@
     "zoom_in": "Zoom In",
     "zoom_in_desc": "Zoom in the map",
     "zoom_out": "Zoom Out",
-    "zoom_out_desc": "Zoom out the map",
-    "build_emp": "Build EMP",
-    "build_emp_desc": "Launch an EMP that switches off buildings in an area",
-    "precise_attacks_label": "Precise attacks",
-    "precise_attacks_desc": "Shift+click attacks from the nearest point toward where you click. Shift+drag from land draws a route your army follows. A plain click still attacks along the whole border."
+    "zoom_out_desc": "Zoom out the map"
   },
   "username": {
     "account_invalid_chars": "Username can only contain letters, numbers, underscores, hyphens, and single spaces between words.",

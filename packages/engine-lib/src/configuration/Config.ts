@@ -232,6 +232,13 @@ export class Config {
       case UnitType.DefensePost:
         info = { constructionDuration: this.instantBuild() ? 0 : 5 * 10 };
         break;
+      // Sibau Wars
+      case UnitType.Barracks:
+        info = { constructionDuration: this.instantBuild() ? 0 : 8 * 10 };
+        break;
+      case UnitType.Tank:
+        info = { maxHealth: 1000 };
+        break;
       case UnitType.SAMLauncher:
         info = {
           constructionDuration: this.instantBuild()

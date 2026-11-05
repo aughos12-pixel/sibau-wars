@@ -25,6 +25,8 @@ const DISABLED_UNIT_KEYS: Record<string, string> = {
   "Hydrogen Bomb": "unit_type.hydrogen_bomb",
   EMP: "unit_type.emp",
   MIRV: "unit_type.mirv",
+  Barracks: "unit_type.barracks",
+  Tank: "unit_type.tank",
   "Trade Ship": "player_stats_table.unit.trade",
   Transport: "player_stats_table.unit.trans",
   "MIRV Warhead": "player_stats_table.unit.mirvw",

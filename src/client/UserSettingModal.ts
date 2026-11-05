@@ -1490,6 +1490,26 @@ export class UserSettingModal extends BaseModal {
       ></setting-keybind>
 
       <setting-keybind
+        action="buildBarracks"
+        label=${translateText("user_setting.build_barracks")}
+        description=${translateText("user_setting.build_barracks_desc")}
+        defaultKey=${this.defaultKeybinds.buildBarracks}
+        .value=${this.getKeyValue("buildBarracks")}
+        .display=${this.getKeyChar("buildBarracks")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
+      <setting-keybind
+        action="buildTank"
+        label=${translateText("user_setting.build_tank")}
+        description=${translateText("user_setting.build_tank_desc")}
+        defaultKey=${this.defaultKeybinds.buildTank}
+        .value=${this.getKeyValue("buildTank")}
+        .display=${this.getKeyChar("buildTank")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
+      <setting-keybind
         action="buildMIRV"
         label=${translateText("user_setting.build_mirv")}
         description=${translateText("user_setting.build_mirv_desc")}

@@ -216,6 +216,9 @@ export enum UnitType {
   Factory = "Factory",
   // Sibau Wars: silo-launched missile that switches buildings off.
   EMP = "EMP",
+  // Sibau Wars: ground forces. Barracks build tanks; tanks drive on land.
+  Barracks = "Barracks",
+  Tank = "Tank",
 }
 
 export enum TrainType {
@@ -238,6 +241,7 @@ export const BuildableAttacks = unitTypeGroup([
   UnitType.EMP,
   UnitType.MIRV,
   UnitType.Warship,
+  UnitType.Tank,
 ] as const);
 
 export const Structures = unitTypeGroup([
@@ -247,6 +251,7 @@ export const Structures = unitTypeGroup([
   UnitType.MissileSilo,
   UnitType.Port,
   UnitType.Factory,
+  UnitType.Barracks,
 ] as const);
 
 export const BuildMenus = unitTypeGroup([

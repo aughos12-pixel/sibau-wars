@@ -23,6 +23,8 @@ export const UT_SAM_MISSILE = "SAMMissile" as const;
 export const UT_SHELL = "Shell" as const;
 export const UT_MIRV_WARHEAD = "MIRV Warhead" as const;
 export const UT_TRAIN = "Train" as const;
+/** Sibau Wars: ground unit built at a Barracks. */
+export const UT_TANK = "Tank" as const;
 
 // Structures
 export const UT_CITY = "City" as const;
@@ -31,6 +33,8 @@ export const UT_FACTORY = "Factory" as const;
 export const UT_DEFENSE_POST = "Defense Post" as const;
 export const UT_SAM_LAUNCHER = "SAM Launcher" as const;
 export const UT_MISSILE_SILO = "Missile Silo" as const;
+/** Sibau Wars */
+export const UT_BARRACKS = "Barracks" as const;
 
 // ---------------------------------------------------------------------------
 // Derived sets
@@ -43,6 +47,7 @@ export const STRUCTURE_TYPES: ReadonlySet<string> = new Set([
   UT_DEFENSE_POST,
   UT_SAM_LAUNCHER,
   UT_MISSILE_SILO,
+  UT_BARRACKS,
 ]);
 
 export const NUKE_TYPES: ReadonlySet<string> = new Set([
@@ -105,4 +110,6 @@ export const ALL_UNIT_TYPES = [
   UT_SAM_LAUNCHER,
   UT_MISSILE_SILO,
   UT_TRAIN,
+  UT_BARRACKS,
+  UT_TANK,
 ] as const;

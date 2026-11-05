@@ -231,6 +231,7 @@ function queuedIntent(game: Game, p: Player, tick: number): Intent | null {
     },
     { type: "mark_disconnected", isDisconnected: false },
     { type: "toggle_pause", paused: false },
+    { type: "focus_tank", unitId: 1, troops: 1 },
   ];
   return queued[(tick - 20) / 2] ?? null;
 }
@@ -274,6 +275,7 @@ const STRUCTURES = [
   UnitType.DefensePost,
   UnitType.SAMLauncher,
   UnitType.MissileSilo,
+  UnitType.Barracks,
 ] as const;
 
 function nearbyWater(
@@ -485,7 +487,7 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     if (bombIntent !== null) return bombIntent;
   }
 
-  switch (rand.nextInt(0, 22)) {
+  switch (rand.nextInt(0, 24)) {
     case 0:
     case 1:
     case 2: {
@@ -592,6 +594,43 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
         type: "mark_disconnected",
         isDisconnected: !p.isDisconnected() && rand.chance(3),
       };
+    case 22:
+      return tankIntent(game, p, rand, other);
+    case 23: {
+      // Sibau Wars: throw troops at an enemy tank.
+      const enemyTank = pick(
+        rand,
+        game.units(UnitType.Tank).filter((t) => t.owner() !== p),
+      );
+      if (enemyTank === null) return null;
+      return {
+        type: "focus_tank",
+        unitId: enemyTank.id(),
+        troops: Math.floor(p.troops() / 4),
+      };
+    }
   }
   return null;
+}
+
+/** Sibau Wars: build a tank at the enemy, or drive an existing one. */
+function tankIntent(
+  game: Game,
+  p: Player,
+  rand: PseudoRandom,
+  other: Player | null,
+): Intent | null {
+  const tile =
+    other !== null && rand.chance(2)
+      ? randomOwnedTile(rand, other)
+      : randomOwnedTile(rand, p);
+  if (tile === null) return null;
+  const tanks = p.units(UnitType.Tank);
+  if (tanks.length > 0 && rand.chance(2)) {
+    const tank = pick(rand, tanks)!;
+    return { type: "move_warship", unitIds: [tank.id()], tile };
+  }
+  if (!canAfford(game, p, UnitType.Tank)) return null;
+  if (p.canBuild(UnitType.Tank, tile) === false) return null;
+  return { type: "build_unit", unit: UnitType.Tank, tile };
 }

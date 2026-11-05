@@ -578,7 +578,17 @@ export class AttackExecution implements Execution {
         (post) => !post.isDisabled(),
         defender.id(),
       );
+    // Sibau Wars: one of the attacker's tanks nearby speeds the attack up.
+    const attackerHasTank =
+      this._owner.unitCount(UnitType.Tank) > 0 &&
+      this.mg.hasUnitNearby(
+        tile,
+        this.mg.config().tankAttackBoostRange(),
+        UnitType.Tank,
+        this._owner.id(),
+      );
     return {
+      attackerHasTank,
       terrain: this.map.terrainType(tile),
       attackTroops,
       attacker: {

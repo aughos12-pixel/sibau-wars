@@ -333,7 +333,13 @@ export function createRenderer(
   onboardingOverlay.uiState = uiState;
 
   const layers: Controller[] = [
-    new WarshipSelectionController(game, eventBus, transformHandler, view),
+    new WarshipSelectionController(
+      game,
+      eventBus,
+      transformHandler,
+      view,
+      uiState,
+    ),
     new BuildPreviewController(
       game,
       eventBus,

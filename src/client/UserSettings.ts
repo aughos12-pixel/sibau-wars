@@ -33,6 +33,8 @@ export function getDefaultKeybinds(isMac: boolean): Record<string, string> {
     buildHydrogenBomb: "Digit9",
     buildMIRV: "Digit0",
     buildEMP: "KeyV",
+    buildBarracks: "KeyJ",
+    buildTank: "KeyZ",
     attackRatioDown: "KeyT",
     attackRatioUp: "KeyY",
     boatAttack: "KeyB",

@@ -47,6 +47,8 @@ export const PACKED_UNIT_TYPES: readonly UnitType[] = [
   UnitType.Train, // 15
   UnitType.Factory, // 16
   UnitType.EMP, // 17 (Sibau Wars)
+  UnitType.Barracks, // 18 (Sibau Wars)
+  UnitType.Tank, // 19 (Sibau Wars)
 ] as const;
 
 const UNIT_TYPE_TO_INT = new Map<UnitType, number>(
@@ -419,7 +421,8 @@ export class PackedUnitUpdateDecoder {
       targetTile: this.targetTile,
       health: this.health,
       underConstruction: this.underConstruction,
-      disabled: this.disabled,
+      // Optional on the wire type: left out unless set, like the input.
+      disabled: this.disabled || undefined,
       level: this.level,
       hasTrainStation: this.hasTrainStation,
       trainType: this.trainType,

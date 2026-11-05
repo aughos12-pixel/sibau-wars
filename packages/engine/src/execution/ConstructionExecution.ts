@@ -22,6 +22,7 @@ import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
 import { SAMLauncherExecution } from "./SAMLauncherExecution";
+import { TankExecution } from "./TankExecution";
 import { WarshipExecution } from "./WarshipExecution";
 
 export class ConstructionExecution implements Execution {
@@ -165,6 +166,15 @@ export class ConstructionExecution implements Execution {
       case UnitType.Factory:
         this.mg.addExecution(new FactoryExecution(this.structure!));
         break;
+      // Sibau Wars: a Barracks needs no execution of its own; a tank rolls
+      // out of the nearest one and drives to the clicked tile.
+      case UnitType.Barracks:
+        break;
+      case UnitType.Tank:
+        this.mg.addExecution(
+          new TankExecution({ owner: player, targetTile: this.tile }),
+        );
+        break;
       default:
         console.warn(
           `unit type ${this.constructionType} cannot be constructed`,
@@ -181,6 +191,7 @@ export class ConstructionExecution implements Execution {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.Barracks:
         return true;
       default:
         return false;

@@ -1293,6 +1293,10 @@ export class ClientGameRunner {
       if (myPlayer === null) return;
       this.myPlayer = myPlayer;
     }
+    // Sibau Wars: selecting or moving a tank is not an attack.
+    if (this.renderer.uiState.claimLandClick?.(tile) === true) {
+      return;
+    }
     this.myPlayer
       .actions(tile, [UnitType.TransportShip])
       .then((actions) => {

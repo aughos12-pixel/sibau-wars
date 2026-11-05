@@ -52,6 +52,8 @@ const makeParams = (opts?: Partial<MenuElementParams>): MenuElementParams => {
     game: {
       inSpawnPhase: () => false,
       owner: () => ({ isPlayer: () => false }),
+      // Sibau Wars: the root menu looks for enemy tanks to Focus.
+      units: () => [],
     } as any,
     buildMenu: {
       canBuildOrUpgrade: () => false,

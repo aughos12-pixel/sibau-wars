@@ -1623,6 +1623,9 @@ export class PlayerImpl implements Player {
         return this.tradeShipSpawn(targetTile);
       case UnitType.Train:
         return this.landBasedUnitSpawn(targetTile);
+      case UnitType.Tank:
+        return this.tankSpawn(targetTile);
+      case UnitType.Barracks:
       case UnitType.MissileSilo:
       case UnitType.DefensePost:
       case UnitType.SAMLauncher:
@@ -1718,6 +1721,22 @@ export class PlayerImpl implements Player {
     );
 
     return bestPort?.tile() ?? false;
+  }
+
+  /**
+   * Sibau Wars: a tank rolls out of the player's nearest working Barracks and
+   * drives to `tile`, which may be any land (own, neutral or enemy).
+   */
+  tankSpawn(tile: TileRef): TileRef | false {
+    if (!this.mg.isLand(tile) || this.mg.isImpassable(tile)) {
+      return false;
+    }
+    const barracks = findClosestBy(
+      this.units(UnitType.Barracks),
+      (b) => this.mg.manhattanDist(b.tile(), tile),
+      (b) => b.isActive() && !b.isUnderConstruction() && !b.isDisabled(),
+    );
+    return barracks?.tile() ?? false;
   }
 
   landBasedUnitSpawn(tile: TileRef): TileRef | false {

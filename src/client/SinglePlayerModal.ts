@@ -116,6 +116,8 @@ const TUTORIAL_DISABLED_UNITS: UnitType[] = [
   UnitType.HydrogenBomb,
   UnitType.EMP,
   UnitType.MIRV,
+  UnitType.Barracks,
+  UnitType.Tank,
 ];
 
 const DEFAULT_OPTIONS = {

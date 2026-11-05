@@ -18,7 +18,7 @@ import { findClosestBy } from "@openfront/engine-lib/Util";
 import { assetUrl } from "@openfront/shared/AssetUrls";
 import { UIState } from "../../UIState";
 import { translateText } from "../../Utils";
-import { GameView, PlayerView } from "../../view";
+import { GameView, PlayerView, UnitView } from "../../view";
 import { BuildItemDisplay, BuildMenu, flattenedBuildTable } from "./BuildMenu";
 import { ChatIntegration } from "./ChatIntegration";
 import { EmojiTable } from "./EmojiTable";
@@ -29,6 +29,7 @@ import { TooltipItem } from "./RadialMenu";
 import { EventBus } from "@openfront/shared/EventBus";
 import {
   BuildUnitIntentEvent,
+  SendFocusTankIntentEvent,
   SendUpgradeStructureIntentEvent,
 } from "../../Transport";
 const allianceIcon = assetUrl("images/AllianceIconWhite.svg");
@@ -702,6 +703,61 @@ const deleteUnitElement: MenuElement = {
   },
 };
 
+// Sibau Wars: "Focus" — throw troops (your attack ratio) at an enemy tank in
+// or next to your land. The engine re-checks everything (FocusTankExecution).
+const FOCUS_SELECTION_RADIUS = 4;
+const FOCUS_LAND_RANGE = 5;
+
+function focusableTank(params: MenuElementParams): UnitView | null {
+  const { game, myPlayer, tile } = params;
+  if (game.inSpawnPhase()) return null;
+  const tanks = game.units(UnitType.Tank).filter((t) => {
+    if (!t.isActive()) return false;
+    const owner = t.owner();
+    if (owner === myPlayer || owner.isFriendly(myPlayer)) return false;
+    if (game.manhattanDist(t.tile(), tile) > FOCUS_SELECTION_RADIUS) {
+      return false;
+    }
+    const cx = game.x(t.tile());
+    const cy = game.y(t.tile());
+    for (let y = cy - FOCUS_LAND_RANGE; y <= cy + FOCUS_LAND_RANGE; y++) {
+      for (let x = cx - FOCUS_LAND_RANGE; x <= cx + FOCUS_LAND_RANGE; x++) {
+        if (!game.isValidCoord(x, y)) continue;
+        if (game.owner(game.ref(x, y)) === myPlayer) return true;
+      }
+    }
+    return false;
+  });
+  return (
+    findClosestBy(tanks, (t) => game.manhattanDist(t.tile(), tile)) ?? null
+  );
+}
+
+const focusTankElement: MenuElement = {
+  id: "focus_tank",
+  name: "focus",
+  disabled: (params: MenuElementParams) => focusableTank(params) === null,
+  icon: targetIcon,
+  color: COLORS.attack,
+  tooltipKeys: [
+    { key: "radial_menu.focus_tank_title", className: "title" },
+    { key: "radial_menu.focus_tank_description", className: "description" },
+  ],
+  action: (params: MenuElementParams) => {
+    const tank = focusableTank(params);
+    if (tank !== null) {
+      const ratio = params.uiState?.attackRatio ?? 0.2;
+      params.eventBus.emit(
+        new SendFocusTankIntentEvent(
+          tank.id(),
+          Math.floor(params.myPlayer.troops() * ratio),
+        ),
+      );
+    }
+    params.closeMenu();
+  },
+};
+
 export const buildMenuElement: MenuElement = {
   id: Slot.Build,
   name: "build",
@@ -820,6 +876,7 @@ export const rootMenuElement: MenuElement = {
               ? donateGoldRadialElement
               : attackMenuElement,
           ]),
+      focusableTank(params) !== null ? focusTankElement : null,
     ];
 
     return menuItems.filter((item): item is MenuElement => item !== null);

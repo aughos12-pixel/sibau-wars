@@ -22,6 +22,20 @@ export class MoveWarshipExecution implements Execution {
       console.warn(`MoveWarshipExecution: position ${this.position} not valid`);
       return;
     }
+    // Sibau Wars: the same order moves tanks. A tank only takes a land tile
+    // and drives there itself (TankExecution finds the path).
+    if (mg.isLand(this.position)) {
+      const tanks = new Map(
+        this.owner.units(UnitType.Tank).map((u) => [u.id(), u]),
+      );
+      for (const unitId of new Set(this.unitIds)) {
+        const tank = tanks.get(unitId);
+        if (tank === undefined || !tank.isActive()) continue;
+        if (mg.isImpassable(this.position)) continue;
+        tank.setTargetTile(this.position);
+      }
+      return;
+    }
     // Get water component of new TargetTile for connectivity check
     const newPatrolTileWaterComponent = mg.getWaterComponent(this.position);
     // Cache warship list and build a lookup map — avoids repeated iteration
