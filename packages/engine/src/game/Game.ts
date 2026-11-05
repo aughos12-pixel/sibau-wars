@@ -149,6 +149,9 @@ export interface Attack {
   delete(): void;
   // The tile the attack originated from, mostly used for boat attacks.
   sourceTile(): TileRef | null;
+  /** Sibau Wars: a precise (spearhead / route) attack; never merged. */
+  isDirectional(): boolean;
+  setDirectional(directional: boolean): void;
   addBorderTile(tile: TileRef): void;
   removeBorderTile(tile: TileRef): void;
   clearBorder(): void;

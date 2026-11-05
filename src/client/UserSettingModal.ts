@@ -515,6 +515,11 @@ export class UserSettingModal extends BaseModal {
     );
   }
 
+  private togglePreciseAttacks() {
+    this.userSettings.togglePreciseAttacks();
+    this.requestUpdate();
+  }
+
   private toggleLeftClickOpensMenu() {
     this.userSettings.toggleLeftClickOpenMenu();
     console.log(
@@ -1987,6 +1992,15 @@ export class UserSettingModal extends BaseModal {
         id="snap-build-preview-toggle"
         .checked=${this.userSettings.snapBuildPreview()}
         @change=${this.toggleSnapBuildPreview}
+      ></setting-toggle>
+
+      <!-- Sibau Wars: precise attacks -->
+      <setting-toggle
+        label="${translateText("user_setting.precise_attacks_label")}"
+        description="${translateText("user_setting.precise_attacks_desc")}"
+        id="precise-attacks-toggle"
+        .checked=${this.userSettings.preciseAttacks()}
+        @change=${this.togglePreciseAttacks}
       ></setting-toggle>
 
       <!-- 🖱️ Left Click Menu -->

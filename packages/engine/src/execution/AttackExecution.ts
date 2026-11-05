@@ -33,6 +33,49 @@ import type {
 import { FlatBinaryHeap } from "./utils/FlatBinaryHeap"; // adjust path if needed
 
 const malusForRetreat = 25;
+
+/**
+ * Sibau Wars precise attacks: extra queue delay per tile of distance from
+ * the current aim point. Tiles toward the aim are taken first; the sides of
+ * the front follow later, so it widens slowly instead of all at once.
+ */
+const DIRECTIONAL_PULL = 1.5;
+/**
+ * Precise attacks move as if their front were at least this wide: the army
+ * is concentrated, so it pushes forward faster than a broad attack (attack
+ * speed otherwise grows with the width of the front).
+ */
+const DIRECTIONAL_MIN_FRONT = 30;
+/**
+ * Precise attacks only take land in a corridor around their route: this
+ * many tiles either side at first, one more every CORRIDOR_WIDEN_TICKS, up
+ * to CORRIDOR_MAX_HALF_WIDTH. A full corridor waits to widen; at full width
+ * the attack is over and its troops go home.
+ */
+const CORRIDOR_START_HALF_WIDTH = 5;
+const CORRIDOR_WIDEN_TICKS = 25;
+const CORRIDOR_MAX_HALF_WIDTH = 30;
+/** Within this many tiles of a route point, the army moves on to the next. */
+const WAYPOINT_REACHED = 4;
+/** Squared distance from point p to the segment a-b. */
+function segmentDistSquared(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  let t = len2 === 0 ? 0 : ((px - ax) * dx + (py - ay) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t * dx - px;
+  const cy = ay + t * dy - py;
+  return cx * cx + cy * cy;
+}
+
 export class AttackExecution implements Execution {
   private active: boolean = true;
   private toConquer = new FlatBinaryHeap();
@@ -60,7 +103,17 @@ export class AttackExecution implements Execution {
     private _targetID: PlayerID | null,
     private sourceTile: TileRef | null = null,
     private removeTroops: boolean = true,
+    // Sibau Wars: aim point(s) of a precise attack; null = classic attack.
+    private waypoints: TileRef[] | null = null,
   ) {}
+
+  // Sibau Wars: which waypoint the attack is heading for.
+  private waypointIndex = 0;
+  // Sibau Wars: tiles this precise attack took, to re-aim from them.
+  private conquered: TileRef[] = [];
+  // Sibau Wars: where the route starts (our border) and when it began.
+  private routeStart: TileRef | null = null;
+  private startTick = 0;
 
   public targetID(): PlayerID | null {
     return this._targetID;
@@ -143,7 +196,13 @@ export class AttackExecution implements Execution {
       new Set<TileRef>(),
     );
 
-    if (this.sourceTile !== null) {
+    if (this.waypoints !== null && this.waypoints.length > 0) {
+      this.attack.setDirectional(true);
+      this.startTick = ticks;
+      this.skipReachedWaypoints();
+      this.routeStart = this.directionalStart();
+      if (this.routeStart !== null) this.addNeighbors(this.routeStart);
+    } else if (this.sourceTile !== null) {
       this.addNeighbors(this.sourceTile);
     } else {
       this.refreshToConquer();
@@ -171,7 +230,10 @@ export class AttackExecution implements Execution {
         outgoing !== this.attack &&
         outgoing.target() === this.attack.target() &&
         // Boat attacks (sourceTile is not null) are not combined with other attacks
-        this.attack.sourceTile() === null
+        this.attack.sourceTile() === null &&
+        // Sibau Wars: precise attacks are steered, so they never merge.
+        !this.attack.isDirectional() &&
+        !outgoing.isDirectional()
       ) {
         this.attack.setTroops(this.attack.troops() + outgoing.troops());
         outgoing.delete();
@@ -222,6 +284,117 @@ export class AttackExecution implements Execution {
         assertNever(difficulty);
     }
     this.target.updateRelation(this._owner, relationChange);
+  }
+
+  /** The aim point a precise attack is heading for. */
+  private aim(): TileRef | null {
+    if (this.waypoints === null || this.waypoints.length === 0) return null;
+    return this.waypoints[this.waypointIndex];
+  }
+
+  /**
+   * Route points that are no longer the target's land (already taken, or
+   * never were, like points drawn on your own side) are passed by.
+   */
+  private skipReachedWaypoints(): boolean {
+    if (this.waypoints === null) return false;
+    let moved = false;
+    while (
+      this.waypointIndex < this.waypoints.length - 1 &&
+      this.map.ownerID(this.waypoints[this.waypointIndex]) !==
+        this.targetSmallID
+    ) {
+      this.waypointIndex++;
+      moved = true;
+    }
+    return moved;
+  }
+
+  /** Our border tile next to the target that is closest to the first aim. */
+  private directionalStart(): TileRef | null {
+    const aim = this.aim();
+    if (aim === null) return null;
+    let best: TileRef | null = null;
+    let bestDist = Infinity;
+    this._owner.borderTiles().forEach((tile) => {
+      const n = this.map.neighbors4(tile, this.nbuf);
+      let touchesTarget = false;
+      for (let i = 0; i < n; i++) {
+        const nb = this.nbuf[i];
+        if (
+          this.map.ownerID(nb) === this.targetSmallID &&
+          this.map.isLand(nb) &&
+          !this.map.isImpassable(nb)
+        ) {
+          touchesTarget = true;
+          break;
+        }
+      }
+      if (!touchesTarget) return;
+      const d = this.map.euclideanDistSquared(tile, aim);
+      if (d < bestDist) {
+        bestDist = d;
+        best = tile;
+      }
+    });
+    return best;
+  }
+
+  /** After taking `tile`, move on along the route if a point was reached. */
+  private advanceRoute(tile: TileRef) {
+    if (this.waypoints === null || this.attack === null) return;
+    this.conquered.push(tile);
+    let moved = false;
+    const aim = this.aim();
+    if (
+      aim !== null &&
+      this.waypointIndex < this.waypoints.length - 1 &&
+      this.map.euclideanDistSquared(tile, aim) <=
+        WAYPOINT_REACHED * WAYPOINT_REACHED
+    ) {
+      this.waypointIndex++;
+      moved = true;
+    }
+    if (this.skipReachedWaypoints()) moved = true;
+    // Re-aim: queued tiles carry priorities biased toward the old point,
+    // and the corridor now includes the next leg.
+    if (moved) this.reseedFromConquered();
+  }
+
+  private reseedFromConquered() {
+    if (this.attack === null) return;
+    this.toConquer.clear();
+    this.attack.clearBorder();
+    if (this.routeStart !== null) this.addNeighbors(this.routeStart);
+    for (const t of this.conquered) {
+      if (this.map.ownerID(t) === this.ownerSmallID) this.addNeighbors(t);
+    }
+  }
+
+  private corridorHalfWidth(): number {
+    const grown = Math.floor(
+      (this.mg.ticks() - this.startTick) / CORRIDOR_WIDEN_TICKS,
+    );
+    return Math.min(CORRIDOR_MAX_HALF_WIDTH, CORRIDOR_START_HALF_WIDTH + grown);
+  }
+
+  /** Is `tile` within the corridor around the route legs reached so far? */
+  private inCorridor(tile: TileRef): boolean {
+    if (this.waypoints === null || this.routeStart === null) return true;
+    const w = this.corridorHalfWidth();
+    const w2 = w * w;
+    const px = this.map.x(tile);
+    const py = this.map.y(tile);
+    let ax = this.map.x(this.routeStart);
+    let ay = this.map.y(this.routeStart);
+    for (let i = 0; i <= this.waypointIndex; i++) {
+      const bx = this.map.x(this.waypoints[i]);
+      const by = this.map.y(this.waypoints[i]);
+      if (segmentDistSquared(px, py, ax, ay, bx, by) <= w2) return true;
+      ax = bx;
+      ay = by;
+    }
+    return false;
   }
 
   private refreshToConquer() {
@@ -305,7 +478,18 @@ export class AttackExecution implements Execution {
       return;
     }
 
-    const borderSize = this.attack.borderSize() + this.random.nextInt(0, 5);
+    if (
+      this.attack.isDirectional() &&
+      ticks > this.startTick &&
+      (ticks - this.startTick) % CORRIDOR_WIDEN_TICKS === 0 &&
+      this.corridorHalfWidth() <= CORRIDOR_MAX_HALF_WIDTH
+    ) {
+      this.reseedFromConquered();
+    }
+    let borderSize = this.attack.borderSize() + this.random.nextInt(0, 5);
+    if (this.attack.isDirectional()) {
+      borderSize = Math.max(borderSize, DIRECTIONAL_MIN_FRONT);
+    }
     // Each tile consumes a fraction of the tick; conquer until it is spent.
     let tickBudget = 1;
 
@@ -317,6 +501,13 @@ export class AttackExecution implements Execution {
       }
 
       if (this.toConquer.size() === 0) {
+        if (
+          this.attack.isDirectional() &&
+          this.corridorHalfWidth() < CORRIDOR_MAX_HALF_WIDTH
+        ) {
+          // Corridor taken: hold position until it widens.
+          return;
+        }
         this.refreshToConquer();
         this.retreat();
         return;
@@ -355,6 +546,7 @@ export class AttackExecution implements Execution {
         targetPlayer.removeTroops(defenderTroopLoss);
       }
       this._owner.conquer(tileToConquer);
+      this.advanceRoute(tileToConquer);
       this.handleDeadDefender();
     }
   }
@@ -434,7 +626,8 @@ export class AttackExecution implements Execution {
       if (
         this.map.isWater(neighbor) ||
         this.map.isImpassable(neighbor) ||
-        this.map.ownerID(neighbor) !== this.targetSmallID
+        this.map.ownerID(neighbor) !== this.targetSmallID ||
+        !this.inCorridor(neighbor)
       ) {
         continue;
       }
@@ -463,9 +656,16 @@ export class AttackExecution implements Execution {
           break;
       }
 
+      const aim = this.aim();
+      const pull =
+        aim === null
+          ? 0
+          : Math.sqrt(this.map.euclideanDistSquared(neighbor, aim)) *
+            DIRECTIONAL_PULL;
       const priority =
         (this.random.nextInt(0, 7) + 10) * (1 - numOwnedByMe * 0.5 + mag / 2) +
-        tickNow;
+        tickNow +
+        pull;
 
       this.toConquer.enqueue(neighbor, priority);
     }
@@ -528,6 +728,11 @@ export class AttackExecution implements Execution {
       targetID: this._targetID,
       sourceTile: this.sourceTile,
       removeTroops: this.removeTroops,
+      waypoints: this.waypoints,
+      waypointIndex: this.waypointIndex,
+      conquered: this.conquered,
+      routeStart: this.routeStart,
+      startTick: this.startTick,
     });
   }
 
@@ -554,6 +759,11 @@ export class AttackExecution implements Execution {
     this._targetID = s.targetID;
     this.sourceTile = s.sourceTile;
     this.removeTroops = s.removeTroops;
+    this.waypoints = s.waypoints;
+    this.waypointIndex = s.waypointIndex;
+    this.conquered = s.conquered;
+    this.routeStart = s.routeStart;
+    this.startTick = s.startTick;
   }
 }
 
@@ -578,12 +788,28 @@ const AttackExecutionStateSchema = z.object({
   targetID: z.string().nullable(),
   sourceTile: zTile().nullable(),
   removeTroops: z.boolean(),
+  waypoints: z.array(zTile()).nullable(),
+  waypointIndex: zInt(),
+  conquered: z.array(zTile()),
+  routeStart: zTile().nullable(),
+  startTick: zInt(),
 });
 type AttackExecutionState = z.infer<typeof AttackExecutionStateSchema>;
 
 export const AttackExecutionSnapshot = execSnapshotType({
   name: "Attack",
-  version: 1,
+  version: 2,
+  // v1 attacks predate Sibau Wars' precise attacks.
+  migrations: {
+    1: (d) => ({
+      ...d,
+      waypoints: null,
+      waypointIndex: 0,
+      conquered: [],
+      routeStart: null,
+      startTick: 0,
+    }),
+  },
   schema: AttackExecutionStateSchema,
   cls: () => AttackExecution,
 });

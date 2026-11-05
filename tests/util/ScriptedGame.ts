@@ -392,6 +392,7 @@ function launchBombIntent(
     UnitType.AtomBomb,
     UnitType.HydrogenBomb,
     UnitType.MIRV,
+    UnitType.EMP,
   ].filter((t) => canAfford(game, p, t));
   const unit = pick(rand, affordable);
   if (unit === null) return null;
@@ -490,10 +491,16 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     case 2: {
       const target = pick(rand, p.nearby());
       if (target === null) return null;
+      // Sibau Wars: half the time a precise attack aimed at the target.
+      const aim =
+        target.isPlayer() && rand.chance(2)
+          ? randomOwnedTile(rand, target)
+          : null;
       return {
         type: "attack",
         targetID: target.isPlayer() ? target.id() : null,
         troops: p.troops() / 4,
+        ...(aim !== null ? { path: [aim] } : {}),
       };
     }
     case 3: {

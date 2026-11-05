@@ -22,6 +22,7 @@ export class AttackImpl implements Attack {
   private _borderSize = 0;
   public _retreating = false;
   public _retreated = false;
+  private _directional = false;
 
   constructor(
     private _id: string,
@@ -35,6 +36,14 @@ export class AttackImpl implements Attack {
 
   sourceTile(): TileRef | null {
     return this._sourceTile;
+  }
+
+  isDirectional(): boolean {
+    return this._directional;
+  }
+
+  setDirectional(directional: boolean): void {
+    this._directional = directional;
   }
 
   target(): Player | TerraNullius {
@@ -213,6 +222,7 @@ export class AttackImpl implements Attack {
       isActive: this._isActive,
       retreating: this._retreating,
       retreated: this._retreated,
+      directional: this._directional,
     };
   }
 
@@ -229,12 +239,15 @@ export class AttackImpl implements Attack {
     this._isActive = s.isActive;
     this._retreating = s.retreating;
     this._retreated = s.retreated;
+    this._directional = s.directional;
   }
 }
 
 export const AttackSnapshot = snapshotType({
   name: "Attack",
-  version: 1,
+  version: 2,
+  // v1 attacks predate Sibau Wars' precise attacks.
+  migrations: { 1: (d) => ({ ...d, directional: false }) },
   schema: z.object({
     id: z.string(),
     target: zPlayerRef(),
@@ -246,6 +259,7 @@ export const AttackSnapshot = snapshotType({
     isActive: z.boolean(),
     retreating: z.boolean(),
     retreated: z.boolean(),
+    directional: z.boolean(),
   }),
 });
 export type AttackState = z.infer<typeof AttackSnapshot.schema>;

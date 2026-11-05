@@ -489,6 +489,15 @@ export class UserSettings {
     return this.getBool("settings.leftClickOpensMenu", false);
   }
 
+  /** Sibau Wars: Shift+click spearheads and Shift+drag attack routes. */
+  preciseAttacks() {
+    return this.getBool("settings.preciseAttacks", true);
+  }
+
+  togglePreciseAttacks() {
+    this.setBool("settings.preciseAttacks", !this.preciseAttacks());
+  }
+
   goToPlayer() {
     return this.getBool("settings.goToPlayer", true);
   }

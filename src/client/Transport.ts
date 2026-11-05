@@ -113,6 +113,8 @@ export class SendAttackIntentEvent implements GameEvent {
   constructor(
     public readonly targetID: PlayerID | null,
     public readonly troops: number,
+    /** Sibau Wars: a precise attack's aim point or route. */
+    public readonly path?: TileRef[],
   ) {}
 }
 
@@ -821,6 +823,9 @@ export class Transport {
       type: "attack",
       targetID: event.targetID,
       troops: event.troops,
+      ...(event.path !== undefined && event.path.length > 0
+        ? { path: event.path.slice(0, 64) }
+        : {}),
     });
   }
 

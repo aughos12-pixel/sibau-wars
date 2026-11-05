@@ -425,6 +425,10 @@ export const AttackIntentSchema = z.object({
   type: z.literal("attack"),
   targetID: MappedID.nullable(),
   troops: zb.float({ min: 0 }).nullable(),
+  // Sibau Wars precise attacks: one tile aims a spearhead at it; more tiles
+  // are a route the army follows in order. Absent = the classic attack
+  // along the whole shared border.
+  path: z.array(zb.uint()).min(1).max(64).optional(),
 });
 
 export const SpawnIntentSchema = z.object({

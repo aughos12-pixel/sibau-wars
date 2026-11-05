@@ -2885,7 +2885,9 @@
     "zoom_out": "Zoom Out",
     "zoom_out_desc": "Zoom out the map",
     "build_emp": "Build EMP",
-    "build_emp_desc": "Launch an EMP that switches off buildings in an area"
+    "build_emp_desc": "Launch an EMP that switches off buildings in an area",
+    "precise_attacks_label": "Precise attacks",
+    "precise_attacks_desc": "Shift+click attacks from the nearest point toward where you click. Shift+drag from land draws a route your army follows. A plain click still attacks along the whole border."
   },
   "username": {
     "account_invalid_chars": "Username can only contain letters, numbers, underscores, hyphens, and single spaces between words.",

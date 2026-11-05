@@ -47,6 +47,7 @@ import {
   InputHandler,
   MouseMoveEvent,
   MouseUpEvent,
+  RouteAttackEvent,
   TickMetricsEvent,
   ToggleRenderDebugGuiEvent,
 } from "./InputHandler";
@@ -912,6 +913,14 @@ async function createClientGame(
       inputOverlay,
       eventBus,
     );
+    // Sibau Wars: Shift+drag from land draws an attack route.
+    inputHandler.isLandAtScreen = (x, y) => {
+      const c = gameRenderer.transformHandler.screenToWorldCoordinates(x, y);
+      return (
+        gameView.isValidCoord(c.x, c.y) &&
+        gameView.isLand(gameView.ref(c.x, c.y))
+      );
+    };
     const unitDisplay = document.querySelector(
       "unit-display",
     ) as UnitDisplay | null;
@@ -1014,6 +1023,7 @@ export class ClientGameRunner {
     }, 20000);
 
     this.eventBus.on(MouseUpEvent, this.inputEvent.bind(this));
+    this.eventBus.on(RouteAttackEvent, this.routeAttackEvent.bind(this));
     this.eventBus.on(MouseMoveEvent, this.onMouseMove.bind(this));
     this.eventBus.on(AutoUpgradeEvent, this.autoUpgradeEvent.bind(this));
     this.eventBus.on(
@@ -1287,10 +1297,13 @@ export class ClientGameRunner {
       .actions(tile, [UnitType.TransportShip])
       .then((actions) => {
         if (actions.canAttack) {
+          // Sibau Wars: Shift+click = a precise attack aimed at this tile.
+          const precise = event.shift && this.preciseAttacksOn();
           this.eventBus.emit(
             new SendAttackIntentEvent(
               this.gameView.owner(tile).id(),
               this.myPlayer!.troops() * this.renderer.uiState.attackRatio,
+              precise ? [tile] : undefined,
             ),
           );
         } else if (this.canAutoBoat(actions.buildableUnits, tile)) {
@@ -1300,6 +1313,67 @@ export class ClientGameRunner {
       .catch((error) => {
         console.warn("Failed to check boat attack actions:", error);
       });
+  }
+
+  private preciseAttacksOn(): boolean {
+    return new UserSettings().preciseAttacks();
+  }
+
+  /**
+   * Sibau Wars: a Shift+drag route. The army attacks the first enemy (or
+   * unowned land) the route enters and follows the route through it.
+   */
+  private routeAttackEvent(event: RouteAttackEvent) {
+    if (!this.isActive || this.gameView.inSpawnPhase()) return;
+    if (this.myPlayer === null) {
+      if (!this.clientID) return;
+      this.myPlayer = this.gameView.playerByClientID(this.clientID);
+      if (this.myPlayer === null) return;
+    }
+    const me = this.myPlayer;
+    const tiles: TileRef[] = [];
+    for (const p of event.points) {
+      const cell = this.renderer.transformHandler.screenToWorldCoordinates(
+        p.x,
+        p.y,
+      );
+      if (!this.gameView.isValidCoord(cell.x, cell.y)) continue;
+      const tile = this.gameView.ref(cell.x, cell.y);
+      if (tiles[tiles.length - 1] !== tile) tiles.push(tile);
+    }
+    const first = tiles.find((t) => {
+      if (!this.gameView.isLand(t)) return false;
+      const owner = this.gameView.owner(t);
+      return owner !== me;
+    });
+    if (first === undefined) return;
+    const target = this.gameView.owner(first);
+    // Waypoints from the first enemy tile on, at least 6 tiles apart.
+    const from = tiles.indexOf(first);
+    const waypoints: TileRef[] = [];
+    for (const t of tiles.slice(from)) {
+      const prev = waypoints[waypoints.length - 1];
+      if (
+        prev === undefined ||
+        this.gameView.euclideanDistSquared(prev, t) >= 36
+      ) {
+        waypoints.push(t);
+      }
+    }
+    const last = tiles[tiles.length - 1];
+    if (waypoints[waypoints.length - 1] !== last) waypoints.push(last);
+    me.actions(first, [UnitType.TransportShip])
+      .then((actions) => {
+        if (!actions.canAttack) return;
+        this.eventBus.emit(
+          new SendAttackIntentEvent(
+            target.id(),
+            me.troops() * this.renderer.uiState.attackRatio,
+            waypoints.slice(0, 64),
+          ),
+        );
+      })
+      .catch((error) => console.warn("Route attack check failed:", error));
   }
 
   private autoUpgradeEvent(event: AutoUpgradeEvent) {

@@ -22,6 +22,15 @@ export class MouseUpEvent implements GameEvent {
   constructor(
     public readonly x: number,
     public readonly y: number,
+    /** Sibau Wars: Shift was held (a precise spearhead attack). */
+    public readonly shift: boolean = false,
+  ) {}
+}
+
+/** Sibau Wars: a Shift+drag attack route, in screen coordinates. */
+export class RouteAttackEvent implements GameEvent {
+  constructor(
+    public readonly points: ReadonlyArray<{ x: number; y: number }>,
   ) {}
 }
 
@@ -346,6 +355,12 @@ export class InputHandler {
   private emojiKeysDown = new Set<string>();
 
   private lastPointerDownX: number = 0;
+  // Sibau Wars: Shift+drag from land draws an attack route.
+  private routeDrawing = false;
+  private routePoints: { x: number; y: number }[] = [];
+  private routeOverlay: SVGSVGElement | null = null;
+  /** Set by the game runner: is there land under this screen point? */
+  public isLandAtScreen: ((x: number, y: number) => boolean) | null = null;
   private lastPointerDownY: number = 0;
 
   private pointers: Map<number, PointerEvent> = new Map();
@@ -1112,6 +1127,19 @@ export class InputHandler {
 
       this.eventBus.emit(new MouseDownEvent(event.clientX, event.clientY));
 
+      // Sibau Wars: Shift+drag starting on land draws an attack route
+      // (starting on water still box-selects warships).
+      this.routeDrawing =
+        event.pointerType !== "touch" &&
+        event.shiftKey &&
+        this.userSettings.preciseAttacks() &&
+        this.uiState.ghostStructure === null &&
+        !this.gameView.inSpawnPhase() &&
+        (this.isLandAtScreen?.(event.clientX, event.clientY) ?? false);
+      this.routePoints = this.routeDrawing
+        ? [{ x: event.clientX, y: event.clientY }]
+        : [];
+
       this.touchPlacementDragState = "idle";
       if (
         event.pointerType === "touch" &&
@@ -1257,6 +1285,25 @@ export class InputHandler {
     this.pointerDown = false;
     this.pointers.clear();
 
+    if (this.routeDrawing) {
+      this.routeDrawing = false;
+      this.clearRoutePreview();
+      const moved =
+        Math.abs(event.x - this.lastPointerDownX) +
+          Math.abs(event.y - this.lastPointerDownY) >=
+        this.DRAG_THRESHOLD_PX;
+      if (event.type === "pointerup") {
+        if (moved) {
+          this.routePoints.push({ x: event.clientX, y: event.clientY });
+          this.eventBus.emit(new RouteAttackEvent(this.routePoints));
+        } else {
+          this.eventBus.emit(new MouseUpEvent(event.x, event.y, true));
+        }
+      }
+      this.routePoints = [];
+      return;
+    }
+
     // Clean up long-press state
     if (this.longPressTimer !== null) {
       clearTimeout(this.longPressTimer);
@@ -1368,7 +1415,7 @@ export class InputHandler {
         this.uiState.ghostStructure !== null || // Block radial menu on left click if building
         this.gameView.config().gameConfig().tutorial === true // The tutorial teaches the click that attacks
       ) {
-        this.eventBus.emit(new MouseUpEvent(event.x, event.y));
+        this.eventBus.emit(new MouseUpEvent(event.x, event.y, event.shiftKey));
       } else {
         this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY));
       }
@@ -1379,6 +1426,38 @@ export class InputHandler {
     // suppression it left behind instead of letting it swallow the next
     // gesture's tap.
     this.suppressNextTap = false;
+  }
+
+  /** Sibau Wars: the route being drawn, as a dashed line over the map. */
+  private drawRoutePreview() {
+    if (this.routeOverlay === null) {
+      const ns = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(ns, "svg");
+      svg.setAttribute(
+        "style",
+        "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:40",
+      );
+      const line = document.createElementNS(ns, "polyline");
+      line.setAttribute("fill", "none");
+      line.setAttribute("stroke", "#5b9bff");
+      line.setAttribute("stroke-width", "4");
+      line.setAttribute("stroke-dasharray", "10 6");
+      line.setAttribute("stroke-linecap", "round");
+      line.setAttribute("stroke-linejoin", "round");
+      svg.appendChild(line);
+      document.body.appendChild(svg);
+      this.routeOverlay = svg;
+    }
+    const line = this.routeOverlay.firstElementChild;
+    line?.setAttribute(
+      "points",
+      this.routePoints.map((p) => `${p.x},${p.y}`).join(" "),
+    );
+  }
+
+  private clearRoutePreview() {
+    this.routeOverlay?.remove();
+    this.routeOverlay = null;
   }
 
   private onScroll(event: WheelEvent) {
@@ -1518,7 +1597,16 @@ export class InputHandler {
 
       // If shift is held OR touch long-press is active OR selection box already
       // started, continue emitting selection box updates
-      if (this.touchPlacementDragState === "active") {
+      if (this.routeDrawing) {
+        const last = this.routePoints[this.routePoints.length - 1];
+        if (
+          Math.abs(event.clientX - last.x) + Math.abs(event.clientY - last.y) >=
+          4
+        ) {
+          this.routePoints.push({ x: event.clientX, y: event.clientY });
+          this.drawRoutePreview();
+        }
+      } else if (this.touchPlacementDragState === "active") {
         this.eventBus.emit(
           new TouchGhostPlacementMoveEvent(event.clientX, event.clientY),
         );
