@@ -6,9 +6,10 @@ export const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 export const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");
 export const mirvIcon = assetUrl("images/MIRVIcon.svg");
 /** Sibau Wars */
-export const empIcon = assetUrl("images/EmpIconWhite.svg");
 export const tankIcon = assetUrl("images/TankIconWhite.svg");
 export const barracksIcon = assetUrl("images/BarracksIconWhite.svg");
+export const schoolIcon = assetUrl("images/SchoolIconWhite.svg");
+export const bankIcon = assetUrl("images/BankIconWhite.svg");
 export const missileSiloIcon = assetUrl("images/MissileSiloIconWhite.svg");
 export const hydrogenBombIcon = assetUrl("images/MushroomCloudIconWhite.svg");
 export const atomBombIcon = assetUrl("images/NukeIconWhite.svg");

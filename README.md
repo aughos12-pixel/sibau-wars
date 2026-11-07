@@ -16,10 +16,11 @@ Sibau Wars is a fork of [OpenFront](https://github.com/openfrontio/OpenFrontIO),
 - Solo vs bots, and a tutorial
 - Cities, ports, factories, SAMs, missile silos, warships, trade, nukes and MIRVs
 - Alliances, betrayal, emojis and quick chat
-- **Sibau Wars only:** the **EMP** (hotkey V), a silo missile that switches off every building in its blast for 30 seconds without taking land or killing anyone, and SAMs can shoot it down
 - **Sibau Wars only:** **natural disasters** (earthquakes, wildfires, tsunamis and gold rushes) with a warning circle before each one hits; on by default, and there's a switch in the lobby settings
 - **Sibau Wars only:** bots get Sibau names like "Grand Sibau Horde"
 - **Sibau Wars only:** **precise attacks**: Shift+click aims a spearhead at a point, and Shift+drag draws a route for your army to follow (toggle in Settings)
+- **Sibau Wars only:** **Schools** (hotkey I): each one makes your troops fight 3% better and regrow 3% faster, up to 5 Schools
+- **Sibau Wars only:** **Banks** (hotkey O): each one pays 0.5% of the gold you're holding every 10 seconds (max 25k per Bank, up to 5 Banks). An enemy who captures your Bank steals 15% of your gold (max 1M)
 - **Sibau Wars only:** **Barracks and tanks** (hotkeys J and Z). Tanks drive over any land, shoot enemy tanks, wreck enemy buildings and make your attacks nearby about 15% cheaper and faster. Defense posts shoot them, and you can right-click an enemy tank near your land and pick **Focus** to throw troops at it
 - Free-for-all, teams and other game modes
 

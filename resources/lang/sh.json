@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Trajno izbriši",
     "delete_account_confirm_word": "IZBRIŠI",
     "delete_account_desc": "Trajno izbriši tvoj nalog i sve podatke.",
-    "delete_account_failed": "Brisanje neuspešno, molim te kontaktiraj podršku na support@openfront.io",
+    "delete_account_failed": "Brisanje neuspešno, molim te kontaktiraj podršku na github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Brisanje naloga je privremeno nedostupno, pokušajte ponovo kasnije.",
     "delete_account_scheduled": "Vaš nalog će biti izbrisan za 24 sata. Ako se predomislite, obratite se podršci da otkažete brisanje.",
     "delete_account_title": "Izbriši nalog",

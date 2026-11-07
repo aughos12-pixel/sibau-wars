@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Endgültig löschen",
     "delete_account_confirm_word": "LÖSCHEN",
     "delete_account_desc": "Lösche dein Konto und alle dazugehörigen Daten dauerhaft.",
-    "delete_account_failed": "Löschvorgang fehlgeschlagen, bitte wende dich an den Support unter support@openfront.io",
+    "delete_account_failed": "Löschvorgang fehlgeschlagen, bitte wende dich an den Support unter github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Das Löschen des Kontos ist vorübergehend nicht möglich, bitte versuche es später erneut.",
     "delete_account_scheduled": "Dein Konto wird in 24 Stunden gelöscht. Falls du deine Meinung änderst, kontaktiere bitte den Support.",
     "delete_account_title": "Konto löschen",

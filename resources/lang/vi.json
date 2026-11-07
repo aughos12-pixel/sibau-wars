@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Xóa vĩnh viễn",
     "delete_account_confirm_word": "XOÁ",
     "delete_account_desc": "Xóa vĩnh viễn tài khoản của bạn và toàn bộ dữ liệu trong đó.",
-    "delete_account_failed": "Xóa không thành công, vui lòng liên hệ bộ phận hỗ trợ qua support@openfront.io",
+    "delete_account_failed": "Xóa không thành công, vui lòng liên hệ bộ phận hỗ trợ qua github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Không thể xóa tài khoản, vui lòng thử lại.",
     "delete_account_scheduled": "Tài khoản của bạn sẽ bị xóa sau 24 giờ. Nếu bạn đổi ý, vui lòng liên hệ bộ phận hỗ trợ để hủy bỏ.",
     "delete_account_title": "Xoá tài khoản",
@@ -697,7 +697,7 @@
   },
   "desktop_session": {
     "generic": "Không thể đăng nhập vào tài khoản Sibau Wars của bạn",
-    "needs_account": "Thiết lập tài khoản Openfront của bạn để có thể chơi online",
+    "needs_account": "Thiết lập tài khoản Sibau Wars của bạn để có thể chơi online",
     "network": "Không thể kết nối với Sibau Wars. Vui lòng kiểm tra kết nối của bạn.",
     "retry": "Thử lại",
     "retrying": "Đang đăng nhập…",

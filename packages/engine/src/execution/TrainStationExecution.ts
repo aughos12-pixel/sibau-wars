@@ -83,7 +83,7 @@ export class TrainStationExecution implements Execution {
     if (!this.spawnTrains) return;
     if (this.random === undefined) throw new Error("Not initialized");
     if (currentTick < this.lastSpawnTick + this.ticksCooldown) return;
-    // Sibau Wars: a factory switched off by an EMP spawns no trains.
+    // Sibau Wars: a factory switched off spawns no trains.
     if (this.unit.isDisabled()) return;
     const cluster = station.getCluster();
     if (cluster === null) {

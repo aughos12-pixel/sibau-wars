@@ -16,6 +16,7 @@
 
 import type { GhostPreviewData, RendererConfig, UnitState } from "../../types";
 import {
+  UT_BANK,
   UT_BARRACKS,
   UT_CITY,
   UT_DEFENSE_POST,
@@ -23,6 +24,7 @@ import {
   UT_MISSILE_SILO,
   UT_PORT,
   UT_SAM_LAUNCHER,
+  UT_SCHOOL,
 } from "../../types";
 import { DynamicInstanceBuffer } from "../DynamicBuffer";
 import type { RenderSettings } from "../RenderSettings";
@@ -55,6 +57,8 @@ const STRUCTURE_ORDER = [
   UT_SAM_LAUNCHER,
   UT_MISSILE_SILO,
   UT_BARRACKS,
+  UT_SCHOOL,
+  UT_BANK,
 ] as const;
 
 const ATLAS_COLS = STRUCTURE_ORDER.length;
@@ -323,7 +327,7 @@ export class StructurePass {
       this.instanceBuf.float32[off + 0] = x;
       this.instanceBuf.float32[off + 1] = y;
       this.instanceBuf.float32[off + 2] = unit.ownerID;
-      // 1 = under construction, 2 = switched off by an EMP (Sibau Wars)
+      // 1 = under construction, 2 = switched off (Sibau Wars, currently unused)
       this.instanceBuf.float32[off + 3] = unit.underConstruction
         ? 1
         : unit.disabled

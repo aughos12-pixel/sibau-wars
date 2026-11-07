@@ -450,7 +450,7 @@ export class GameView implements GameLike {
           (unit.state.ownerID !== update.ownerID ||
             unit.state.level !== update.level ||
             unit.state.isActive !== update.isActive ||
-            // Sibau Wars: redraw when an EMP switches it off or back on.
+            // Sibau Wars: redraw when it is switched off or back on.
             (unit.state.disabled ?? false) !== (update.disabled ?? false) ||
             (unit.state.underConstruction &&
               !(update.underConstruction ?? false)))

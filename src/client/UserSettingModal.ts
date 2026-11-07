@@ -1480,16 +1480,6 @@ export class UserSettingModal extends BaseModal {
       ></setting-keybind>
 
       <setting-keybind
-        action="buildEMP"
-        label=${translateText("user_setting.build_emp")}
-        description=${translateText("user_setting.build_emp_desc")}
-        defaultKey=${this.defaultKeybinds.buildEMP}
-        .value=${this.getKeyValue("buildEMP")}
-        .display=${this.getKeyChar("buildEMP")}
-        @change=${this.handleKeybindChange}
-      ></setting-keybind>
-
-      <setting-keybind
         action="buildBarracks"
         label=${translateText("user_setting.build_barracks")}
         description=${translateText("user_setting.build_barracks_desc")}
@@ -1506,6 +1496,26 @@ export class UserSettingModal extends BaseModal {
         defaultKey=${this.defaultKeybinds.buildTank}
         .value=${this.getKeyValue("buildTank")}
         .display=${this.getKeyChar("buildTank")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
+      <setting-keybind
+        action="buildSchool"
+        label=${translateText("user_setting.build_school")}
+        description=${translateText("user_setting.build_school_desc")}
+        defaultKey=${this.defaultKeybinds.buildSchool}
+        .value=${this.getKeyValue("buildSchool")}
+        .display=${this.getKeyChar("buildSchool")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
+      <setting-keybind
+        action="buildBank"
+        label=${translateText("user_setting.build_bank")}
+        description=${translateText("user_setting.build_bank_desc")}
+        defaultKey=${this.defaultKeybinds.buildBank}
+        .value=${this.getKeyValue("buildBank")}
+        .display=${this.getKeyChar("buildBank")}
         @change=${this.handleKeybindChange}
       ></setting-keybind>
 

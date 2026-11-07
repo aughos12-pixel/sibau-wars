@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Permanent Verwijderen",
     "delete_account_confirm_word": "VERWIJDEREN",
     "delete_account_desc": "Verwijder je account en alle gegevens permanent.",
-    "delete_account_failed": "Verwijderen mislukt, neem contact op met support via support@openfront.io",
+    "delete_account_failed": "Verwijderen mislukt, neem contact op met support via github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Account verwijderen is tijdelijk niet beschikbaar, probeer het later opnieuw.",
     "delete_account_scheduled": "Je account zal binnen 24 uur worden verwijderd. Als je van gedachten verandert, neem dan contact op met support om te annuleren.",
     "delete_account_title": "Verwijder account",
@@ -1245,7 +1245,7 @@
     "ui_wilderness": "Wildernis",
     "ui_your_team": "Jouw team:",
     "video_tutorial": "Videohandleiding",
-    "video_tutorial_title": "Openfront-io Handleiding"
+    "video_tutorial_title": "Sibau Wars Handleiding"
   },
   "host_modal": {
     "anonymous_players": "Anonieme spelers",

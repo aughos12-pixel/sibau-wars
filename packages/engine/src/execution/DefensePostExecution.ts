@@ -105,7 +105,7 @@ export class DefensePostExecution implements Execution {
     }
 
     // Sibau Wars: defense posts shoot enemy tanks in range. A post switched
-    // off by an EMP holds fire.
+    // off holds fire.
     if (!this.post.isDisabled()) {
       this.shootTanks();
     }

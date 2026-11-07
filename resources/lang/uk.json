@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Видалити назавжди",
     "delete_account_confirm_word": "ВИДАЛИТИ",
     "delete_account_desc": "Незворотне видалення свого акаунту і всіх його даних.",
-    "delete_account_failed": "Видалення не вдалося, зверніться до служби підтримки на support@openfront.io",
+    "delete_account_failed": "Видалення не вдалося, зверніться до служби підтримки на github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Видалення акаунту тимчасово недоступне, спробуйте пізніше.",
     "delete_account_scheduled": "Ваш акаунт буде видалено через 24 години. Якщо ви передумаєте, зверніться до служби підтримки для скасування.",
     "delete_account_title": "Видалити акаунт",

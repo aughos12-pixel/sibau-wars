@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "حذف دائمی",
     "delete_account_confirm_word": "حذف",
     "delete_account_desc": "حساب کاربری و تمام داده‌های آن را به‌طور دائمی حذف کنید.",
-    "delete_account_failed": "حذف ناموفق بود. لطفاً با پشتیبانی به نشانی support@openfront.io تماس بگیرید",
+    "delete_account_failed": "حذف ناموفق بود. لطفاً با پشتیبانی به نشانی github.com/aughos12-pixel/sibau-wars/issues تماس بگیرید",
     "delete_account_rate_limited": "حذف حساب کاربری موقتاً امکان‌پذیر نیست، لطفاً بعداً دوباره تلاش کنید.",
     "delete_account_scheduled": "حساب کاربری شما تا ۲۴ ساعت آینده حذف خواهد شد. در صورت انصراف، لطفاً جهت لغو آن با پشتیبانی تماس بگیرید.",
     "delete_account_title": "حذف حساب",

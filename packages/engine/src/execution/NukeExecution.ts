@@ -35,7 +35,6 @@ import type {
   SnapshotReader,
   SnapshotWriter,
 } from "../snapshot/SnapshotContext";
-import { EmpRecoveryExecution } from "./EmpRecoveryExecution";
 
 const SPRITE_RADIUS = 16;
 
@@ -254,13 +253,6 @@ export class NukeExecution implements Execution {
             MessageType.HYDROGEN_BOMB_INBOUND,
             target.id(),
           );
-        } else if (this.nukeType === UnitType.EMP) {
-          this.mg.displayIncomingUnit(
-            this.nuke.id(),
-            "events_display.emp_inbound",
-            MessageType.NUKE_INBOUND,
-            target.id(),
-          );
         }
 
         if (this.nukeType === UnitType.MIRV) {
@@ -376,11 +368,6 @@ export class NukeExecution implements Execution {
     if (this.nuke === null) {
       throw new Error("Not initialized");
     }
-    if (this.nukeType === UnitType.EMP) {
-      this.detonateEmp();
-      return;
-    }
-
     const mg = this.mg;
     const config = mg.config();
 
@@ -460,7 +447,6 @@ export class NukeExecution implements Execution {
       if (
         type === UnitType.AtomBomb ||
         type === UnitType.HydrogenBomb ||
-        type === UnitType.EMP ||
         type === UnitType.MIRVWarhead ||
         type === UnitType.MIRV ||
         type === UnitType.SAMMissile
@@ -505,56 +491,6 @@ export class NukeExecution implements Execution {
     this.mg
       .stats()
       .bombLand(this.player, this.target(), this.nuke.type() as NukeType);
-  }
-
-  /**
-   * Sibau Wars: an EMP takes no land and kills nobody. Every finished
-   * structure in its radius, whoever owns it, is switched off for
-   * empDisableTicks(); EmpRecoveryExecution redraws them when it ends.
-   */
-  private detonateEmp() {
-    if (this.nuke === null) {
-      throw new Error("Not initialized");
-    }
-    const mg = this.mg;
-    const radius = mg.config().empRadius();
-    const until = mg.ticks() + mg.config().empDisableTicks();
-
-    const hit: Unit[] = [];
-    const owners = new Set<Player>();
-    for (const { unit } of mg.nearbyUnits(this.dst, radius, Structures.types)) {
-      if (!isUnit(unit) || !unit.isActive() || unit.isUnderConstruction()) {
-        continue;
-      }
-      unit.disableUntil(until);
-      hit.push(unit);
-      owners.add(unit.owner());
-    }
-    if (hit.length > 0) {
-      mg.addExecution(new EmpRecoveryExecution(this.player, hit, until));
-    }
-
-    this.active = false;
-    this.nuke.setReachedTarget();
-    this.nuke.delete(false);
-
-    for (const owner of owners) {
-      if (owner === this.player) continue;
-      mg.displayMessage(
-        "events_display.emp_detonated",
-        MessageType.NUKE_DETONATED,
-        owner.id(),
-        undefined,
-        {
-          name: this.player.displayName(),
-          count: hit.filter((u) => u.owner() === owner).length,
-        },
-        undefined,
-        this.player.id(),
-      );
-    }
-
-    this.mg.stats().bombLand(this.player, this.target(), UnitType.EMP);
   }
 
   private redrawBuildings(range: number) {

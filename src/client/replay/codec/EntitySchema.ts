@@ -416,7 +416,7 @@ export const UNIT_FIELDS: readonly FieldDef<UnitFields>[] = [
     ["samUpgradeTargetLevel", maybe(F64, null)],
     ["samUpgradeDuration", maybe(F64, null)],
   ),
-  // Sibau Wars: switched off by an EMP (appended, see the note above).
+  // Sibau Wars: switched off (appended, see the note above).
   field(["disabled", BOOL]),
 ];
 

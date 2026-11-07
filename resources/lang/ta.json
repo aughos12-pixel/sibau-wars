@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "நிரந்தரமாக நீக்கு",
     "delete_account_confirm_word": "நீக்கு",
     "delete_account_desc": "உங்கள் கணக்கையும் அதன் எல்லா தரவையும் நிரந்தரமாக நீக்கவும்.",
-    "delete_account_failed": "கணக்கை நீக்க முடியவில்லை. உதவிக்கு support@openfront.io என்ற முகவரியைத் தொடர்புகொள்ளவும்.",
+    "delete_account_failed": "கணக்கை நீக்க முடியவில்லை. உதவிக்கு github.com/aughos12-pixel/sibau-wars/issues என்ற முகவரியைத் தொடர்புகொள்ளவும்.",
     "delete_account_rate_limited": "தற்போது கணக்கை நீக்க முடியாது. பின்னர் மீண்டும் முயலவும்.",
     "delete_account_scheduled": "உங்கள் கணக்கு 24 மணிநேரத்தில் நீக்கப்படும். உங்கள் முடிவை மாற்றினால், இதை ரத்துசெய்ய உதவிக் குழுவைத் தொடர்புகொள்ளவும்.",
     "delete_account_title": "கணக்கை நீக்கு",

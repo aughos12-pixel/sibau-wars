@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Supprimer définitivement",
     "delete_account_confirm_word": "SUPPRIMER",
     "delete_account_desc": "Supprimez définitivement votre compte et toutes ses données.",
-    "delete_account_failed": "La suppression de votre compte a échoué, merci de contacter le support à support@openfront.io",
+    "delete_account_failed": "La suppression de votre compte a échoué, merci de contacter le support à github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Il est momentanément impossible de supprimer votre compte, merci de réessayer plus tard.",
     "delete_account_scheduled": "Votre compte sera supprimé dans 24 heures. Si vous changez d'avis, merci de contacter le support pour annuler cette action.",
     "delete_account_title": "Supprimer le compte",

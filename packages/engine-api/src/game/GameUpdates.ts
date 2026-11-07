@@ -233,7 +233,7 @@ export interface UnitUpdate {
   targetTile?: TileRef; // Only for nukes
   health?: number;
   underConstruction?: boolean;
-  /** Sibau Wars: switched off by an EMP. */
+  /** Sibau Wars: switched off. */
   disabled?: boolean;
   missileTimerQueue: number[];
   level: number;

@@ -276,6 +276,8 @@ const STRUCTURES = [
   UnitType.SAMLauncher,
   UnitType.MissileSilo,
   UnitType.Barracks,
+  UnitType.School,
+  UnitType.Bank,
 ] as const;
 
 function nearbyWater(
@@ -394,7 +396,6 @@ function launchBombIntent(
     UnitType.AtomBomb,
     UnitType.HydrogenBomb,
     UnitType.MIRV,
-    UnitType.EMP,
   ].filter((t) => canAfford(game, p, t));
   const unit = pick(rand, affordable);
   if (unit === null) return null;

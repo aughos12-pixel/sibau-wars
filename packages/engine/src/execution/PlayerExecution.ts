@@ -104,6 +104,8 @@ export class PlayerExecution implements Execution {
     // Record stats
     this.mg.stats().goldWork(this.player, goldFromWorkers);
 
+    this.payBankInterest(ticks);
+
     for (const alliance of this.player.alliances()) {
       if (alliance.expiresAt() <= this.mg.ticks()) {
         alliance.expire();
@@ -1097,6 +1099,23 @@ export class PlayerExecution implements Execution {
     return this.player;
   }
 
+  /**
+   * Sibau Wars: every bankInterestIntervalTicks each working Bank (at most 5)
+   * pays 0.5% of the gold the player holds, capped at 25k gold per Bank.
+   */
+  private payBankInterest(ticks: number): void {
+    if (ticks % this.config.bankInterestIntervalTicks() !== 0) return;
+    const banks = this.config.effectiveBanks(this.player);
+    if (banks === 0) return;
+    const perMille = BigInt(
+      Math.round(this.config.bankInterestPerBank() * 1000 * banks),
+    );
+    let interest = (this.player.gold() * perMille) / 1000n;
+    const cap = this.config.bankInterestCapPerBank() * BigInt(banks);
+    if (interest > cap) interest = cap;
+    if (interest > 0n) this.player.addGold(interest);
+  }
+
   isActive(): boolean {
     return this.active;
   }
@@ -1213,7 +1232,6 @@ export class PlayerExecution implements Execution {
       if (
         u.type() !== UnitType.AtomBomb &&
         u.type() !== UnitType.HydrogenBomb &&
-        u.type() !== UnitType.EMP &&
         u.type() !== UnitType.MIRVWarhead &&
         u.type() !== UnitType.MIRV
       ) {

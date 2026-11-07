@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "영구 삭제",
     "delete_account_confirm_word": "DELETE",
     "delete_account_desc": "계정과 모든 데이터를 영구적으로 삭제합니다.",
-    "delete_account_failed": "삭제에 실패했습니다. support@openfront.io로 문의해 주세요.",
+    "delete_account_failed": "삭제에 실패했습니다. github.com/aughos12-pixel/sibau-wars/issues로 문의해 주세요.",
     "delete_account_rate_limited": "계정 삭제를 일시적으로 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
     "delete_account_scheduled": "계정이 24시간 후에 삭제됩니다. 생각이 바뀌셨다면 고객지원에 문의하여 취소해 주세요.",
     "delete_account_title": "계정 삭제",

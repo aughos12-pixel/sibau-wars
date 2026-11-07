@@ -236,6 +236,10 @@ export class Config {
       case UnitType.Barracks:
         info = { constructionDuration: this.instantBuild() ? 0 : 8 * 10 };
         break;
+      case UnitType.School:
+      case UnitType.Bank:
+        info = { constructionDuration: this.instantBuild() ? 0 : 6 * 10 };
+        break;
       case UnitType.Tank:
         info = { maxHealth: 1000 };
         break;
@@ -258,7 +262,6 @@ export class Config {
       case UnitType.SAMMissile:
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-      case UnitType.EMP:
       case UnitType.MIRV:
       case UnitType.MIRVWarhead:
       case UnitType.TradeShip:
@@ -398,6 +401,9 @@ export class Config {
     const ratio = 1 - player.troops() / max;
     toAdd *= ratio;
 
+    // Sibau Wars: each working School speeds troop regrowth up.
+    toAdd *= 1 + this.schoolBonusPerSchool() * this.effectiveSchools(player);
+
     if (player.type() === PlayerType.Bot) {
       toAdd *= 0.5;
     }
@@ -435,11 +441,65 @@ export class Config {
         return { inner: 12, outer: 30 };
       case UnitType.HydrogenBomb:
         return { inner: 80, outer: 100 };
-      case UnitType.EMP:
-        // Sibau Wars: an EMP only switches buildings off, so inner == outer.
-        return { inner: this.empRadius(), outer: this.empRadius() };
     }
     throw new Error(`Unknown nuke type: ${unitType}`);
+  }
+
+  // --- Sibau Wars: Schools and Banks ---
+
+  /** Schools and Banks past this many give no extra bonus. */
+  maxEffectiveSchools(): number {
+    return 5;
+  }
+
+  /** Per School: troops fight this much better and regrow this much faster. */
+  schoolBonusPerSchool(): number {
+    return 0.03;
+  }
+
+  /** Finished, working Schools that count for `player` (at most 5). */
+  effectiveSchools(player: PlayerLike): number {
+    return Math.min(
+      this.maxEffectiveSchools(),
+      workingCount(player, UnitType.School),
+    );
+  }
+
+  maxEffectiveBanks(): number {
+    return 5;
+  }
+
+  /** Finished, working Banks that count for `player` (at most 5). */
+  effectiveBanks(player: PlayerLike): number {
+    return Math.min(
+      this.maxEffectiveBanks(),
+      workingCount(player, UnitType.Bank),
+    );
+  }
+
+  /** Banks pay interest this often (10 ticks = 1 second). */
+  bankInterestIntervalTicks(): number {
+    return 10 * 10;
+  }
+
+  /** Each Bank pays this share of the gold you hold, per payout... */
+  bankInterestPerBank(): number {
+    return 0.005;
+  }
+
+  /** ...but never more than this much gold per Bank per payout. */
+  bankInterestCapPerBank(): bigint {
+    return 25_000n;
+  }
+
+  /** Capturing a Bank steals this share of its old owner's gold... */
+  bankHeistShare(): number {
+    return 0.15;
+  }
+
+  /** ...up to this much. */
+  bankHeistCap(): bigint {
+    return 1_000_000n;
   }
 
   /** Sibau Wars: ticks after the spawn phase before the first disaster. */
@@ -460,16 +520,6 @@ export class Config {
   /** Sibau Wars: how long a gold rush keeps paying out. */
   goldRushTicks(): number {
     return 60 * 10;
-  }
-
-  /** Sibau Wars: radius of an EMP blast, in tiles. */
-  empRadius(): number {
-    return 45;
-  }
-
-  /** Sibau Wars: how long an EMP keeps buildings switched off (10 ticks = 1s). */
-  empDisableTicks(): number {
-    return 30 * 10;
   }
 
   nukeAllianceBreakThreshold(): number {
@@ -498,4 +548,13 @@ export class Config {
   allianceExtensionPromptOffset(): number {
     return 300; // 30 seconds before expiration
   }
+}
+
+/** Sibau Wars: finished buildings of `type` that aren't switched off. */
+function workingCount(player: PlayerLike, type: UnitType): number {
+  let n = 0;
+  for (const u of player.units(type)) {
+    if (u.isActive() && !u.isUnderConstruction() && !u.isDisabled()) n++;
+  }
+  return n;
 }

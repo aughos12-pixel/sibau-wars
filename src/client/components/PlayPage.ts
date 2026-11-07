@@ -120,11 +120,7 @@ export class PlayPage extends LitElement {
 
         <game-mode-selector></game-mode-selector>
 
-        <!-- Desktop gets the compact footer button instead. -->
-        <steam-wishlist
-          campaign="home_mobile"
-          class="block px-2 pb-4 lg:hidden"
-        ></steam-wishlist>
+        <!-- Sibau Wars: no Steam store widget (the game isn't on Steam). -->
       </div>
     `;
   }

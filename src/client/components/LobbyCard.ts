@@ -168,6 +168,12 @@ const PILL =
 // No backdrop-filter anywhere in the card: under a transformed ancestor
 // Chrome clips it with a separate mask and the map leaks at the corners.
 const BADGE = "rounded bg-black/70";
+/**
+ * Sibau Wars: pills stay on one line and at most two show, so long modifier
+ * names can't wrap down over the map title on short cards.
+ */
+const ONE_LINE = "max-w-full truncate whitespace-nowrap";
+const MAX_MODIFIER_PILLS = 2;
 /** A player's listed lobby, so it can't pass for a scheduled public game. */
 const CUSTOM_PILL =
   "rounded bg-orange-500 px-2 py-1 text-xs font-bold tracking-widest text-white";
@@ -253,7 +259,23 @@ export function lobbyCard({
                 >`
               : nothing
           }
-          ${modifiers.map((label) => html`<span class=${PILL}>${label}</span>`)}
+          ${modifiers
+            .slice(0, MAX_MODIFIER_PILLS)
+            .map(
+              (label) =>
+                html`<span class="${PILL} ${ONE_LINE}" title=${label}
+                  >${label}</span
+                >`,
+            )}
+          ${
+            modifiers.length > MAX_MODIFIER_PILLS
+              ? html`<span
+                  class="${PILL} ${ONE_LINE}"
+                  title=${modifiers.slice(MAX_MODIFIER_PILLS).join(", ")}
+                  >+${modifiers.length - MAX_MODIFIER_PILLS}</span
+                >`
+              : nothing
+          }
         </div>
         <span
           class="${PILL} shrink-0 tabular-nums ${

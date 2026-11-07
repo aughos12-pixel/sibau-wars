@@ -41,7 +41,6 @@ import {
   TrainType,
   UT_ATOM_BOMB,
   UT_HYDROGEN_BOMB,
-  UT_EMP,
   UT_MIRV,
   UT_MIRV_WARHEAD,
   UT_SAM_MISSILE,
@@ -134,7 +133,6 @@ const TRAIN_CARRIAGE_LOADED_COL = UNIT_ORDER.indexOf("TrainCarriageLoaded");
 
 /** Nuke + warhead types — rendered with flickering hot colors */
 const FLICKER_TYPES: ReadonlySet<string> = new Set([
-  UT_EMP,
   UT_ATOM_BOMB,
   UT_HYDROGEN_BOMB,
   UT_MIRV,
@@ -146,7 +144,6 @@ const FLICKER_TYPES: ReadonlySet<string> = new Set([
 /** Missile/projectile types — rendered on top of structures in the layer order.
  *  Ground/sea units (boats, trains) render below structures. */
 const MISSILE_TYPES: ReadonlySet<string> = new Set([
-  UT_EMP,
   UT_ATOM_BOMB,
   UT_HYDROGEN_BOMB,
   UT_MIRV,
@@ -292,9 +289,6 @@ export class UnitPass {
         this.typeToAtlasCol.set(header.unitTypes[i], col);
       }
     }
-    // Sibau Wars: the EMP has no sprite of its own; it flies as an atom bomb
-    // missile (its blue light comes from PointLightPass).
-    this.typeToAtlasCol.set(UT_EMP, UNIT_ORDER.indexOf(UT_ATOM_BOMB));
 
     // Compile shaders
     this.program = createProgram(

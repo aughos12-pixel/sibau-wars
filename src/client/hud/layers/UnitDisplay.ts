@@ -27,7 +27,6 @@ import {
   atomBombIcon,
   cityIcon,
   defensePostIcon,
-  empIcon,
   factoryIcon,
   goldCoinIcon,
   hydrogenBombIcon,
@@ -38,6 +37,8 @@ import {
   warshipIcon,
   barracksIcon,
   tankIcon,
+  schoolIcon,
+  bankIcon,
 } from "../HotbarIcons";
 import { TutorialHighlight, TutorialHighlightEvent } from "../Tutorial";
 
@@ -59,6 +60,8 @@ export class UnitDisplay extends LitElement implements Controller {
   private _warships = 0;
   private _barracks = 0;
   private _tanks = 0;
+  private _schools = 0;
+  private _banks = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -427,7 +430,6 @@ export class UnitDisplay extends LitElement implements Controller {
     switch (item) {
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-      case UnitType.EMP:
       case UnitType.MIRV:
         return (
           this.cost(item) <= (player?.gold() ?? 0n) &&
@@ -473,6 +475,8 @@ export class UnitDisplay extends LitElement implements Controller {
     this._warships = player.totalUnitLevels(UnitType.Warship);
     this._barracks = player.totalUnitLevels(UnitType.Barracks);
     this._tanks = player.totalUnitLevels(UnitType.Tank);
+    this._schools = player.totalUnitLevels(UnitType.School);
+    this._banks = player.totalUnitLevels(UnitType.Bank);
     this.requestUpdate();
   }
 
@@ -584,18 +588,25 @@ export class UnitDisplay extends LitElement implements Controller {
               this.getHotkey("buildMIRV", "Digit0"),
             )}
             ${this.renderUnitItem(
-              empIcon,
-              null,
-              UnitType.EMP,
-              "emp",
-              this.getHotkey("buildEMP", "KeyV"),
-            )}
-            ${this.renderUnitItem(
               barracksIcon,
               this._barracks,
               UnitType.Barracks,
               "barracks",
               this.getHotkey("buildBarracks", "KeyJ"),
+            )}
+            ${this.renderUnitItem(
+              schoolIcon,
+              this._schools,
+              UnitType.School,
+              "school",
+              this.getHotkey("buildSchool", "KeyI"),
+            )}
+            ${this.renderUnitItem(
+              bankIcon,
+              this._banks,
+              UnitType.Bank,
+              "bank",
+              this.getHotkey("buildBank", "KeyO"),
             )}
             ${this.renderUnitItem(
               tankIcon,

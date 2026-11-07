@@ -50,7 +50,7 @@ export class UnitImpl implements Unit {
   private _destroyer: Player | undefined = undefined;
   private _lastSetSafeFromPirates: number; // Only for trade ships
   private _underConstruction: boolean = false;
-  // Sibau Wars: switched off by an EMP until this tick.
+  // Sibau Wars: switched off until this tick (no source uses this since the EMP was removed).
   private _disabledUntil: number = 0;
   private _lastOwner: PlayerImpl | null = null;
   private _troops: number;
@@ -934,7 +934,7 @@ export class UnitImpl implements Unit {
 export const UnitSnapshot = snapshotType({
   name: "Unit",
   version: 2,
-  // v1 units predate Sibau Wars' EMP: none was ever disabled.
+  // v1 units predate the disabled flag: none was ever disabled.
   migrations: { 1: (d) => ({ ...d, disabledUntil: 0 }) },
   schema: z.object({
     id: zInt(),

@@ -26,7 +26,6 @@ import type {
 const INTERCEPTED_UNIT_TRANSLATION_KEYS: Partial<Record<UnitType, string>> = {
   [UnitType.AtomBomb]: "unit_type.atom_bomb",
   [UnitType.HydrogenBomb]: "unit_type.hydrogen_bomb",
-  [UnitType.EMP]: "unit_type.emp",
   [UnitType.MIRVWarhead]: "unit_type.mirv",
 };
 
@@ -64,7 +63,6 @@ export class SAMMissileExecution implements Execution {
     const nukesWhitelist = [
       UnitType.AtomBomb,
       UnitType.HydrogenBomb,
-      UnitType.EMP,
       UnitType.MIRVWarhead,
     ];
     if (

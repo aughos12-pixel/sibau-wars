@@ -16,7 +16,6 @@ import { DoomsdayClockExecutionSnapshot } from "../execution/DoomsdayClockExecut
 import { EmbargoAllExecutionSnapshot } from "../execution/EmbargoAllExecution";
 import { EmbargoExecutionSnapshot } from "../execution/EmbargoExecution";
 import { EmojiExecutionSnapshot } from "../execution/EmojiExecution";
-import { EmpRecoveryExecutionSnapshot } from "../execution/EmpRecoveryExecution";
 import { FactoryExecutionSnapshot } from "../execution/FactoryExecution";
 import { FocusTankExecutionSnapshot } from "../execution/FocusTankExecution";
 import { MarkDisconnectedExecutionSnapshot } from "../execution/MarkDisconnectedExecution";
@@ -82,7 +81,6 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   NationExecutionSnapshot,
   NoOpExecutionSnapshot,
   NukeExecutionSnapshot,
-  EmpRecoveryExecutionSnapshot,
   DisasterExecutionSnapshot,
   PauseExecutionSnapshot,
   PlayerExecutionSnapshot,

@@ -117,11 +117,12 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
   { type: UnitType.SAMLauncher, translationKey: "unit_type.sam_launcher" },
   { type: UnitType.AtomBomb, translationKey: "unit_type.atom_bomb" },
   { type: UnitType.HydrogenBomb, translationKey: "unit_type.hydrogen_bomb" },
-  { type: UnitType.EMP, translationKey: "unit_type.emp" },
   { type: UnitType.MIRV, translationKey: "unit_type.mirv" },
   { type: UnitType.Factory, translationKey: "unit_type.factory" },
   { type: UnitType.Barracks, translationKey: "unit_type.barracks" },
   { type: UnitType.Tank, translationKey: "unit_type.tank" },
+  { type: UnitType.School, translationKey: "unit_type.school" },
+  { type: UnitType.Bank, translationKey: "unit_type.bank" },
 ];
 
 const MAP_ICON = svg`<path

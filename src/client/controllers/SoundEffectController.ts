@@ -154,9 +154,6 @@ export class SoundEffectController implements Controller {
       case UnitType.HydrogenBomb:
         this.emit("hydrogen-launch");
         break;
-      case UnitType.EMP:
-        this.emit("atom-launch");
-        break;
       case UnitType.MIRV:
         this.emit("mirv-launch");
         break;
@@ -184,6 +181,12 @@ export class SoundEffectController implements Controller {
       // Sibau Wars: borrow the closest existing sounds.
       case UnitType.Barracks:
         if (unit.owner() === myPlayer) this.emit("build-defense-post");
+        break;
+      case UnitType.School:
+        if (unit.owner() === myPlayer) this.emit("build-city");
+        break;
+      case UnitType.Bank:
+        if (unit.owner() === myPlayer) this.emit("build-factory");
         break;
       case UnitType.Tank:
         if (unit.owner() === myPlayer) this.emit("build-warship");

@@ -49,11 +49,7 @@ import { GameView } from "../view";
 
 /** True for nuke types (AtomBomb, HydrogenBomb): ghost is preserved after placement so user can place multiple or keep selection (Enter/key confirm). */
 export function shouldPreserveGhostAfterBuild(unitType: UnitType): boolean {
-  return (
-    unitType === UnitType.AtomBomb ||
-    unitType === UnitType.HydrogenBomb ||
-    unitType === UnitType.EMP
-  );
+  return unitType === UnitType.AtomBomb || unitType === UnitType.HydrogenBomb;
 }
 
 // tSamIntercept value used to flag an untargetable (impassable) destination:
@@ -728,11 +724,7 @@ export class BuildPreviewController implements Controller {
   private canShowNukeTrajectory(tileRef: TileRef | undefined): boolean {
     if (!this.ghostUnit || tileRef === undefined) return false;
     const type = this.ghostUnit.buildableUnit.type;
-    return (
-      type === UnitType.AtomBomb ||
-      type === UnitType.HydrogenBomb ||
-      type === UnitType.EMP
-    );
+    return type === UnitType.AtomBomb || type === UnitType.HydrogenBomb;
   }
 
   private buildTrajectoryStatic(
@@ -819,7 +811,6 @@ export class BuildPreviewController implements Controller {
       }
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-      case UnitType.EMP:
         return this.game.config().nukeMagnitudes(u.type).outer;
       case UnitType.Factory:
         return this.game.config().trainStationMaxRange();
@@ -1151,9 +1142,7 @@ export class BuildPreviewController implements Controller {
 
       const isNuke = unitType === UnitType.AtomBomb;
       const rocketDirectionUp =
-        unitType === UnitType.AtomBomb ||
-        unitType === UnitType.HydrogenBomb ||
-        unitType === UnitType.EMP
+        unitType === UnitType.AtomBomb || unitType === UnitType.HydrogenBomb
           ? this.uiState.rocketDirectionUp
           : undefined;
       this.eventBus.emit(

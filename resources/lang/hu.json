@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Végleges törlés",
     "delete_account_confirm_word": "TÖRLÉS",
     "delete_account_desc": "Véglegesen törli a fiókod és a hozzá tartozó összes adatot.",
-    "delete_account_failed": "A törlés sikertelen volt, kérlek, lépj kapcsolatba az ügyfélszolgálattal a support@openfront.io címen",
+    "delete_account_failed": "A törlés sikertelen volt, kérlek, lépj kapcsolatba az ügyfélszolgálattal a github.com/aughos12-pixel/sibau-wars/issues címen",
     "delete_account_rate_limited": "A fióktörlés átmenetileg nem elérhető, kérjük próbáld meg később.",
     "delete_account_scheduled": "A fiókod 24 órán belül töröljük. Ha meggondolnád magad, kérjük lépj kapcsolatba az ügyfélszolgálattal a törlés visszavonása érdekében.",
     "delete_account_title": "Fiók törlése",

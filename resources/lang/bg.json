@@ -19,7 +19,7 @@
     "delete_account_confirm_button": "Изтрий перманентно",
     "delete_account_confirm_word": "ИЗТРИЙ",
     "delete_account_desc": "Перманентно изтрий акаунтът ти и всичката информация, обвързана с него.",
-    "delete_account_failed": "Изтриването не беше успешно, моля се свържи с екипа за поддръжка на support@openfront.io",
+    "delete_account_failed": "Изтриването не беше успешно, моля се свържи с екипа за поддръжка на github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "Изтриването на акаунта временно не е достъпно. Моля, опитай отново по-късно.",
     "delete_account_scheduled": "Акаунтът ти ще бъде изтрит след 24 часа. Ако си промениш мнението, моля, свържи се с екипа за поддръжка, за да го отмениш.",
     "delete_account_title": "Изтриване на акаунт",

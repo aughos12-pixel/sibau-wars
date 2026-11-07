@@ -80,11 +80,6 @@ export interface UnitParamsMap {
     trajectory: TileRef[];
   };
 
-  [UnitType.EMP]: {
-    targetTile?: number;
-    trajectory: TileRef[];
-  };
-
   [UnitType.MIRV]: {
     targetTile?: number;
     targetPlayer?: Player | TerraNullius;
@@ -114,6 +109,10 @@ export interface UnitParamsMap {
 
   // Sibau Wars
   [UnitType.Barracks]: Record<string, never>;
+
+  [UnitType.School]: Record<string, never>;
+
+  [UnitType.Bank]: Record<string, never>;
 
   [UnitType.Tank]: {
     targetTile?: TileRef;
@@ -301,9 +300,9 @@ export interface Unit extends UnitLike {
   // Construction phase on structures
   isUnderConstruction(): boolean;
   setUnderConstruction(underConstruction: boolean): void;
-  /** Sibau Wars: switch the unit off until `tick` (an EMP hit). */
+  /** Sibau Wars: switch the unit off until `tick` (currently unused). */
   disableUntil(tick: number): void;
-  /** Sibau Wars: the tick an EMP's effect ends (0 = never hit). */
+  /** Sibau Wars: the tick the unit switches back on (0 = never hit). */
   disabledUntil(): number;
 
   // Upgradable Structures

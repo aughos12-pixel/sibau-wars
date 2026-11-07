@@ -445,7 +445,6 @@ export class MapPlaylist {
         UnitType.MissileSilo,
         UnitType.AtomBomb,
         UnitType.HydrogenBomb,
-        UnitType.EMP,
         UnitType.MIRV,
         UnitType.SAMLauncher,
       );

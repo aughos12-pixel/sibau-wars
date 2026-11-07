@@ -23,7 +23,7 @@
     "delete_account_confirm_button": "Eliminar permanentemente",
     "delete_account_confirm_word": "ELIMINAR",
     "delete_account_desc": "Eliminar permanentemente la cuenta y todos sus datos.",
-    "delete_account_failed": "Error al eliminar, póngase en contacto con soporte técnico en support@openfront.io",
+    "delete_account_failed": "Error al eliminar, póngase en contacto con soporte técnico en github.com/aughos12-pixel/sibau-wars/issues",
     "delete_account_rate_limited": "La eliminación de la cuenta no está disponible temporalmente, por favor intenta más tarde.",
     "delete_account_scheduled": "Tu cuenta será eliminada en 24 horas. Si cambias de opinión, por favor contacta a soporte para cancelar.",
     "delete_account_title": "Eliminar cuenta",

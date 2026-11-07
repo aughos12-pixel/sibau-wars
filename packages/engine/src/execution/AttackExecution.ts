@@ -569,7 +569,7 @@ export class AttackExecution implements Execution {
         UnitType.DefensePost,
         defender.id(),
       ) &&
-      // Sibau Wars: posts switched off by an EMP give no bonus. The cheap
+      // Sibau Wars: posts switched off give no bonus. The cheap
       // check above stays first; this predicate scan only runs near a post.
       this.mg.anyUnitNearby(
         tile,
@@ -587,8 +587,13 @@ export class AttackExecution implements Execution {
         UnitType.Tank,
         this._owner.id(),
       );
+    const config = this.mg.config();
     return {
       attackerHasTank,
+      attackerSchools: config.effectiveSchools(this._owner),
+      defenderSchools: this.target.isPlayer()
+        ? config.effectiveSchools(this.target)
+        : 0,
       terrain: this.map.terrainType(tile),
       attackTroops,
       attacker: {

@@ -58,9 +58,9 @@ const PRIMARY_ACTION =
 const SECONDARY_ACTION =
   "bg-surface hover:brightness-[1.08] active:brightness-[0.95] hover:scale-105 hover:shadow-[var(--shadow-action-card-hover)]";
 const DISABLED = "opacity-50 cursor-not-allowed pointer-events-none";
-/** Tutorial card: the panel's gold, dark text for contrast. */
+/** Sibau Wars: Tutorial card in the blue-and-white theme: white, blue text. */
 const TUTORIAL_ACTION =
-  "bg-cyber-yellow hover:bg-yellow-300 active:bg-cyber-yellow/80 !text-gray-900 hover:scale-y-105 hover:scale-x-[1.01]";
+  "bg-white hover:bg-sky-50 active:bg-white/80 !text-malibu-blue hover:scale-y-105 hover:scale-x-[1.01]";
 
 /** The Tutorial card shows beside Solo until the player has played this many games. */
 const TUTORIAL_CARD_MAX_GAMES = 5;

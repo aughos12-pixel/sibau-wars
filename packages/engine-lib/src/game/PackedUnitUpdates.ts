@@ -46,9 +46,10 @@ export const PACKED_UNIT_TYPES: readonly UnitType[] = [
   UnitType.MIRVWarhead, // 14
   UnitType.Train, // 15
   UnitType.Factory, // 16
-  UnitType.EMP, // 17 (Sibau Wars)
-  UnitType.Barracks, // 18 (Sibau Wars)
-  UnitType.Tank, // 19 (Sibau Wars)
+  UnitType.Barracks, // 17 (Sibau Wars)
+  UnitType.Tank, // 18 (Sibau Wars)
+  UnitType.School, // 19 (Sibau Wars)
+  UnitType.Bank, // 20 (Sibau Wars)
 ] as const;
 
 const UNIT_TYPE_TO_INT = new Map<UnitType, number>(
@@ -153,7 +154,7 @@ export const packB = (update: UnitUpdate): number => {
     if (update.transportShipState.isRetreating) val |= 1 << 28;
   } else if (update.disabled) {
     // Sibau Wars: bit 28 is only "retreating" alongside bit 27; without a
-    // transport state (structures) it marks an EMP-disabled unit.
+    // transport state (structures) it marks a disabled unit.
     val |= 1 << 28;
   }
 

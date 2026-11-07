@@ -48,7 +48,7 @@ export class PortExecution implements Execution {
       return;
     }
 
-    // Sibau Wars: an EMP-disabled port sends no trade ships.
+    // Sibau Wars: a disabled port sends no trade ships.
     if (this.port.isDisabled()) {
       return;
     }

@@ -324,6 +324,23 @@
         class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-99999"
       ></div>
 
+      <!-- Sibau Wars: grey placeholders where side-rail ads (160x600) could
+           go later. Wide screens only, homepage only (the whole content area
+           hides in game, and they hide while a menu page is open). -->
+      <div
+        class="ad-placeholder hidden min-[1200px]:flex in-[.page-open]:hidden fixed top-1/2 -translate-y-1/2 left-6 z-10 w-[160px] h-[600px] max-h-[70vh] items-center justify-center rounded-lg border border-dashed border-white/25 bg-white/10 text-xs font-semibold uppercase tracking-widest text-white/50 pointer-events-none select-none"
+        data-ad-slot="home-left-rail"
+        aria-hidden="true"
+      >
+        <span data-i18n="main.ad_placeholder"></span>
+      </div>
+      <div
+        class="ad-placeholder hidden min-[1200px]:flex in-[.page-open]:hidden fixed top-1/2 -translate-y-1/2 right-6 z-10 w-[160px] h-[600px] max-h-[70vh] items-center justify-center rounded-lg border border-dashed border-white/25 bg-white/10 text-xs font-semibold uppercase tracking-widest text-white/50 pointer-events-none select-none"
+        data-ad-slot="home-right-rail"
+        aria-hidden="true"
+      >
+        <span data-i18n="main.ad_placeholder"></span>
+      </div>
       <homepage-promos></homepage-promos>
       <banned-modal></banned-modal>
       <marketing-consent-toast></marketing-consent-toast>

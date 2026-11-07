@@ -10,6 +10,7 @@ import {
   GameType,
   Gold,
   MAX_UPGRADE_AMOUNT,
+  MessageType,
   PlayerBuildable,
   PlayerBuildableUnitType,
   PlayerID,
@@ -33,6 +34,7 @@ import {
 } from "@openfront/engine-api/game/GameUpdates";
 import { ReadonlyTileSet } from "@openfront/engine-api/game/ReadViews";
 import { ClientID } from "@openfront/engine-api/Schemas";
+import { renderNumber } from "@openfront/engine-lib/Format";
 import { andFN, manhattanDistFN } from "@openfront/engine-lib/game/GameMapImpl";
 import { TileSet } from "@openfront/engine-lib/game/TileSet";
 import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
@@ -1393,7 +1395,38 @@ export class PlayerImpl implements Player {
     if (unit.owner() === this) {
       throw new Error(`Cannot capture unit, ${this} already owns ${unit}`);
     }
+    const previous = unit.owner();
     unit.setOwner(this);
+    // Sibau Wars: capturing a Bank robs its old owner.
+    if (unit.type() === UnitType.Bank && previous.isPlayer()) {
+      this.bankHeist(previous, unit);
+    }
+  }
+
+  private bankHeist(victim: Player, bank: Unit): void {
+    const config = this.mg.config();
+    const share = BigInt(Math.round(config.bankHeistShare() * 1000));
+    let loot = (victim.gold() * share) / 1000n;
+    if (loot > config.bankHeistCap()) loot = config.bankHeistCap();
+    if (loot <= 0n) return;
+    const taken = victim.removeGold(loot);
+    if (taken <= 0n) return;
+    this.addGold(taken, bank.tile());
+    const gold = renderNumber(taken);
+    this.mg.displayMessage(
+      "events_display.bank_heist_robber",
+      MessageType.CAPTURED_ENEMY_UNIT,
+      this.id(),
+      taken,
+      { gold, name: victim.displayName() },
+    );
+    this.mg.displayMessage(
+      "events_display.bank_heist_victim",
+      MessageType.UNIT_DESTROYED,
+      victim.id(),
+      undefined,
+      { gold, name: this.displayName() },
+    );
   }
 
   buildUnit<T extends UnitType>(
@@ -1606,7 +1639,6 @@ export class PlayerImpl implements Player {
         return this.nukeSpawn(targetTile, unitType);
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-      case UnitType.EMP:
         return this.nukeSpawn(targetTile, unitType);
       case UnitType.MIRVWarhead:
         return targetTile;
@@ -1626,6 +1658,8 @@ export class PlayerImpl implements Player {
       case UnitType.Tank:
         return this.tankSpawn(targetTile);
       case UnitType.Barracks:
+      case UnitType.School:
+      case UnitType.Bank:
       case UnitType.MissileSilo:
       case UnitType.DefensePost:
       case UnitType.SAMLauncher:
@@ -1678,7 +1712,7 @@ export class PlayerImpl implements Player {
     }
 
     // only get missilesilos that are not on cooldown, not under construction
-    // and not switched off by an EMP
+    // and not switched off
     const readySilos = this.units(UnitType.MissileSilo).filter(
       (silo) =>
         silo.isActive() &&

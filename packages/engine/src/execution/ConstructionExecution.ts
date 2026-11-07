@@ -119,8 +119,7 @@ export class ConstructionExecution implements Execution {
     const player = this.player;
     switch (this.constructionType) {
       case UnitType.AtomBomb:
-      case UnitType.HydrogenBomb:
-      case UnitType.EMP: {
+      case UnitType.HydrogenBomb: {
         const count = this.amount ?? 1;
         for (let i = 0; i < count; i++) {
           // NukeExecution staggers same-tick launches per silo itself.
@@ -169,6 +168,10 @@ export class ConstructionExecution implements Execution {
       // Sibau Wars: a Barracks needs no execution of its own; a tank rolls
       // out of the nearest one and drives to the clicked tile.
       case UnitType.Barracks:
+      // Schools and Banks are passive too (see Config.effectiveSchools and
+      // PlayerExecution's bank interest).
+      case UnitType.School:
+      case UnitType.Bank:
         break;
       case UnitType.Tank:
         this.mg.addExecution(
@@ -192,6 +195,8 @@ export class ConstructionExecution implements Execution {
       case UnitType.City:
       case UnitType.Factory:
       case UnitType.Barracks:
+      case UnitType.School:
+      case UnitType.Bank:
         return true;
       default:
         return false;

@@ -38,6 +38,9 @@ export interface AttackLogicInput {
   defenderHasDefensePost: boolean;
   /** Sibau Wars: one of the attacker's tanks is near the tile. */
   attackerHasTank?: boolean;
+  /** Sibau Wars: working Schools of the attacker and defender (0-5). */
+  attackerSchools?: number;
+  defenderSchools?: number;
   /** Fraction of land tiles with fallout, or null if the tile has no fallout. */
   falloutRatio: number | null;
   /** Tiles on the attack front this tick (plus jitter); fixed for the tick. */
@@ -361,8 +364,6 @@ export class EngineConfig extends Config {
         return this.costWrapper(() => 750_000, UnitType.AtomBomb);
       case UnitType.HydrogenBomb:
         return this.costWrapper(() => 5_000_000, UnitType.HydrogenBomb);
-      case UnitType.EMP:
-        return this.costWrapper(() => 1_000_000, UnitType.EMP);
       case UnitType.MIRV:
         return (game: Game, player: Player) => {
           if (
@@ -401,6 +402,16 @@ export class EngineConfig extends Config {
         return this.costWrapper(
           (numUnits: number) => Math.min(1_000_000, (numUnits + 1) * 250_000),
           UnitType.Barracks,
+        );
+      case UnitType.School:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(1_000_000, (numUnits + 1) * 200_000),
+          UnitType.School,
+        );
+      case UnitType.Bank:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(1_500_000, (numUnits + 1) * 300_000),
+          UnitType.Bank,
         );
       case UnitType.Tank:
         return this.costWrapper(
@@ -555,6 +566,13 @@ export class EngineConfig extends Config {
       mag *= this.tankAttackBoostMultiplier();
       tileCost *= this.tankAttackBoostMultiplier();
     }
+    // Sibau Wars: Schools make troops fight better: the attacker's cut its
+    // losses, the defender's raise them (3% per School, at most 5).
+    const perSchool = this.schoolBonusPerSchool();
+    mag *= 1 - perSchool * (input.attackerSchools ?? 0);
+    if (defender !== null) {
+      mag *= 1 + perSchool * (input.defenderSchools ?? 0);
+    }
     if (input.falloutRatio !== null) {
       const fallout = this.falloutDefenseModifier(input.falloutRatio);
       mag *= fallout;
@@ -706,7 +724,6 @@ export class EngineConfig extends Config {
     switch (unitType) {
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-      case UnitType.EMP:
         return 10;
       case UnitType.MIRV:
         return 15;

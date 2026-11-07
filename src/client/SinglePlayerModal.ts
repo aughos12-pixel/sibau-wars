@@ -114,10 +114,11 @@ const TUTORIAL_DISABLED_UNITS: UnitType[] = [
   UnitType.Factory,
   UnitType.SAMLauncher,
   UnitType.HydrogenBomb,
-  UnitType.EMP,
   UnitType.MIRV,
   UnitType.Barracks,
   UnitType.Tank,
+  UnitType.School,
+  UnitType.Bank,
 ];
 
 const DEFAULT_OPTIONS = {
