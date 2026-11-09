@@ -207,9 +207,20 @@ export abstract class AiAttackBehavior {
         troops,
         this.player,
         target.isPlayer() ? target.id() : this.game.terraNullius().id(),
+        null,
+        true,
+        target.isPlayer() ? this.aimFor(target) : null,
       ),
     );
     return true;
+  }
+
+  /**
+   * Sibau Wars: a point to aim a precise attack at, or null for a classic
+   * whole-border attack. Tribes never aim; nations sometimes do.
+   */
+  protected aimFor(_target: Player): TileRef[] | null {
+    return null;
   }
 
   protected sendBoatAttack(target: Player): boolean {

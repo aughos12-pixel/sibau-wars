@@ -193,7 +193,7 @@
   "build_menu": {
     "desc": {
       "atom_bomb": "Small explosion",
-      "bank": "Pays 0.5% of your gold every 10s (max 25k per Bank, 5 Banks). Enemies who capture it steal 15% of your gold",
+      "bank": "Pays 0.25% of your gold every 10s (max 10k per Bank, 5 Banks). Enemies who capture it steal 15% of your gold",
       "barracks": "Builds tanks",
       "city": "Increases max population",
       "defense_post": "Increases defenses of nearby borders",
@@ -203,7 +203,7 @@
       "missile_silo": "Used to launch nukes",
       "port": "Sends trade ships to generate gold",
       "sam_launcher": "Defends against incoming nukes",
-      "school": "Troops fight 3% better and regrow 3% faster per School (max 5)",
+      "school": "Troops fight 2% better and regrow 2% faster per School (max 5)",
       "tank": "Drives over land, wrecks enemy buildings and speeds up your attacks nearby. Needs a Barracks",
       "warship": "Captures trade ships, destroys ships and boats"
     },
@@ -2672,6 +2672,10 @@
       "spawn": "Tap anywhere on the map to pick where you spawn."
     },
     "title": "Tutorial"
+  },
+  "unit_display": {
+    "tab_buildings": "Buildings",
+    "tab_military": "Military"
   },
   "unit_type": {
     "atom_bomb": "Atom Bomb",

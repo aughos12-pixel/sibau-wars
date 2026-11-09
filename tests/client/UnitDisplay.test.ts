@@ -85,6 +85,42 @@ function dispatchTouch(target: EventTarget, type: string, identifier: number) {
   target.dispatchEvent(event);
 }
 
+/** Sibau Wars: the bar is split into Buildings and Military tabs. */
+const BUILDINGS_TAB_SIZE = 9;
+const MILITARY_TAB_SIZE = 5;
+
+async function openMilitaryTab(
+  display: HTMLElement & { updateComplete: Promise<boolean> },
+) {
+  const tabs = display.querySelectorAll<HTMLButtonElement>(".unit-display-tab");
+  tabs[1].click();
+  await display.updateComplete;
+}
+
+describe("UnitDisplay tabs (Sibau Wars)", () => {
+  test("splits the build bar into Buildings and Military", async () => {
+    const { display } = makeDisplay();
+    try {
+      await display.updateComplete;
+      const tabs = display.querySelectorAll(".unit-display-tab");
+      expect(tabs).toHaveLength(2);
+      expect(BUILDINGS_TAB_SIZE + MILITARY_TAB_SIZE).toBe(
+        BuildMenus.types.length,
+      );
+      expect(
+        display.querySelector(".unit-display-grid")?.children,
+      ).toHaveLength(BUILDINGS_TAB_SIZE);
+      await openMilitaryTab(display);
+      expect(
+        display.querySelector(".unit-display-grid")?.children,
+      ).toHaveLength(MILITARY_TAB_SIZE);
+      expect(tabs[1].getAttribute("aria-selected")).toBe("true");
+    } finally {
+      display.remove();
+    }
+  });
+});
+
 describe("mobile UnitDisplay layout", () => {
   test("keeps the quick-build items in one horizontally scrollable row", async () => {
     const { display } = makeDisplay();
@@ -106,9 +142,10 @@ describe("mobile UnitDisplay layout", () => {
       expect(grid?.classList.contains("max-[360px]:auto-cols-[44px]")).toBe(
         true,
       );
-      expect(grid?.children).toHaveLength(BuildMenus.types.length);
+      // Sibau Wars: the Buildings tab shows first.
+      expect(grid?.children).toHaveLength(BUILDINGS_TAB_SIZE);
       expect(grid?.style.getPropertyValue("--unit-display-columns")).toBe(
-        String(BuildMenus.types.length),
+        String(BUILDINGS_TAB_SIZE),
       );
     } finally {
       display.remove();
@@ -121,9 +158,9 @@ describe("mobile UnitDisplay layout", () => {
       await display.updateComplete;
 
       const grid = display.querySelector<HTMLElement>(".unit-display-grid");
-      expect(grid?.children).toHaveLength(BuildMenus.types.length - 1);
+      expect(grid?.children).toHaveLength(BUILDINGS_TAB_SIZE - 1);
       expect(grid?.style.getPropertyValue("--unit-display-columns")).toBe(
-        String(BuildMenus.types.length - 1),
+        String(BUILDINGS_TAB_SIZE - 1),
       );
       expect(grid?.classList.contains("lg:grid-cols-none")).toBe(true);
       expect(grid?.classList.contains("lg:auto-cols-max")).toBe(true);
@@ -897,7 +934,8 @@ describe("mobile UnitDisplay layout", () => {
     const { display } = makeDisplay();
     try {
       await display.updateComplete;
-      const warshipItem = display.querySelectorAll(".unit-display-grid > *")[6];
+      await openMilitaryTab(display);
+      const warshipItem = display.querySelectorAll(".unit-display-grid > *")[0];
       warshipItem.dispatchEvent(new MouseEvent("mouseenter"));
       await display.updateComplete;
 
@@ -913,9 +951,10 @@ describe("mobile UnitDisplay layout", () => {
       const { display } = makeDisplay();
       try {
         await display.updateComplete;
+        await openMilitaryTab(display);
         const warshipItem = display.querySelectorAll(
           ".unit-display-grid > *",
-        )[6];
+        )[0];
         warshipItem.dispatchEvent(new MouseEvent("mouseenter"));
         await display.updateComplete;
 

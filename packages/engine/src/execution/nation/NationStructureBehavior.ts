@@ -37,6 +37,8 @@ interface StructureRatioConfig {
   ratioPerCity: number;
   /** Perceived cost increase percentage per owned structure (e.g., 0.1 = 10% more expensive per owned) */
   perceivedCostIncreasePerOwned: number;
+  /** Sibau Wars: never want more than this many (bonuses stop at 5). */
+  maxCount?: number;
 }
 
 /** SAM launcher ratio per city, keyed by difficulty */
@@ -77,6 +79,23 @@ function getStructureRatios(
     [UnitType.MissileSilo]: {
       ratioPerCity: 0.2,
       perceivedCostIncreasePerOwned: 1,
+    },
+    // Sibau Wars: Schools and Banks stop helping past 5; a couple of
+    // Barracks are enough to keep tanks coming.
+    [UnitType.School]: {
+      ratioPerCity: difficulty === Difficulty.Easy ? 0.25 : 0.5,
+      perceivedCostIncreasePerOwned: 0.5,
+      maxCount: 5,
+    },
+    [UnitType.Bank]: {
+      ratioPerCity: difficulty === Difficulty.Easy ? 0.2 : 0.4,
+      perceivedCostIncreasePerOwned: 0.5,
+      maxCount: 5,
+    },
+    [UnitType.Barracks]: {
+      ratioPerCity: difficulty === Difficulty.Easy ? 0.15 : 0.25,
+      perceivedCostIncreasePerOwned: 1,
+      maxCount: difficulty === Difficulty.Easy ? 1 : 2,
     },
   };
 }
@@ -655,6 +674,10 @@ export class NationStructureBehavior {
       UnitType.Factory,
       UnitType.SAMLauncher,
       UnitType.MissileSilo,
+      // Sibau Wars
+      UnitType.School,
+      UnitType.Bank,
+      UnitType.Barracks,
     ];
 
     const nukesEnabled =
@@ -776,6 +799,9 @@ export class NationStructureBehavior {
       targetCount = Math.min(Math.floor(cityCount * ratio), MAX_MISSILE_SILOS);
     } else {
       targetCount = Math.floor(cityCount * ratio);
+    }
+    if (config.maxCount !== undefined) {
+      targetCount = Math.min(targetCount, config.maxCount);
     }
 
     return targetCount - owned;

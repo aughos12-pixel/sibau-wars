@@ -52,7 +52,7 @@ const HIT_MESSAGE: Partial<Record<DisasterKind, string>> = {
 };
 
 /** Gold a gold rush pays per owned tile in its zone, every second. */
-export const GOLD_RUSH_GOLD_PER_TILE_PER_SECOND = 6n;
+export const GOLD_RUSH_GOLD_PER_TILE_PER_SECOND = 4n;
 
 const SHIP_TYPES = [
   UnitType.TransportShip,
@@ -232,8 +232,8 @@ export class DisasterExecution implements Execution {
   private earthquake(d: ActiveDisaster) {
     const hit = new Map<Player, number>();
     for (const u of this.structuresIn(d)) {
-      // About 4 in 10 buildings ride it out.
-      if (this.random.nextInt(0, 10) < 4) continue;
+      // About half the buildings ride it out.
+      if (this.random.nextInt(0, 10) < 5) continue;
       this.wreck(u, hit);
     }
     this.notifyHit(d, hit);
@@ -244,7 +244,8 @@ export class DisasterExecution implements Execution {
     const hit = new Map<Player, number>();
     for (const [player, inZone] of tilesIn) {
       const share = inZone / Math.max(1, player.numTilesOwned());
-      const fraction = Math.min(0.4, 0.1 + 0.6 * share);
+      // Scales with how much of your land burns: a sliver costs ~2%.
+      const fraction = Math.min(0.3, 0.02 + 0.5 * share);
       const lost = player.removeTroops(Math.floor(player.troops() * fraction));
       hit.set(player, Math.floor(lost));
     }
@@ -261,11 +262,8 @@ export class DisasterExecution implements Execution {
     }
     const hit = new Map<Player, number>();
     for (const u of this.structuresIn(d)) {
-      if (u.type() === UnitType.Port) {
-        const owner = u.owner();
-        u.delete(true);
-        hit.set(owner, (hit.get(owner) ?? 0) + 1);
-      } else if (this.mg.isShore(u.tile())) {
+      // Ports always take the wave; other buildings only on the shore.
+      if (u.type() === UnitType.Port || this.mg.isShore(u.tile())) {
         this.wreck(u, hit);
       }
     }

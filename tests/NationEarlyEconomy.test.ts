@@ -29,6 +29,17 @@ function setupCoast(
       grid.push(x < westEnd || x >= size - westEnd ? L : W);
     }
   }
+  // Sibau Wars: these tests pin the original economy, so the Sibau-only
+  // buildings stay out of the build queue here (NationCustomFeatures covers them).
+  config = {
+    ...config,
+    disabledUnits: [
+      ...(config.disabledUnits ?? []),
+      UnitType.School,
+      UnitType.Bank,
+      UnitType.Barracks,
+    ],
+  };
   const team = config.gameMode === GameMode.Team;
   const game = createGame(
     { width: size, height: size, grid },

@@ -454,7 +454,7 @@ export class Config {
 
   /** Per School: troops fight this much better and regrow this much faster. */
   schoolBonusPerSchool(): number {
-    return 0.03;
+    return 0.02;
   }
 
   /** Finished, working Schools that count for `player` (at most 5). */
@@ -482,14 +482,14 @@ export class Config {
     return 10 * 10;
   }
 
-  /** Each Bank pays this share of the gold you hold, per payout... */
+  /** Each Bank pays this share of the gold you hold, per payout (0.25%)... */
   bankInterestPerBank(): number {
-    return 0.005;
+    return 0.0025;
   }
 
   /** ...but never more than this much gold per Bank per payout. */
   bankInterestCapPerBank(): bigint {
-    return 25_000n;
+    return 10_000n;
   }
 
   /** Capturing a Bank steals this share of its old owner's gold... */

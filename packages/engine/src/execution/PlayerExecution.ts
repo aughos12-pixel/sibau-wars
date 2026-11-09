@@ -1101,16 +1101,18 @@ export class PlayerExecution implements Execution {
 
   /**
    * Sibau Wars: every bankInterestIntervalTicks each working Bank (at most 5)
-   * pays 0.5% of the gold the player holds, capped at 25k gold per Bank.
+   * pays bankInterestPerBank() of the gold the player holds, capped at
+   * bankInterestCapPerBank() per Bank.
    */
   private payBankInterest(ticks: number): void {
     if (ticks % this.config.bankInterestIntervalTicks() !== 0) return;
     const banks = this.config.effectiveBanks(this.player);
     if (banks === 0) return;
-    const perMille = BigInt(
-      Math.round(this.config.bankInterestPerBank() * 1000 * banks),
+    // In basis points (1/100 of a percent) so 0.25% isn't rounded away.
+    const basisPoints = BigInt(
+      Math.round(this.config.bankInterestPerBank() * 10_000 * banks),
     );
-    let interest = (this.player.gold() * perMille) / 1000n;
+    let interest = (this.player.gold() * basisPoints) / 10_000n;
     const cap = this.config.bankInterestCapPerBank() * BigInt(banks);
     if (interest > cap) interest = cap;
     if (interest > 0n) this.player.addGold(interest);

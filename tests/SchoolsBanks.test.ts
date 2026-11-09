@@ -56,7 +56,7 @@ function runToInterval() {
 }
 
 describe("Schools (Sibau Wars)", () => {
-  test("each School adds 3% troop regrowth, up to 5 Schools", async () => {
+  test("each School adds 2% troop regrowth, up to 5 Schools", async () => {
     await halves();
     const config = game.config();
     left.removeTroops(left.troops() - 10_000);
@@ -64,13 +64,13 @@ describe("Schools (Sibau Wars)", () => {
     build(left, UnitType.School, 3, 30);
     expect(config.effectiveSchools(left)).toBe(3);
     left.removeTroops(left.troops() - 10_000);
-    expect(config.troopIncreaseRate(left) / base).toBeCloseTo(1.09, 5);
+    expect(config.troopIncreaseRate(left) / base).toBeCloseTo(1.06, 5);
 
     build(left, UnitType.School, 4, 60);
     expect(left.units(UnitType.School)).toHaveLength(7);
     expect(config.effectiveSchools(left)).toBe(5);
     left.removeTroops(left.troops() - 10_000);
-    expect(config.troopIncreaseRate(left) / base).toBeCloseTo(1.15, 5);
+    expect(config.troopIncreaseRate(left) / base).toBeCloseTo(1.1, 5);
   });
 
   test("a School under construction doesn't count yet", async () => {
@@ -104,13 +104,13 @@ describe("Schools (Sibau Wars)", () => {
     const plain = config.attackLogic(base).attackerTroopLoss;
     const smartAttacker = config.attackLogic({ ...base, attackerSchools: 5 });
     const smartDefender = config.attackLogic({ ...base, defenderSchools: 5 });
-    expect(smartAttacker.attackerTroopLoss / plain).toBeCloseTo(0.85);
-    expect(smartDefender.attackerTroopLoss / plain).toBeCloseTo(1.15);
+    expect(smartAttacker.attackerTroopLoss / plain).toBeCloseTo(0.9);
+    expect(smartDefender.attackerTroopLoss / plain).toBeCloseTo(1.1);
   });
 });
 
 describe("Banks (Sibau Wars)", () => {
-  test("a Bank pays 0.5% of held gold every 10 seconds", async () => {
+  test("a Bank pays 0.25% of held gold every 10 seconds", async () => {
     await halves();
     build(left, UnitType.Bank, 1, 30);
     left.removeGold(left.gold());
@@ -122,11 +122,11 @@ describe("Banks (Sibau Wars)", () => {
     const r0 = right.gold();
     game.executeNextTick();
     const interest = left.gold() - l0 - (right.gold() - r0);
-    expect(Number(interest)).toBeGreaterThanOrEqual(4_900);
-    expect(Number(interest)).toBeLessThanOrEqual(5_100);
+    expect(Number(interest)).toBeGreaterThanOrEqual(2_450);
+    expect(Number(interest)).toBeLessThanOrEqual(2_550);
   });
 
-  test("interest is capped at 25k per Bank", async () => {
+  test("interest is capped at 10k per Bank", async () => {
     await halves();
     build(left, UnitType.Bank, 2, 30);
     left.addGold(100_000_000n);
@@ -135,7 +135,7 @@ describe("Banks (Sibau Wars)", () => {
     const l0 = left.gold();
     const r0 = right.gold();
     game.executeNextTick();
-    expect(left.gold() - l0 - (right.gold() - r0)).toBe(50_000n);
+    expect(left.gold() - l0 - (right.gold() - r0)).toBe(20_000n);
   });
 
   test("capturing a Bank steals 15% of the old owner's gold", async () => {

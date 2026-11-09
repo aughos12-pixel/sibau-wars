@@ -1,9 +1,14 @@
 import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { PlayerInfo, PlayerType } from "@openfront/engine-api/game/GameTypes";
+import {
+  PlayerInfo,
+  PlayerType,
+  TerrainType,
+} from "@openfront/engine-api/game/GameTypes";
 import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
 import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
 import { Game, Player } from "@openfront/engine/game/Game";
 import { setup } from "./util/Setup";
+import { UseRealAttackLogic } from "./util/TestConfig";
 import { executeTicks } from "./util/utils";
 
 let game: Game;
@@ -119,5 +124,36 @@ describe("precise attacks (Sibau Wars)", () => {
     executeTicks(game, 3);
     expect(attacker.outgoingAttacks()).toHaveLength(0);
     void before;
+  });
+
+  test("a precise attack pays 25% more troops per tile", async () => {
+    const game = await setup(
+      "big_plains",
+      {},
+      [],
+      undefined,
+      UseRealAttackLogic,
+    );
+    const base = {
+      terrain: TerrainType.Plains,
+      attackTroops: 100_000,
+      attacker: { type: PlayerType.Human, numTiles: 10_000 },
+      defender: {
+        type: PlayerType.Human,
+        numTiles: 10_000,
+        troops: 100_000,
+        isTraitor: false,
+        isDisconnectedTeammate: false,
+      },
+      defenderHasDefensePost: false,
+      falloutRatio: null,
+      borderSize: 50,
+    };
+    const classic = game.config().attackLogic(base);
+    const precise = game.config().attackLogic({ ...base, preciseAttack: true });
+    expect(precise.attackerTroopLoss / classic.attackerTroopLoss).toBeCloseTo(
+      1.25,
+    );
+    expect(precise.tickFraction).toBeCloseTo(classic.tickFraction);
   });
 });

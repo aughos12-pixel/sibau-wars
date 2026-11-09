@@ -117,6 +117,11 @@ export class NationStructurePlacement {
         return this.cityValue();
       case UnitType.MissileSilo:
         return this.missileSiloValue();
+      // Sibau Wars: deep inside, spread apart (a captured Bank gets robbed).
+      case UnitType.School:
+      case UnitType.Bank:
+      case UnitType.Barracks:
+        return this.interiorValue(type);
       case UnitType.Factory:
         return this.factoryValue();
       case UnitType.Port:
@@ -133,9 +138,13 @@ export class NationStructurePlacement {
    * Prefers high elevation, distance from border, and spacing from same-type structures.
    */
   private missileSiloValue(): (tile: TileRef) => number {
+    return this.interiorValue(UnitType.MissileSilo);
+  }
+
+  private interiorValue(type: UnitType): (tile: TileRef) => number {
     const game = this.game;
     const borderTiles = this.player.borderTiles();
-    const otherUnits = this.player.units(UnitType.MissileSilo);
+    const otherUnits = this.player.units(type);
     const { borderSpacing, structureSpacing } = this.spacingConstants();
 
     return (tile) => {

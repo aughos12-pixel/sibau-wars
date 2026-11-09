@@ -60,6 +60,18 @@ function boxGap(a: Box, b: Box): number {
   return dx + dy;
 }
 
+/** Sibau Wars: 1 in N attacks on players are precise (0 = never). */
+const PRECISE_ATTACK_ONE_IN: Record<Difficulty, number> = {
+  [Difficulty.Easy]: 0,
+  [Difficulty.Medium]: 5,
+  [Difficulty.Hard]: 3,
+  [Difficulty.Impossible]: 2,
+};
+/** Our border tiles facing the target that we look from. */
+const PRECISE_FRONT_SAMPLES = 40;
+/** Only aim at buildings this close to the shared border. */
+const PRECISE_AIM_RANGE = 40;
+
 export class NationAttackBehavior extends AiAttackBehavior {
   private botAttackTroopsSent: number = 0;
   // Our boat attacks (landed beachheads) already followed up by land, while they last
@@ -1017,6 +1029,44 @@ export class NationAttackBehavior extends AiAttackBehavior {
       return boundingBoxCenter(player.largestClusterBoundingBox);
     }
     return calculateBoundingBoxCenter(this.game, player.borderTiles());
+  }
+
+  /**
+   * Sibau Wars: nations sometimes use precise attacks like a player would,
+   * spearheading at the target's building nearest the shared border.
+   */
+  protected override aimFor(target: Player): TileRef[] | null {
+    if (target.type() === PlayerType.Bot) return null;
+    const { difficulty } = this.game.config().gameConfig();
+    const oneIn = PRECISE_ATTACK_ONE_IN[difficulty];
+    if (oneIn === 0 || !this.random.chance(oneIn)) return null;
+
+    const front: TileRef[] = [];
+    this.player.borderTiles().forEach((t) => {
+      if (front.length >= PRECISE_FRONT_SAMPLES) return;
+      this.game.forEachNeighbor(t, (n) => {
+        if (
+          front.length < PRECISE_FRONT_SAMPLES &&
+          this.game.owner(n) === target
+        ) {
+          front.push(n);
+        }
+      });
+    });
+    if (front.length === 0) return null;
+
+    let best: TileRef | null = null;
+    let bestDist = PRECISE_AIM_RANGE + 1;
+    for (const u of target.units(Structures.types)) {
+      for (const f of front) {
+        const d = this.game.manhattanDist(f, u.tile());
+        if (d < bestDist) {
+          bestDist = d;
+          best = u.tile();
+        }
+      }
+    }
+    return best === null ? null : [best];
   }
 
   forceSendAttack(target: Player | TerraNullius) {

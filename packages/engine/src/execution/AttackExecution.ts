@@ -45,7 +45,7 @@ const DIRECTIONAL_PULL = 1.5;
  * is concentrated, so it pushes forward faster than a broad attack (attack
  * speed otherwise grows with the width of the front).
  */
-const DIRECTIONAL_MIN_FRONT = 30;
+const DIRECTIONAL_MIN_FRONT = 12;
 /**
  * Precise attacks only take land in a corridor around their route: this
  * many tiles either side at first, one more every CORRIDOR_WIDEN_TICKS, up
@@ -589,6 +589,7 @@ export class AttackExecution implements Execution {
       );
     const config = this.mg.config();
     return {
+      preciseAttack: this.attack?.isDirectional() === true,
       attackerHasTank,
       attackerSchools: config.effectiveSchools(this._owner),
       defenderSchools: this.target.isPlayer()

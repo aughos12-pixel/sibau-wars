@@ -47,6 +47,18 @@ const PEEK_HOLD_MS = 450;
 /** How long the details stay up after the browser cancels the touch itself. */
 const PEEK_GRACE_MS = 1200;
 
+type BuildTab = "buildings" | "military";
+
+interface BarItem {
+  tab: BuildTab;
+  icon: string;
+  type: PlayerBuildableUnitType;
+  key: string;
+  hotkey: string;
+  defaultKey: string;
+  count: () => number | null;
+}
+
 @customElement("unit-display")
 export class UnitDisplay extends LitElement implements Controller {
   public game: GameView;
@@ -68,6 +80,8 @@ export class UnitDisplay extends LitElement implements Controller {
   private _defensePost = 0;
   private _samLauncher = 0;
   private allDisabled = false;
+  /** Sibau Wars: the build bar is split in two tabs so it fits. */
+  private activeTab: BuildTab = "buildings";
   private enabledUnitCount = 0;
   private tutorialMode = false;
   private _hoveredUnitTooltip: {
@@ -509,117 +523,229 @@ export class UnitDisplay extends LitElement implements Controller {
         data-radial-click-through
         @contextmenu=${(event: Event) => event.preventDefault()}
       >
+        ${this.renderTabs()}
         <div
           class="unit-display-scroll w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x lg:overflow-visible"
           @scroll=${this.onScroll}
         >
           <div
             class="unit-display-grid grid grid-cols-[repeat(var(--unit-display-columns),minmax(0,1fr))] gap-0.5 w-full mx-auto lg:grid-rows-1 lg:grid-flow-col lg:grid-cols-none lg:auto-cols-max lg:w-fit max-lg:landscape:grid-rows-1 max-lg:landscape:grid-flow-col max-lg:landscape:grid-cols-none max-lg:landscape:auto-cols-[47px] max-lg:landscape:w-max max-[360px]:grid-cols-none max-[360px]:grid-flow-col max-[360px]:auto-cols-[44px] max-[360px]:w-max"
-            style=${`--unit-display-columns: ${this.enabledUnitCount}`}
+            style=${`--unit-display-columns: ${this.visibleItems().length}`}
           >
-            ${this.renderUnitItem(
-              cityIcon,
-              this._cities,
-              UnitType.City,
-              "city",
-              this.getHotkey("buildCity", "Digit1"),
-            )}
-            ${this.renderUnitItem(
-              factoryIcon,
-              this._factories,
-              UnitType.Factory,
-              "factory",
-              this.getHotkey("buildFactory", "Digit2"),
-            )}
-            ${this.renderUnitItem(
-              portIcon,
-              this._port,
-              UnitType.Port,
-              "port",
-              this.getHotkey("buildPort", "Digit3"),
-            )}
-            ${this.renderUnitItem(
-              defensePostIcon,
-              this._defensePost,
-              UnitType.DefensePost,
-              "defense_post",
-              this.getHotkey("buildDefensePost", "Digit4"),
-            )}
-            ${this.renderUnitItem(
-              missileSiloIcon,
-              this._missileSilo,
-              UnitType.MissileSilo,
-              "missile_silo",
-              this.getHotkey("buildMissileSilo", "Digit5"),
-            )}
-            ${this.renderUnitItem(
-              samLauncherIcon,
-              this._samLauncher,
-              UnitType.SAMLauncher,
-              "sam_launcher",
-              this.getHotkey("buildSamLauncher", "Digit6"),
-            )}
-            ${this.renderUnitItem(
-              warshipIcon,
-              this._warships,
-              UnitType.Warship,
-              "warship",
-              this.getHotkey("buildWarship", "Digit7"),
-            )}
-            ${this.renderUnitItem(
-              atomBombIcon,
-              null,
-              UnitType.AtomBomb,
-              "atom_bomb",
-              this.getHotkey("buildAtomBomb", "Digit8"),
-            )}
-            ${this.renderUnitItem(
-              hydrogenBombIcon,
-              null,
-              UnitType.HydrogenBomb,
-              "hydrogen_bomb",
-              this.getHotkey("buildHydrogenBomb", "Digit9"),
-            )}
-            ${this.renderUnitItem(
-              mirvIcon,
-              null,
-              UnitType.MIRV,
-              "mirv",
-              this.getHotkey("buildMIRV", "Digit0"),
-            )}
-            ${this.renderUnitItem(
-              barracksIcon,
-              this._barracks,
-              UnitType.Barracks,
-              "barracks",
-              this.getHotkey("buildBarracks", "KeyJ"),
-            )}
-            ${this.renderUnitItem(
-              schoolIcon,
-              this._schools,
-              UnitType.School,
-              "school",
-              this.getHotkey("buildSchool", "KeyI"),
-            )}
-            ${this.renderUnitItem(
-              bankIcon,
-              this._banks,
-              UnitType.Bank,
-              "bank",
-              this.getHotkey("buildBank", "KeyO"),
-            )}
-            ${this.renderUnitItem(
-              tankIcon,
-              this._tanks,
-              UnitType.Tank,
-              "tank",
-              this.getHotkey("buildTank", "KeyZ"),
+            ${this.visibleItems().map((item) =>
+              this.renderUnitItem(
+                item.icon,
+                item.count(),
+                item.type,
+                item.key,
+                this.getHotkey(item.hotkey, item.defaultKey),
+              ),
             )}
           </div>
         </div>
         ${this.renderUnitTooltip()}
       </div>
     `;
+  }
+
+  /** Every bar item, with the tab it lives in (Sibau Wars). */
+  private items(): BarItem[] {
+    return [
+      {
+        tab: "buildings",
+        icon: cityIcon,
+        type: UnitType.City,
+        key: "city",
+        hotkey: "buildCity",
+        defaultKey: "Digit1",
+        count: () => this._cities,
+      },
+      {
+        tab: "buildings",
+        icon: factoryIcon,
+        type: UnitType.Factory,
+        key: "factory",
+        hotkey: "buildFactory",
+        defaultKey: "Digit2",
+        count: () => this._factories,
+      },
+      {
+        tab: "buildings",
+        icon: portIcon,
+        type: UnitType.Port,
+        key: "port",
+        hotkey: "buildPort",
+        defaultKey: "Digit3",
+        count: () => this._port,
+      },
+      {
+        tab: "buildings",
+        icon: defensePostIcon,
+        type: UnitType.DefensePost,
+        key: "defense_post",
+        hotkey: "buildDefensePost",
+        defaultKey: "Digit4",
+        count: () => this._defensePost,
+      },
+      {
+        tab: "buildings",
+        icon: missileSiloIcon,
+        type: UnitType.MissileSilo,
+        key: "missile_silo",
+        hotkey: "buildMissileSilo",
+        defaultKey: "Digit5",
+        count: () => this._missileSilo,
+      },
+      {
+        tab: "buildings",
+        icon: samLauncherIcon,
+        type: UnitType.SAMLauncher,
+        key: "sam_launcher",
+        hotkey: "buildSamLauncher",
+        defaultKey: "Digit6",
+        count: () => this._samLauncher,
+      },
+      {
+        tab: "buildings",
+        icon: barracksIcon,
+        type: UnitType.Barracks,
+        key: "barracks",
+        hotkey: "buildBarracks",
+        defaultKey: "KeyJ",
+        count: () => this._barracks,
+      },
+      {
+        tab: "buildings",
+        icon: schoolIcon,
+        type: UnitType.School,
+        key: "school",
+        hotkey: "buildSchool",
+        defaultKey: "KeyI",
+        count: () => this._schools,
+      },
+      {
+        tab: "buildings",
+        icon: bankIcon,
+        type: UnitType.Bank,
+        key: "bank",
+        hotkey: "buildBank",
+        defaultKey: "KeyO",
+        count: () => this._banks,
+      },
+      {
+        tab: "military",
+        icon: warshipIcon,
+        type: UnitType.Warship,
+        key: "warship",
+        hotkey: "buildWarship",
+        defaultKey: "Digit7",
+        count: () => this._warships,
+      },
+      {
+        tab: "military",
+        icon: tankIcon,
+        type: UnitType.Tank,
+        key: "tank",
+        hotkey: "buildTank",
+        defaultKey: "KeyZ",
+        count: () => this._tanks,
+      },
+      {
+        tab: "military",
+        icon: atomBombIcon,
+        type: UnitType.AtomBomb,
+        key: "atom_bomb",
+        hotkey: "buildAtomBomb",
+        defaultKey: "Digit8",
+        count: () => null,
+      },
+      {
+        tab: "military",
+        icon: hydrogenBombIcon,
+        type: UnitType.HydrogenBomb,
+        key: "hydrogen_bomb",
+        hotkey: "buildHydrogenBomb",
+        defaultKey: "Digit9",
+        count: () => null,
+      },
+      {
+        tab: "military",
+        icon: mirvIcon,
+        type: UnitType.MIRV,
+        key: "mirv",
+        hotkey: "buildMIRV",
+        defaultKey: "Digit0",
+        count: () => null,
+      },
+    ];
+  }
+
+  private tabItems(tab: BuildTab): BarItem[] {
+    return this.items().filter(
+      (i) => i.tab === tab && this.isUnitDisplayed(i.type),
+    );
+  }
+
+  /**
+   * The tab to show: the one holding what's being placed (a hotkey can pick
+   * a unit from the other tab) or highlighted by the tutorial, else the
+   * player's choice, else whichever tab has anything in it.
+   */
+  private shownTab(): BuildTab {
+    const all = this.items();
+    const focus =
+      all.find((i) => i.type === this.uiState.ghostStructure) ??
+      all.find((i) => i.type === this.tutorialHighlight);
+    if (focus !== undefined && this.isUnitDisplayed(focus.type)) {
+      return focus.tab;
+    }
+    if (this.tabItems(this.activeTab).length > 0) return this.activeTab;
+    return this.activeTab === "buildings" ? "military" : "buildings";
+  }
+
+  private visibleItems(): BarItem[] {
+    return this.tabItems(this.shownTab());
+  }
+
+  private renderTabs() {
+    const tabs: BuildTab[] = ["buildings", "military"];
+    const usable = tabs.filter((t) => this.tabItems(t).length > 0);
+    // Nothing to switch between (e.g. the tutorial, or units disabled).
+    if (usable.length < 2) return nothing;
+    const shown = this.shownTab();
+    const label = (t: BuildTab) =>
+      t === "buildings"
+        ? translateText("unit_display.tab_buildings")
+        : translateText("unit_display.tab_military");
+    return html`<div class="flex justify-center gap-1 pb-0.5" role="tablist">
+      ${usable.map(
+        (t) =>
+          html`<button
+            type="button"
+            role="tab"
+            aria-selected=${t === shown}
+            class="unit-display-tab px-3 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider transition-colors ${
+              t === shown
+                ? "bg-malibu-blue text-white"
+                : "bg-white/10 text-white/70 hover:bg-white/20"
+            }"
+            @click=${() => {
+              this.activeTab = t;
+              if (this.uiState.ghostStructure !== null) {
+                const holding = this.items().find(
+                  (i) => i.type === this.uiState.ghostStructure,
+                );
+                if (holding !== undefined && holding.tab !== t) {
+                  this.inputHandler.setGhostStructure(null, "GUIclick");
+                }
+              }
+              this.requestUpdate();
+            }}
+          >
+            ${label(t)}
+          </button>`,
+      )}
+    </div>`;
   }
 
   private getHotkey(action: string, defaultCode: string): string {

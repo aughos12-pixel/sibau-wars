@@ -1405,8 +1405,8 @@ export class PlayerImpl implements Player {
 
   private bankHeist(victim: Player, bank: Unit): void {
     const config = this.mg.config();
-    const share = BigInt(Math.round(config.bankHeistShare() * 1000));
-    let loot = (victim.gold() * share) / 1000n;
+    const share = BigInt(Math.round(config.bankHeistShare() * 10_000));
+    let loot = (victim.gold() * share) / 10_000n;
     if (loot > config.bankHeistCap()) loot = config.bankHeistCap();
     if (loot <= 0n) return;
     const taken = victim.removeGold(loot);

@@ -166,17 +166,17 @@ describe("Barracks and tanks (Sibau Wars)", () => {
     executeTicks(game, 2);
     expect(tank.isActive()).toBe(false);
     const spent = troops - defender.troops();
-    // 1000 health at 150 troops each; the rest of the 500k is kept.
+    // 1000 health at 250 troops each; the rest of the 500k is kept.
     // Troop growth over the two ticks makes the drop a little smaller.
-    expect(spent).toBeGreaterThan(140_000);
-    expect(spent).toBeLessThan(200_000);
+    expect(spent).toBeGreaterThan(240_000);
+    expect(spent).toBeLessThan(300_000);
   });
 
   test("Focus with too few troops only damages the tank", async () => {
     await frontGame();
     const tank = buildTank(attacker, 20, 100, 55, 100);
     runUntil(() => tank.targetTile() === undefined, 300);
-    game.addExecution(new FocusTankExecution(defender, tank.id(), 30_000));
+    game.addExecution(new FocusTankExecution(defender, tank.id(), 50_000));
     executeTicks(game, 2);
     expect(tank.isActive()).toBe(true);
     expect(tank.health()).toBe(800);

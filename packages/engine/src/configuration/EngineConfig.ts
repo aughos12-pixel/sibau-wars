@@ -38,6 +38,8 @@ export interface AttackLogicInput {
   defenderHasDefensePost: boolean;
   /** Sibau Wars: one of the attacker's tanks is near the tile. */
   attackerHasTank?: boolean;
+  /** Sibau Wars: the attack is a precise (aimed) one. */
+  preciseAttack?: boolean;
   /** Sibau Wars: working Schools of the attacker and defender (0-5). */
   attackerSchools?: number;
   defenderSchools?: number;
@@ -566,6 +568,10 @@ export class EngineConfig extends Config {
       mag *= this.tankAttackBoostMultiplier();
       tileCost *= this.tankAttackBoostMultiplier();
     }
+    // Sibau Wars: a narrow precise push pays extra for every tile.
+    if (input.preciseAttack === true) {
+      mag *= this.preciseAttackLossMultiplier();
+    }
     // Sibau Wars: Schools make troops fight better: the attacker's cut its
     // losses, the defender's raise them (3% per School, at most 5).
     const perSchool = this.schoolBonusPerSchool();
@@ -887,7 +893,7 @@ export class EngineConfig extends Config {
 
   /** Ticks a tank needs next to a building to wreck it. */
   tankWreckTicks(): number {
-    return 30;
+    return 60;
   }
 
   /** An idle tank on enemy land drives to enemy buildings this close. */
@@ -906,12 +912,17 @@ export class EngineConfig extends Config {
 
   /** Defense posts fire at enemy tanks inside their range this often. */
   defensePostTankShellAttackRate(): number {
-    return 30;
+    return 20;
   }
 
   /** Troops a Focus order spends per point of tank health. */
   focusTroopsPerHealth(): number {
-    return 150;
+    return 250;
+  }
+
+  /** Precise attacks lose this many times the troops per tile. */
+  preciseAttackLossMultiplier(): number {
+    return 1.25;
   }
 
   /** A Focus order only reaches tanks within this distance of your land. */

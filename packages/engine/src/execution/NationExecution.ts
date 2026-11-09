@@ -38,6 +38,7 @@ import { NationEmojiBehavior } from "./nation/NationEmojiBehavior";
 import { NationMIRVBehavior } from "./nation/NationMIRVBehavior";
 import { NationNukeBehavior } from "./nation/NationNukeBehavior";
 import { NationStructureBehavior } from "./nation/NationStructureBehavior";
+import { NationTankBehavior } from "./nation/NationTankBehavior";
 import { NationWarshipBehavior } from "./nation/NationWarshipBehavior";
 import { tutorialCollapse } from "./nation/TutorialCollapse";
 import { tutorialSilo, tutorialWarship } from "./nation/TutorialSilo";
@@ -240,6 +241,8 @@ export class NationExecution implements Execution {
     this.mirvBehavior.considerMIRV();
     this.structureBehavior.handleStructures();
     this.warshipBehavior.maybeSpawnWarship();
+    // Sibau Wars: stateless, so a fresh one each turn needs no snapshot.
+    new NationTankBehavior(this.random, this.mg, this.player).handleTanks();
     this.handleEmbargoesToHostileNations();
     this.attackBehavior.maybeAttack();
     this.warshipBehavior.counterWarshipInfestation();
