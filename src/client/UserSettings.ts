@@ -501,6 +501,15 @@ export class UserSettings {
     this.setBool("settings.preciseAttacks", !this.preciseAttacks());
   }
 
+  /** Sibau Wars: General Albin's in-game tips. */
+  albinAdvisor() {
+    return this.getBool("settings.albinAdvisor", true);
+  }
+
+  toggleAlbinAdvisor() {
+    this.setBool("settings.albinAdvisor", !this.albinAdvisor());
+  }
+
   goToPlayer() {
     return this.getBool("settings.goToPlayer", true);
   }

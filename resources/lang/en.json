@@ -169,6 +169,19 @@
   "account_settings_modal": {
     "title": "Account Settings"
   },
+  "albin": {
+    "close": "Close",
+    "tip_build_bank": "Your gold is piling up. Build a Bank (O) and it earns interest!",
+    "tip_build_school": "Build a School (I): your troops fight better and regrow faster.",
+    "tip_enemy_tank": "An enemy tank is in your land! Right-click it and pick Focus to throw troops at it.",
+    "tip_heavy_attack": "You're under heavy attack! Build Defense Posts (4) on that border, or find an ally.",
+    "tip_losing_attack": "Your attack is running out of troops. Send more, or stop wasting them!",
+    "tip_precise_attacks": "Tip: Shift+click aims an attack at one point. Shift+drag draws a route for your army.",
+    "tip_send_tank": "Your Barracks is ready! Press Z and click where to send a tank.",
+    "tip_spend_gold": "You're sitting on a lot of gold. Spend it: upgrade cities or build Schools!",
+    "tip_troops_full": "Your troops are full and not growing anymore. Time to attack!",
+    "title": "General Albin"
+  },
   "ban_notice": {
     "appeal": "If you believe this is a mistake, contact us on Discord.",
     "category": {
@@ -2699,6 +2712,8 @@
     "message": "A new version of Sibau Wars is available. The page will now refresh to update."
   },
   "user_setting": {
+    "albin_advisor_desc": "Albin gives you a tip when something important happens",
+    "albin_advisor_label": "General Albin's tips",
     "alert_frame_desc": "Toggle the alert frame. When enabled, the frame will be displayed when you are betrayed or attacked over land.",
     "alert_frame_label": "Alert Frame",
     "ally_keybinds": "Ally Keybinds",

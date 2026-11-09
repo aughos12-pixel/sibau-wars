@@ -520,6 +520,11 @@ export class UserSettingModal extends BaseModal {
     this.requestUpdate();
   }
 
+  private toggleAlbinAdvisor() {
+    this.userSettings.toggleAlbinAdvisor();
+    this.requestUpdate();
+  }
+
   private toggleLeftClickOpensMenu() {
     this.userSettings.toggleLeftClickOpenMenu();
     console.log(
@@ -2031,6 +2036,15 @@ export class UserSettingModal extends BaseModal {
         id="precise-attacks-toggle"
         .checked=${this.userSettings.preciseAttacks()}
         @change=${this.togglePreciseAttacks}
+      ></setting-toggle>
+
+      <!-- Sibau Wars: General Albin's tips -->
+      <setting-toggle
+        label="${translateText("user_setting.albin_advisor_label")}"
+        description="${translateText("user_setting.albin_advisor_desc")}"
+        id="albin-advisor-toggle"
+        .checked=${this.userSettings.albinAdvisor()}
+        @change=${this.toggleAlbinAdvisor}
       ></setting-toggle>
 
       <!-- 🖱️ Left Click Menu -->

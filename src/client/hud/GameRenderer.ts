@@ -23,6 +23,7 @@ import { UserSettings } from "../UserSettings";
 import { GameView } from "../view";
 import { FrameProfiler } from "./FrameProfiler";
 import { ActionableEvents } from "./layers/ActionableEvents";
+import { AlbinAdvisor } from "./layers/AlbinAdvisor";
 import { AlertFrame } from "./layers/AlertFrame";
 import { AttacksDisplay } from "./layers/AttacksDisplay";
 import { BuildMenu } from "./layers/BuildMenu";
@@ -272,6 +273,12 @@ export function createRenderer(
   }
   headsUpMessage.game = game;
 
+  const albinAdvisor = document.querySelector("albin-advisor") as AlbinAdvisor;
+  if (!(albinAdvisor instanceof AlbinAdvisor)) {
+    console.error("albin advisor not found");
+  }
+  albinAdvisor.game = game;
+
   const performanceOverlay = document.querySelector(
     "performance-overlay",
   ) as PerformanceOverlay;
@@ -383,6 +390,7 @@ export function createRenderer(
     settingsModal,
     playerPanel,
     headsUpMessage,
+    albinAdvisor,
     multiTabModal,
     inGamePromo,
     tutorialPanel,
