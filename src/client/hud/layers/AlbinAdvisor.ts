@@ -64,6 +64,11 @@ export class AlbinAdvisor extends LitElement implements Controller {
 
   @state() private tip: TipId | null = null;
   @state() private pictureMissing = false;
+  /** Albin sits in the corner as a small portrait whenever this is true. */
+  @state() private active = false;
+  /** Opened by clicking the portrait: shows the last tip again. */
+  @state() private peeking = false;
+  private lastTip: TipId | null = null;
 
   private enabled = true;
   private tipShownAt = -Infinity;
@@ -84,7 +89,11 @@ export class AlbinAdvisor extends LitElement implements Controller {
   private refreshEnabled() {
     // Read each time so switching it in Settings works mid-game.
     this.enabled = new UserSettings().albinAdvisor();
-    if (!this.enabled) this.tip = null;
+    if (!this.enabled) {
+      this.tip = null;
+      this.active = false;
+      this.peeking = false;
+    }
   }
 
   getTickIntervalMs() {
@@ -99,8 +108,11 @@ export class AlbinAdvisor extends LitElement implements Controller {
     const me = game.myPlayer();
     if (me === null || !me.isAlive() || game.inSpawnPhase()) {
       this.tip = null;
+      this.active = false;
+      this.peeking = false;
       return;
     }
+    this.active = true;
     const now = game.ticks();
     this.firstTick ??= now;
 
@@ -111,6 +123,8 @@ export class AlbinAdvisor extends LitElement implements Controller {
     if (next === null || now - this.tipShownAt < TIP_COOLDOWN_TICKS) return;
     this.shows.set(next, (this.shows.get(next) ?? 0) + 1);
     this.tip = next;
+    this.lastTip = next;
+    this.peeking = false;
     this.tipShownAt = now;
   }
 
@@ -222,40 +236,69 @@ export class AlbinAdvisor extends LitElement implements Controller {
 
   private dismiss = () => {
     this.tip = null;
+    this.peeking = false;
   };
 
+  private togglePeek = () => {
+    this.peeking = !this.peeking;
+  };
+
+  private portrait(sizeClass: string) {
+    return this.pictureMissing
+      ? html`<div
+          class="flex ${sizeClass} shrink-0 items-center justify-center rounded-lg bg-malibu-blue text-2xl font-bold"
+        >
+          A
+        </div>`
+      : html`<img
+          src=${ALBIN_PICTURE}
+          alt=""
+          class="${sizeClass} shrink-0 rounded-lg object-cover"
+          draggable="false"
+          @error=${() => {
+            this.pictureMissing = true;
+          }}
+        />`;
+  }
+
   render() {
-    if (this.tip === null) return nothing;
+    if (!this.active) return nothing;
+    const text =
+      this.tip !== null
+        ? translateText(TIP_TEXT[this.tip])
+        : this.peeking
+          ? this.lastTip !== null
+            ? translateText(TIP_TEXT[this.lastTip])
+            : translateText("albin.no_advice")
+          : null;
+
+    // No tip: just his portrait in the corner. Click it to hear the last tip.
+    if (text === null) {
+      return html`
+        <button
+          type="button"
+          class="albin-advisor albin-portrait fixed left-3 bottom-40 z-[45] rounded-xl border border-malibu-blue/70 bg-surface/95 p-1 shadow-lg hover:border-sky-300"
+          title=${translateText("albin.title")}
+          aria-label=${translateText("albin.title")}
+          @click=${this.togglePeek}
+        >
+          ${this.portrait("size-12")}
+        </button>
+      `;
+    }
+
     return html`
       <div
-        class="albin-advisor fixed left-3 bottom-40 z-[45] flex max-w-[340px] items-start gap-3 rounded-xl border border-malibu-blue/70 bg-surface/95 p-3 text-white shadow-lg"
+        class="albin-advisor albin-tip fixed left-3 bottom-40 z-[45] flex max-w-[340px] items-start gap-3 rounded-xl border border-malibu-blue/70 bg-surface/95 p-3 text-white shadow-lg"
         role="status"
         aria-live="polite"
       >
-        ${
-          this.pictureMissing
-            ? html`<div
-                class="flex size-14 shrink-0 items-center justify-center rounded-lg bg-malibu-blue text-2xl font-bold"
-              >
-                A
-              </div>`
-            : html`<img
-                src=${ALBIN_PICTURE}
-                alt=""
-                class="size-14 shrink-0 rounded-lg object-cover"
-                draggable="false"
-                @error=${() => {
-                  this.pictureMissing = true;
-                }}
-              />`
-        }
+        ${this.portrait("size-14")}
         <div class="min-w-0 flex-1">
           <div class="text-xs font-bold uppercase tracking-widest text-sky-300">
             ${translateText("albin.title")}
           </div>
-          <p class="mt-0.5 text-sm leading-snug">
-            ${translateText(TIP_TEXT[this.tip])}
-          </p>
+          <p class="mt-0.5 text-sm leading-snug">${text}</p>
         </div>
         <button
           type="button"

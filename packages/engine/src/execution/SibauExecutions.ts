@@ -466,3 +466,70 @@ export const VassalReplySnapshot = execSnapshotType({
   schema: VassalReplySchema,
   cls: () => VassalReplyExecution,
 });
+
+/**
+ * Sibau Wars: end a vassalage from either side. The vassal breaks free or
+ * the overlord lets it go; they are ordinary enemies afterwards.
+ */
+export class CancelVassalExecution extends OneShot {
+  constructor(
+    private player: Player,
+    private partnerID: string,
+  ) {
+    super();
+  }
+
+  activeDuringSpawnPhase(): boolean {
+    return false;
+  }
+
+  init(mg: Game): void {
+    this.done = true;
+    if (!mg.hasPlayer(this.partnerID)) return;
+    const partner = mg.player(this.partnerID);
+    if (this.player.sibauState().overlord() === partner) {
+      // The vassal breaks free.
+      this.player.sibauState().setOverlord(null);
+      tell(mg, this.player, "events_display.vassal_broke_free", {
+        name: partner.displayName(),
+      });
+      tell(mg, partner, "events_display.vassal_cancelled_by_vassal", {
+        name: this.player.displayName(),
+      });
+    } else if (partner.sibauState().overlord() === this.player) {
+      // The overlord releases its vassal.
+      partner.sibauState().setOverlord(null);
+      tell(mg, this.player, "events_display.vassal_you_released", {
+        name: partner.displayName(),
+      });
+      tell(mg, partner, "events_display.vassal_released_by_overlord", {
+        name: this.player.displayName(),
+      });
+    }
+  }
+
+  snapshot(w: SnapshotWriter): ExecRecord {
+    return CancelVassalSnapshot.write({
+      player: w.player(this.player),
+      partnerID: this.partnerID,
+      done: this.done,
+    });
+  }
+
+  restoreSnapshot(s: z.infer<typeof CancelVassalSchema>, r: SnapshotReader) {
+    this.player = r.player(s.player);
+    this.partnerID = s.partnerID;
+    this.done = s.done;
+  }
+}
+const CancelVassalSchema = z.object({
+  player: zPlayerRef(),
+  partnerID: z.string(),
+  done: z.boolean(),
+});
+export const CancelVassalSnapshot = execSnapshotType({
+  name: "CancelVassal",
+  version: 1,
+  schema: CancelVassalSchema,
+  cls: () => CancelVassalExecution,
+});

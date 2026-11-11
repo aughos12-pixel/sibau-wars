@@ -171,6 +171,7 @@
   },
   "albin": {
     "close": "Close",
+    "no_advice": "All quiet for now. I'll speak up when I have advice.",
     "tip_build_bank": "Your gold is piling up. Build a Bank (O) and it earns interest!",
     "tip_build_school": "Build a School (I): your troops fight better and regrow faster.",
     "tip_enemy_tank": "An enemy tank is in your land! Right-click it and pick Focus to throw troops at it.",
@@ -975,6 +976,8 @@
     "unit_voluntarily_deleted": "Unit voluntarily deleted",
     "vassal_accept": "Accept",
     "vassal_became": "You are now a vassal of {name} and pay them 20% of your income.",
+    "vassal_broke_free": "You broke free from {name}. You are enemies again.",
+    "vassal_cancelled_by_vassal": "{name} broke free and is no longer your vassal. You are enemies again.",
     "vassal_demand": "{name} demands that you become their vassal (you would pay 20% of your income).",
     "vassal_demand_sent": "You demanded that {name} becomes your vassal. Waiting for their answer.",
     "vassal_free": "You are free from {name}!",
@@ -982,6 +985,8 @@
     "vassal_lost": "{name} broke free and is no longer your vassal.",
     "vassal_refuse": "Refuse",
     "vassal_refused": "{name} refused to become your vassal.",
+    "vassal_released_by_overlord": "{name} released you. You are free, and enemies again.",
+    "vassal_you_released": "You released {name}. You are enemies again.",
     "wants_to_renew_alliance": "{name} wants to renew your alliance"
   },
   "featured_stream": {
@@ -1810,6 +1815,7 @@
     "branch_defense": "Defense",
     "branch_economy": "Economy",
     "branch_military": "Military",
+    "break_free": "Break free",
     "button": "Nation",
     "capital": "Capital",
     "capital_lost": "Lost!",
@@ -1832,6 +1838,7 @@
     "pick_government": "Pick your government",
     "pick_government_desc": "You pick once and it lasts the whole game. If you don't pick, you become a Monarchy.",
     "ready_count": "{count} ready",
+    "release": "Release",
     "research": "Research",
     "research_value": "{points} pts (+{rate}/10s)",
     "tech_armor": "Armor",
@@ -1858,9 +1865,9 @@
     "tech_trade_routes_desc": "15% more gold income.",
     "tech_tree": "Tech tree",
     "title": "Your nation",
-    "vassal_hint": "Vassals: right-click a smaller player and pick the crown to demand they become your vassal. AI nations accept only if you have 3x their troops.",
+    "vassal_hint": "Vassals: right-click a smaller player and pick the crown to demand they become your vassal. AI nations accept only if you have 3x their troops. Either side can end it here or from the right-click menu; you are enemies again afterwards.",
     "you_are_vassal": "You are a vassal of {name} and pay them 20% of your income. Grow bigger than them to break free.",
-    "your_vassals": "Your vassals: {names}"
+    "your_vassals_label": "Your vassals:"
   },
   "nav_account_menu": {
     "account_settings": "Account settings",
@@ -2302,6 +2309,8 @@
     "visit_store": "Visit store"
   },
   "radial_menu": {
+    "cancel_vassal_description": "Break free from your overlord, or release your vassal. You become enemies again",
+    "cancel_vassal_title": "End vassalage",
     "delete_unit_description": "Click to delete the nearest unit",
     "delete_unit_title": "Delete Unit",
     "demand_vassal_description": "Demand that this smaller player becomes your vassal and pays you 20% of their income",

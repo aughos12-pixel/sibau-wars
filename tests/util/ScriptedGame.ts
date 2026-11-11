@@ -239,6 +239,7 @@ function queuedIntent(game: Game, p: Player, tick: number): Intent | null {
     { type: "search_oil", tile: p.spawnTile() ?? 0 },
     { type: "demand_vassal", target: other.id() },
     { type: "vassal_reply", overlord: other.id(), accept: false },
+    { type: "cancel_vassal", partner: other.id() },
   ];
   return queued[(tick - 20) / 2] ?? null;
 }
@@ -628,6 +629,7 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     case 25: {
       // Sibau Wars: demand vassalage, or answer a demand.
       if (other === null) return null;
+      if (rand.chance(4)) return { type: "cancel_vassal", partner: other.id() };
       return rand.chance(2)
         ? { type: "demand_vassal", target: other.id() }
         : {

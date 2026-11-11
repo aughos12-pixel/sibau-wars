@@ -30,6 +30,7 @@ import { TooltipItem } from "./RadialMenu";
 import { EventBus } from "@openfront/shared/EventBus";
 import {
   BuildUnitIntentEvent,
+  SendCancelVassalIntentEvent,
   SendDemandVassalIntentEvent,
   SendFocusTankIntentEvent,
   SendSearchOilIntentEvent,
@@ -826,6 +827,35 @@ const demandVassalElement: MenuElement = {
   },
 };
 
+/** Sibau Wars: is the player on this tile my vassal or my overlord? */
+function isVassalPartnerTarget(params: MenuElementParams): boolean {
+  const target = params.selected;
+  const me = params.myPlayer;
+  if (target === null || target === me) return false;
+  if (typeof me.isVassalPartner !== "function") return false;
+  return me.isVassalPartner(target);
+}
+
+const cancelVassalElement: MenuElement = {
+  id: "cancel_vassal",
+  name: "cancel vassal",
+  disabled: () => false,
+  icon: crownIcon,
+  color: "#b91c1c",
+  tooltipKeys: [
+    { key: "radial_menu.cancel_vassal_title", className: "title" },
+    { key: "radial_menu.cancel_vassal_description", className: "description" },
+  ],
+  action: (params: MenuElementParams) => {
+    if (params.selected !== null) {
+      params.eventBus.emit(
+        new SendCancelVassalIntentEvent(params.selected.id()),
+      );
+    }
+    params.closeMenu();
+  },
+};
+
 export const buildMenuElement: MenuElement = {
   id: Slot.Build,
   name: "build",
@@ -951,6 +981,9 @@ export const rootMenuElement: MenuElement = {
           ]),
       focusableTank(params) !== null ? focusTankElement : null,
       !isOwnTerritory && canDemandVassal(params) ? demandVassalElement : null,
+      !isOwnTerritory && isVassalPartnerTarget(params)
+        ? cancelVassalElement
+        : null,
     ];
 
     return menuItems.filter((item): item is MenuElement => item !== null);

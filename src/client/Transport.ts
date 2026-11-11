@@ -273,6 +273,11 @@ export class SendVassalReplyIntentEvent implements GameEvent {
   ) {}
 }
 
+/** Sibau Wars: end a vassalage (break free, or release a vassal). */
+export class SendCancelVassalIntentEvent implements GameEvent {
+  constructor(public readonly partner: string) {}
+}
+
 export class MoveWarshipIntentEvent implements GameEvent {
   constructor(
     public readonly unitIds: number[],
@@ -427,6 +432,10 @@ export class Transport {
         overlord: e.overlord,
         accept: e.accept,
       }),
+    );
+
+    this.subscribe(SendCancelVassalIntentEvent, (e) =>
+      this.sendIntent({ type: "cancel_vassal", partner: e.partner }),
     );
 
     this.subscribe(SendDeleteUnitIntentEvent, (e) =>

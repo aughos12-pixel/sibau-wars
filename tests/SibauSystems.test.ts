@@ -12,6 +12,7 @@ import {
 import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
 import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
 import {
+  CancelVassalExecution,
   DemandVassalExecution,
   ResearchExecution,
   SearchOilExecution,
@@ -297,6 +298,46 @@ describe("Vassals (Sibau Wars)", () => {
     }
     executeTicks(game, 2);
     expect(right.sibauState().overlord()).toBeNull();
+  });
+});
+
+describe("Ending a vassalage (Sibau Wars)", () => {
+  async function vassalPair() {
+    await halves({ leftShare: 0.7 });
+    game.addExecution(new DemandVassalExecution(left, right.id()));
+    executeTicks(game, 1);
+    game.addExecution(new VassalReplyExecution(right, left.id(), true));
+    executeTicks(game, 1);
+    expect(right.sibauState().overlord()).toBe(left);
+    expect(left.canAttackPlayer(right)).toBe(false);
+  }
+
+  test("the vassal can break free; they are enemies again", async () => {
+    await vassalPair();
+    game.addExecution(new CancelVassalExecution(right, left.id()));
+    executeTicks(game, 1);
+    expect(right.sibauState().overlord()).toBeNull();
+    expect(left.canAttackPlayer(right)).toBe(true);
+    expect(right.canAttackPlayer(left)).toBe(true);
+    expect(right.sibau().overlordID).toBeNull();
+  });
+
+  test("the overlord can release its vassal", async () => {
+    await vassalPair();
+    game.addExecution(new CancelVassalExecution(left, right.id()));
+    executeTicks(game, 1);
+    expect(right.sibauState().overlord()).toBeNull();
+    expect(left.canAttackPlayer(right)).toBe(true);
+  });
+
+  test("nobody else can end it", async () => {
+    await vassalPair();
+    game.addPlayer(new PlayerInfo("third", PlayerType.Human, null, "third"));
+    const third = game.player("third");
+    game.addExecution(new CancelVassalExecution(third, left.id()));
+    game.addExecution(new CancelVassalExecution(third, right.id()));
+    executeTicks(game, 1);
+    expect(right.sibauState().overlord()).toBe(left);
   });
 });
 

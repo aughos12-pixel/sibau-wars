@@ -28,7 +28,7 @@ Sibau Wars is a fork of [OpenFront](https://github.com/openfrontio/OpenFrontIO),
 - **Sibau Wars only: tech tree.** 9 techs in 3 branches (Economy, Military, Defense). Research points trickle in, faster with Schools and Oil Drills. Open it with the Nation button on the left
 - **Sibau Wars only: capitals.** Your first City is your capital (crown icon). Lose it and troop growth halves until you build a new City
 - **Sibau Wars only: oil.** Right-click your land and search for oil for 5M gold. Oil hides mostly in plains; if none is within 20 tiles, the money is gone. On a hit, build an Oil Drill (1M) that pays 20k gold a second forever and speeds up research
-- **Sibau Wars only: vassals.** Right-click a smaller player and demand they become your vassal. Humans get Accept/Refuse; AI nations accept only if you have 3x their troops. Vassals pay 20% of their income and go free if they grow bigger than you
+- **Sibau Wars only: vassals.** Right-click a smaller player and demand they become your vassal. Humans get Accept/Refuse; AI nations accept only if you have 3x their troops. Vassals pay 20% of their income and go free if they grow bigger than you. Either side can end it (Nation panel or right-click menu: Break free / Release); you are enemies again afterwards
 - **Sibau Wars only: slower invasions.** Every attack takes about 1.5x as long as in OpenFront (the setting is `attackSlowdown()` in `packages/engine/src/configuration/EngineConfig.ts`), for more strategic wars. Troop losses are unchanged
 - **Sibau Wars only: war exhaustion, rebels and coalitions.** Long wars slowly lower troop growth. Land taken too fast can rebel and break away as a rebel bot. If one player gets far ahead, AI nations team up against them
 - Free-for-all, teams and other game modes
@@ -45,6 +45,8 @@ Albin's picture is one file: `resources/images/albin.png`.
 4. Render redeploys by itself; the new picture shows in a few minutes.
 
 If the file is ever missing, Albin shows a blue "A" instead.
+
+Albin sits in the bottom-left corner as a small portrait during a game. He opens up when he has a tip; click his portrait to hear his last tip again.
 
 ## Play locally
 

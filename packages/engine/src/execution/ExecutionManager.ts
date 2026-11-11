@@ -34,6 +34,7 @@ import {
   SearchOilExecution,
   SetGovernmentExecution,
   VassalReplyExecution,
+  CancelVassalExecution,
 } from "./SibauExecutions";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
@@ -102,6 +103,8 @@ export class Executor {
         return new DemandVassalExecution(player, intent.target);
       case "vassal_reply":
         return new VassalReplyExecution(player, intent.overlord, intent.accept);
+      case "cancel_vassal":
+        return new CancelVassalExecution(player, intent.partner);
       case "spawn":
         // fromIntent: this one came off the wire, so it is subject to the
         // spawn-phase gate that internal spawns are not.

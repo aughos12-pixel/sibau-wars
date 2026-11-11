@@ -96,7 +96,7 @@ describe("General Albin (Sibau Wars)", () => {
     expect(tip()).not.toBe("build_bank");
   });
 
-  test("can be switched off in Settings", () => {
+  test("can be switched off in Settings", async () => {
     const settings = new UserSettings();
     settings.toggleAlbinAdvisor();
     try {
@@ -104,8 +104,40 @@ describe("General Albin (Sibau Wars)", () => {
       const { advisor, tip } = setup({ enemyTankOnMyLand: true });
       advisor.tick();
       expect(tip()).toBeNull();
+      await advisor.updateComplete;
+      // Not even the portrait.
+      expect(advisor.querySelector(".albin-advisor")).toBeNull();
     } finally {
       settings.toggleAlbinAdvisor();
     }
+  });
+
+  test("always sits in the corner as a small portrait", async () => {
+    const { advisor, tip } = setup();
+    advisor.tick();
+    expect(tip()).toBeNull();
+    await advisor.updateComplete;
+    expect(advisor.querySelector(".albin-portrait")).not.toBeNull();
+    expect(advisor.querySelector(".albin-tip")).toBeNull();
+    expect(advisor.querySelector("img")?.getAttribute("src")).toContain(
+      "images/albin.png",
+    );
+  });
+
+  test("clicking the portrait repeats his last tip", async () => {
+    const { advisor, tip, advance } = setup({ gold: 2_000_000n });
+    advisor.tick();
+    expect(tip()).toBe("build_bank");
+    advance(100); // the tip hides after 9 s
+    advisor.tick();
+    await advisor.updateComplete;
+    const portrait =
+      advisor.querySelector<HTMLButtonElement>(".albin-portrait");
+    expect(portrait).not.toBeNull();
+    portrait!.click();
+    await advisor.updateComplete;
+    expect(advisor.querySelector(".albin-tip")?.textContent).toContain(
+      "albin.tip_build_bank",
+    );
   });
 });

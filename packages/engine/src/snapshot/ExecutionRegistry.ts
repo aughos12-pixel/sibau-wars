@@ -40,6 +40,7 @@ import {
   SearchOilSnapshot,
   SetGovernmentSnapshot,
   VassalReplySnapshot,
+  CancelVassalSnapshot,
 } from "../execution/SibauExecutions";
 import { SibauWorldExecutionSnapshot } from "../execution/SibauWorldExecution";
 import { SpawnExecutionSnapshot } from "../execution/SpawnExecution";
@@ -108,6 +109,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   SearchOilSnapshot,
   DemandVassalSnapshot,
   VassalReplySnapshot,
+  CancelVassalSnapshot,
   TargetPlayerExecutionSnapshot,
   TradeShipExecutionSnapshot,
   TrainExecutionSnapshot,

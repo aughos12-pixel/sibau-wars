@@ -14,6 +14,7 @@ import { html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { Controller } from "../../Controller";
 import {
+  SendCancelVassalIntentEvent,
   SendResearchIntentEvent,
   SendSetGovernmentIntentEvent,
 } from "../../Transport";
@@ -132,6 +133,10 @@ export class NationPanel extends LitElement implements Controller {
   private pickGovernment(g: Government) {
     this.pendingGovernment = g;
     this.eventBus.emit(new SendSetGovernmentIntentEvent(g));
+  }
+
+  private cancelVassal(partner: PlayerView) {
+    this.eventBus.emit(new SendCancelVassalIntentEvent(partner.id()));
   }
 
   private research(tech: Tech) {
@@ -294,20 +299,42 @@ export class NationPanel extends LitElement implements Controller {
 
         ${
           overlord !== null
-            ? html`<p class="mt-2 text-sm text-amber-300">
-                ${translateText("nation.you_are_vassal", {
-                  name: overlord.displayName(),
-                })}
-              </p>`
+            ? html`<div class="mt-2 flex flex-wrap items-center gap-2">
+                <p class="text-sm text-amber-300">
+                  ${translateText("nation.you_are_vassal", {
+                    name: overlord.displayName(),
+                  })}
+                </p>
+                <button
+                  class="nation-break-free rounded-md bg-red-700 px-2 py-1 text-xs font-bold hover:bg-red-600"
+                  @click=${() => this.cancelVassal(overlord)}
+                >
+                  ${translateText("nation.break_free")}
+                </button>
+              </div>`
             : nothing
         }
         ${
           vassals.length > 0
-            ? html`<p class="mt-2 text-sm text-emerald-300">
-                ${translateText("nation.your_vassals", {
-                  names: vassals.map((v) => v.displayName()).join(", "),
-                })}
-              </p>`
+            ? html`<div class="mt-2 text-sm text-emerald-300">
+                ${translateText("nation.your_vassals_label")}
+                <div class="mt-1 flex flex-wrap gap-2">
+                  ${vassals.map(
+                    (v) =>
+                      html`<span
+                        class="flex items-center gap-1 rounded-md bg-white/5 px-2 py-0.5 text-white"
+                      >
+                        ${v.displayName()}
+                        <button
+                          class="nation-release rounded bg-red-700 px-1.5 text-[11px] font-bold hover:bg-red-600"
+                          @click=${() => this.cancelVassal(v)}
+                        >
+                          ${translateText("nation.release")}
+                        </button>
+                      </span>`,
+                  )}
+                </div>
+              </div>`
             : nothing
         }
 

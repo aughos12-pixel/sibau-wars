@@ -53,7 +53,8 @@ export type Intent =
   | ResearchIntent
   | SearchOilIntent
   | DemandVassalIntent
-  | VassalReplyIntent;
+  | VassalReplyIntent
+  | CancelVassalIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
@@ -80,6 +81,7 @@ export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
 export type SearchOilIntent = z.infer<typeof SearchOilIntentSchema>;
 export type DemandVassalIntent = z.infer<typeof DemandVassalIntentSchema>;
 export type VassalReplyIntent = z.infer<typeof VassalReplyIntentSchema>;
+export type CancelVassalIntent = z.infer<typeof CancelVassalIntentSchema>;
 export type QuickChatIntent = z.infer<typeof QuickChatIntentSchema>;
 export type MarkDisconnectedIntent = z.infer<
   typeof MarkDisconnectedIntentSchema
@@ -579,6 +581,15 @@ export const VassalReplyIntentSchema = z.object({
   accept: z.boolean(),
 });
 
+/**
+ * Sibau Wars: end a vassalage. Sent by the vassal (breaks free) or by the
+ * overlord (releases the vassal); either way the two are just enemies again.
+ */
+export const CancelVassalIntentSchema = z.object({
+  type: z.literal("cancel_vassal"),
+  partner: MappedID,
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -657,6 +668,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   SearchOilIntentSchema,
   DemandVassalIntentSchema,
   VassalReplyIntentSchema,
+  CancelVassalIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)
