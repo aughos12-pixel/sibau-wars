@@ -9,6 +9,7 @@ import {
   AttackIntentSchema,
   GAME_ID_REGEX,
 } from "@openfront/engine-api/Schemas";
+import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
 import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
 import {
   DemandVassalExecution,
@@ -387,5 +388,38 @@ describe("Coalitions (Sibau Wars)", () => {
     expect(world.coalitionTarget).toBe(giant);
     expect(world.coalitionMembers.has(a)).toBe(true);
     expect(world.coalitionMembers.has(b)).toBe(true);
+  });
+});
+
+describe("Invasion speed (Sibau Wars)", () => {
+  test("every attack takes about 1.5x as long as in OpenFront; losses are unchanged", async () => {
+    await halves();
+    const config = game.config() as EngineConfig;
+    const vsPlayer = {
+      terrain: TerrainType.Plains,
+      attackTroops: 50_000,
+      attacker: { type: PlayerType.Human, numTiles: 5_000 },
+      defender: {
+        type: PlayerType.Nation,
+        numTiles: 5_000,
+        troops: 40_000,
+        isTraitor: false,
+        isDisconnectedTeammate: false,
+      },
+      defenderHasDefensePost: false,
+      falloutRatio: null,
+      borderSize: 40,
+    };
+    const emptyLand = { ...vsPlayer, defender: null };
+    for (const input of [vsPlayer, emptyLand]) {
+      const slow = config.attackLogic(input);
+      const original = Object.create(config, {
+        attackSlowdown: { value: () => 1 },
+      }) as EngineConfig;
+      const fast = original.attackLogic(input);
+      expect(slow.tickFraction / fast.tickFraction).toBeCloseTo(1.6);
+      expect(slow.attackerTroopLoss).toBe(fast.attackerTroopLoss);
+      expect(slow.defenderTroopLoss).toBe(fast.defenderTroopLoss);
+    }
   });
 });

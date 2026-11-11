@@ -632,11 +632,13 @@ export class EngineConfig extends Config {
         attackerTroopLoss: mag / (attacker.type === PlayerType.Bot ? 10 : 5),
         defenderTroopLoss: 0,
         tickFraction:
-          within(
+          (within(
             (TERRA_NULLIUS_COST_SCALE * tileCost) / attackTroops,
             TERRA_NULLIUS_MIN_COST,
             TERRA_NULLIUS_MAX_COST,
-          ) / tickBudget,
+          ) *
+            this.attackSlowdown()) /
+          tickBudget,
       };
     }
 
@@ -700,9 +702,20 @@ export class EngineConfig extends Config {
           tileCost *
           largeAttackerSpeedBonus *
           largeDefenderBonus *
-          traitorCostMod) /
+          traitorCostMod *
+          this.attackSlowdown()) /
         input.borderSize,
     };
+  }
+
+  /**
+   * Sibau Wars: every attack (on players, nations, bots and empty land)
+   * takes longer than in OpenFront, for slower, more strategic wars: 1.6
+   * per tile works out to about 1.5x as long for a typical war (part of an
+   * attack's time doesn't scale). Troop losses are unchanged.
+   */
+  attackSlowdown(): number {
+    return 1.6;
   }
 
   boatAttackAmount(
