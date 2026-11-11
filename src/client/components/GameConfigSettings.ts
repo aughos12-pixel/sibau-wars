@@ -123,6 +123,7 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
   { type: UnitType.Tank, translationKey: "unit_type.tank" },
   { type: UnitType.School, translationKey: "unit_type.school" },
   { type: UnitType.Bank, translationKey: "unit_type.bank" },
+  { type: UnitType.OilDrill, translationKey: "unit_type.oil_drill" },
 ];
 
 const MAP_ICON = svg`<path

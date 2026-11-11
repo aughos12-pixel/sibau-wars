@@ -6,6 +6,7 @@ import {
   TerraNullius,
   UnitType,
 } from "./GameTypes";
+import type { SibauPlayerView } from "./Sibau";
 
 /*
  * Read-only views of game state that rules code (Config, UnitGrid,
@@ -27,6 +28,8 @@ export interface PlayerLike {
   troops(): number;
   gold(): Gold;
   units(type: UnitType): readonly UnitLike[];
+  /** Sibau Wars: government, techs, capital, exhaustion, overlord. */
+  sibau(): SibauPlayerView;
 }
 
 export interface UnitLike {

@@ -13,6 +13,7 @@ import {
   GameUpdateViewData,
 } from "@openfront/engine-api/game/GameUpdates";
 import { MapManifest } from "@openfront/engine-api/game/MapFiles";
+import { Government, Tech, TECHS } from "@openfront/engine-api/game/Sibau";
 import {
   flattenedEmojiTable,
   GameConfig,
@@ -232,6 +233,12 @@ function queuedIntent(game: Game, p: Player, tick: number): Intent | null {
     { type: "mark_disconnected", isDisconnected: false },
     { type: "toggle_pause", paused: false },
     { type: "focus_tank", unitId: 1, troops: 1 },
+    // Sibau Wars
+    { type: "set_government", government: Government.Republic },
+    { type: "research", tech: Tech.TradeRoutes },
+    { type: "search_oil", tile: p.spawnTile() ?? 0 },
+    { type: "demand_vassal", target: other.id() },
+    { type: "vassal_reply", overlord: other.id(), accept: false },
   ];
   return queued[(tick - 20) / 2] ?? null;
 }
@@ -488,7 +495,7 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     if (bombIntent !== null) return bombIntent;
   }
 
-  switch (rand.nextInt(0, 24)) {
+  switch (rand.nextInt(0, 26)) {
     case 0:
     case 1:
     case 2: {
@@ -609,6 +616,25 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
         unitId: enemyTank.id(),
         troops: Math.floor(p.troops() / 4),
       };
+    }
+    case 24: {
+      // Sibau Wars: research, or drill a test well on our land.
+      if (rand.chance(2)) {
+        return { type: "research", tech: pick(rand, [...TECHS])!.tech };
+      }
+      const tile = randomOwnedTile(rand, p);
+      return tile === null ? null : { type: "search_oil", tile };
+    }
+    case 25: {
+      // Sibau Wars: demand vassalage, or answer a demand.
+      if (other === null) return null;
+      return rand.chance(2)
+        ? { type: "demand_vassal", target: other.id() }
+        : {
+            type: "vassal_reply",
+            overlord: other.id(),
+            accept: rand.chance(2),
+          };
     }
   }
   return null;

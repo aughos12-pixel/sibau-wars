@@ -7,6 +7,7 @@ import {
   NUKE_BULK_STEPS,
   PlayerActions,
   PlayerBuildableUnitType,
+  PlayerType,
   STRUCTURE_BULK_STEPS,
   Structures,
   UnitType,
@@ -29,7 +30,9 @@ import { TooltipItem } from "./RadialMenu";
 import { EventBus } from "@openfront/shared/EventBus";
 import {
   BuildUnitIntentEvent,
+  SendDemandVassalIntentEvent,
   SendFocusTankIntentEvent,
+  SendSearchOilIntentEvent,
   SendUpgradeStructureIntentEvent,
 } from "../../Transport";
 const allianceIcon = assetUrl("images/AllianceIconWhite.svg");
@@ -44,6 +47,8 @@ const swordIcon = assetUrl("images/SwordIconWhite.svg");
 const targetIcon = assetUrl("images/TargetIconWhite.svg");
 const traitorIcon = assetUrl("images/TraitorIconWhite.svg");
 const xIcon = assetUrl("images/XIcon.svg");
+const oilIcon = assetUrl("images/OilIconWhite.svg");
+const crownIcon = assetUrl("images/CrownIcon.svg");
 
 export interface MenuElementParams {
   myPlayer: PlayerView;
@@ -757,6 +762,70 @@ const focusTankElement: MenuElement = {
   },
 };
 
+// Sibau Wars: drill a test well on your own land. 5M is spent whether or not
+// oil turns up; the engine re-checks everything (SearchOilExecution).
+const OIL_SEARCH_COST = 5_000_000;
+
+const searchOilElement: MenuElement = {
+  id: "search_oil",
+  name: "search oil",
+  disabled: (params: MenuElementParams) =>
+    params.game.inSpawnPhase() ||
+    params.myPlayer.gold() < OIL_SEARCH_COST ||
+    !params.game.isLand(params.tile),
+  icon: oilIcon,
+  color: "#1f2937",
+  tooltipKeys: [
+    { key: "radial_menu.search_oil_title", className: "title" },
+    {
+      key: "radial_menu.search_oil_description",
+      className: "description",
+      params: { cost: renderNumber(OIL_SEARCH_COST) },
+    },
+  ],
+  action: (params: MenuElementParams) => {
+    params.eventBus.emit(new SendSearchOilIntentEvent(params.tile));
+    params.closeMenu();
+  },
+};
+
+/** Sibau Wars: can I demand that the player on this tile becomes my vassal? */
+function canDemandVassal(params: MenuElementParams): boolean {
+  const target = params.selected;
+  const me = params.myPlayer;
+  if (target === null || target === me || params.game.inSpawnPhase()) {
+    return false;
+  }
+  // Partial views (some tests) may lack these; then there's nothing to offer.
+  if (typeof target.type !== "function" || typeof me.overlord !== "function") {
+    return false;
+  }
+  if (target.type() === PlayerType.Bot) return false;
+  if (me.isOnSameTeam(target) || me.isVassalPartner(target)) return false;
+  if (me.overlord() !== null || target.overlord() !== null) return false;
+  return me.numTilesOwned() > target.numTilesOwned();
+}
+
+const demandVassalElement: MenuElement = {
+  id: "demand_vassal",
+  name: "vassal",
+  disabled: (params: MenuElementParams) => !canDemandVassal(params),
+  icon: crownIcon,
+  color: "#7c3aed",
+  tooltipKeys: [
+    { key: "radial_menu.demand_vassal_title", className: "title" },
+    { key: "radial_menu.demand_vassal_description", className: "description" },
+  ],
+  action: (params: MenuElementParams) => {
+    if (params.selected !== null) {
+      params.eventBus.emit(
+        new SendDemandVassalIntentEvent(params.selected.id()),
+      );
+    }
+    params.closeMenu();
+  },
+};
+
 export const buildMenuElement: MenuElement = {
   id: Slot.Build,
   name: "build",
@@ -867,7 +936,12 @@ export const rootMenuElement: MenuElement = {
     const menuItems: (MenuElement | null)[] = [
       infoMenuElement,
       ...(isOwnTerritory
-        ? [deleteUnitElement, allyRequestElement, buildMenuElement]
+        ? [
+            deleteUnitElement,
+            allyRequestElement,
+            buildMenuElement,
+            params.game.inSpawnPhase() ? null : searchOilElement,
+          ]
         : [
             isAllied && !isDisconnected ? allyBreakElement : boatMenuElement,
             inExtensionWindow ? allyExtendElement : allyRequestElement,
@@ -876,6 +950,7 @@ export const rootMenuElement: MenuElement = {
               : attackMenuElement,
           ]),
       focusableTank(params) !== null ? focusTankElement : null,
+      !isOwnTerritory && canDemandVassal(params) ? demandVassalElement : null,
     ];
 
     return menuItems.filter((item): item is MenuElement => item !== null);

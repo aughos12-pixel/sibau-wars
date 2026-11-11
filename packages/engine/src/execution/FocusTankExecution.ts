@@ -32,7 +32,9 @@ export class FocusTankExecution implements Execution {
     ) {
       return;
     }
-    const perHealth = mg.config().focusTroopsPerHealth();
+    const perHealth = mg
+      .config()
+      .focusTroopsPerHealth(this.player, tank.owner());
     const troops = Math.min(
       Math.floor(this.troops),
       Math.floor(this.player.troops()),

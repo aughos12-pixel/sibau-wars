@@ -5,6 +5,7 @@
  * are covered).
  */
 
+import { Government } from "@openfront/engine-api/game/Sibau";
 import type {
   PlayerState,
   UnitState,
@@ -63,6 +64,7 @@ const basePlayer: PlayerState = {
   outgoingAllianceRequests: [],
   alliances: [],
   outgoingEmojis: [],
+  sibau: undefined,
 };
 
 const playerAlternatives: { [K in keyof PlayerFields]: PlayerFields[K] } = {
@@ -115,6 +117,15 @@ const playerAlternatives: { [K in keyof PlayerFields]: PlayerFields[K] } = {
     { message: "🤝", senderID: 7, recipientID: "AllPlayers", createdAt: 55 },
     { message: "💀", senderID: 7, recipientID: 3, createdAt: 56 },
   ],
+  sibau: {
+    government: Government.Junta,
+    capitalUnitID: 42,
+    capitalLost: true,
+    research: 17,
+    techs: 5,
+    exhaustion: 33,
+    overlordID: 3,
+  },
 };
 
 const baseUnit: UnitState = {

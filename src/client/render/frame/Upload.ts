@@ -35,6 +35,8 @@ export interface FrameUploadTarget {
   applyRailroadDust(tileRefs: number[]): void;
   updateUnits(units: ReadonlyMap<number, UnitState>, gameTick: number): void;
   updateStructures(units: ReadonlyMap<number, UnitState>): void;
+  /** Sibau Wars: unit ids of capital Cities. */
+  setCapitals?(ids: ReadonlySet<number>): void;
   applyDeadUnits(deadUnits: DeadUnitFx[]): void;
   applyConquestEvents(events: ConquestFx[]): void;
   applyBonusEvents(events: BonusEvent[]): void;
@@ -94,6 +96,15 @@ export function uploadFrameData(
   view.updateUnits(frame.units, frame.tick);
   if (frame.structuresDirty) {
     view.updateStructures(frame.units);
+  }
+  if (view.setCapitals !== undefined) {
+    const capitals = new Set<number>();
+    for (const p of frame.players.values()) {
+      const id = p.sibau?.capitalUnitID;
+      if (id !== null && id !== undefined && p.isAlive) capitals.add(id);
+    }
+    // Cheap when nothing changed (StructurePass compares the sets).
+    view.setCapitals(capitals);
   }
 
   // --- Ephemeral effects ---

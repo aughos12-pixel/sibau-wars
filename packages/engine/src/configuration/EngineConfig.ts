@@ -1,4 +1,5 @@
 import {
+  Structures,
   Difficulty,
   Gold,
   PlayerInfo,
@@ -9,6 +10,12 @@ import {
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
 import { PlayerLike } from "@openfront/engine-api/game/ReadViews";
+import {
+  Government,
+  hasTechInMask,
+  SibauPlayerView,
+  Tech,
+} from "@openfront/engine-api/game/Sibau";
 import { TeamCountConfig } from "@openfront/engine-api/Schemas";
 import { NukeType } from "@openfront/engine-api/StatsSchemas";
 import { Config } from "@openfront/engine-lib/configuration/Config";
@@ -40,6 +47,9 @@ export interface AttackLogicInput {
   attackerHasTank?: boolean;
   /** Sibau Wars: the attack is a precise (aimed) one. */
   preciseAttack?: boolean;
+  /** Sibau Wars: government and techs of the attacker and defender. */
+  attackerSibau?: SibauPlayerView;
+  defenderSibau?: SibauPlayerView;
   /** Sibau Wars: working Schools of the attacker and defender (0-5). */
   attackerSchools?: number;
   defenderSchools?: number;
@@ -420,6 +430,11 @@ export class EngineConfig extends Config {
           (numUnits: number) => Math.min(800_000, (numUnits + 1) * 200_000),
           UnitType.Tank,
         );
+      // Sibau Wars: the drill on a found oil field (the search itself costs
+      // oilSearchCost()). The field is a marker, never bought.
+      case UnitType.OilDrill:
+        return this.costWrapper(() => 1_000_000, UnitType.OilDrill);
+      case UnitType.OilField:
       case UnitType.TransportShip:
       case UnitType.Shell:
       case UnitType.SAMMissile:
@@ -486,8 +501,30 @@ export class EngineConfig extends Config {
           Math.min(player.unitsOwned(type), player.unitsConstructed(type)),
         0,
       );
-      return BigInt(costFn(numUnits + extraUnits));
+      const base = costFn(numUnits + extraUnits);
+      return BigInt(
+        Math.round(base * this.sibauCostMultiplier(player, types[0])),
+      );
     };
+  }
+
+  /** Sibau Wars: Junta, Armor and Industry discounts. */
+  private sibauCostMultiplier(player: Player, type: UnitType): number {
+    const s = player.sibau();
+    let m = 1;
+    if (
+      s.government === Government.Junta &&
+      (type === UnitType.Tank || type === UnitType.Warship)
+    ) {
+      m *= 0.75;
+    }
+    if (type === UnitType.Tank && hasTechInMask(s.techs, Tech.Armor)) {
+      m *= 0.7;
+    }
+    if (Structures.has(type) && hasTechInMask(s.techs, Tech.Industry)) {
+      m *= 0.85;
+    }
+    return m;
   }
 
   defaultDonationAmount(sender: PlayerLike): number {
@@ -568,6 +605,10 @@ export class EngineConfig extends Config {
       mag *= this.tankAttackBoostMultiplier();
       tileCost *= this.tankAttackBoostMultiplier();
     }
+    // Sibau Wars: government and tech modifiers.
+    const sib = this.sibauAttackModifiers(input);
+    mag *= sib.loss;
+    tileCost *= sib.speed;
     // Sibau Wars: a narrow precise push pays extra for every tile.
     if (input.preciseAttack === true) {
       mag *= this.preciseAttackLossMultiplier();
@@ -716,7 +757,12 @@ export class EngineConfig extends Config {
   }
 
   goldAdditionRate(player: PlayerLike): Gold {
-    const multiplier = this.goldMultiplierFor(player);
+    const s = player.sibau();
+    // Sibau Wars: Republic and the Trade Routes tech earn more.
+    const multiplier =
+      this.goldMultiplierFor(player) *
+      (s.government === Government.Republic ? 1.25 : 1) *
+      (hasTechInMask(s.techs, Tech.TradeRoutes) ? 1.15 : 1);
     let baseRate: bigint;
     if (player.type() === PlayerType.Bot) {
       baseRate = 50n;
@@ -916,8 +962,112 @@ export class EngineConfig extends Config {
   }
 
   /** Troops a Focus order spends per point of tank health. */
-  focusTroopsPerHealth(): number {
-    return 250;
+  focusTroopsPerHealth(focuser?: Player, tankOwner?: Player): number {
+    let perHealth = 250;
+    if (
+      tankOwner !== undefined &&
+      hasTechInMask(tankOwner.sibau().techs, Tech.Armor)
+    ) {
+      perHealth *= 1.5;
+    }
+    if (
+      focuser !== undefined &&
+      hasTechInMask(focuser.sibau().techs, Tech.Militia)
+    ) {
+      perHealth *= 0.6;
+    }
+    return Math.round(perHealth);
+  }
+
+  /**
+   * Sibau Wars: troop loss (`loss`) and time per tile (`speed`) multipliers
+   * from the attacker's and defender's government and techs.
+   */
+  sibauAttackModifiers(input: AttackLogicInput): {
+    loss: number;
+    speed: number;
+  } {
+    let loss = 1;
+    let speed = 1;
+    const a = input.attackerSibau;
+    const d = input.defenderSibau;
+    if (a !== undefined) {
+      if (a.government === Government.Junta) loss *= 0.9;
+      if (hasTechInMask(a.techs, Tech.Drill)) loss *= 0.93;
+      if (hasTechInMask(a.techs, Tech.Blitz)) speed *= 0.9;
+    }
+    if (d !== undefined) {
+      if (d.government === Government.Theocracy) loss *= 1.15;
+      if (hasTechInMask(d.techs, Tech.Fortify)) loss *= 1.07;
+      if (hasTechInMask(d.techs, Tech.Bunkers)) {
+        loss *= 1.08;
+        speed *= 1.1;
+      }
+    }
+    return { loss, speed };
+  }
+
+  // --- Sibau Wars: oil ---
+
+  oilSearchCost(): bigint {
+    return 5_000_000n;
+  }
+
+  /** A search finds a hidden field this close to the searched tile. */
+  oilSearchRadius(): number {
+    return 20;
+  }
+
+  /** A drill must stand this close to a found field. */
+  oilDrillRange(): number {
+    return 3;
+  }
+
+  /** Gold a working drill pumps per tick (10 ticks = 1 second). */
+  oilDrillGoldPerTick(): bigint {
+    return 2_000n;
+  }
+
+  /** One hidden oil field per this many land tiles (at least 3, at most 24). */
+  landTilesPerOilField(): number {
+    return 3_500;
+  }
+
+  // --- Sibau Wars: vassals, rebels, coalitions ---
+
+  /** Share of a vassal's worker gold that goes to its overlord. */
+  vassalTributeShare(): number {
+    return 0.2;
+  }
+
+  /** AI players accept vassalage when the demander has this many times their troops. */
+  vassalAcceptTroopRatio(): number {
+    return 3;
+  }
+
+  /** Conquests from players remembered for rebellion checks, in ticks. */
+  rebellionWindowTicks(): number {
+    return 3 * 60 * 10;
+  }
+
+  /** Rebellion is possible when recent conquests exceed this share of your land. */
+  rebellionConquestShare(): number {
+    return 0.35;
+  }
+
+  /** ...and at least this many tiles. */
+  rebellionMinTiles(): number {
+    return 300;
+  }
+
+  /** A coalition forms against a player this many times bigger than the runner-up... */
+  coalitionLeadRatio(): number {
+    return 2;
+  }
+
+  /** ...who also holds at least this share of all land. */
+  coalitionLandShare(): number {
+    return 0.15;
   }
 
   /** Precise attacks lose this many times the troops per tile. */

@@ -7,6 +7,7 @@ import {
   Tick,
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
+import { Government, Tech } from "@openfront/engine-api/game/Sibau";
 import {
   AllPlayersStats,
   ClientID,
@@ -244,6 +245,34 @@ export class SendFocusTankIntentEvent implements GameEvent {
   ) {}
 }
 
+/** Sibau Wars: pick a government (once). */
+export class SendSetGovernmentIntentEvent implements GameEvent {
+  constructor(public readonly government: Government) {}
+}
+
+/** Sibau Wars: spend research points on a tech. */
+export class SendResearchIntentEvent implements GameEvent {
+  constructor(public readonly tech: Tech) {}
+}
+
+/** Sibau Wars: drill a test well (costs 5M whether or not oil is found). */
+export class SendSearchOilIntentEvent implements GameEvent {
+  constructor(public readonly tile: number) {}
+}
+
+/** Sibau Wars: demand that a smaller player becomes your vassal. */
+export class SendDemandVassalIntentEvent implements GameEvent {
+  constructor(public readonly target: string) {}
+}
+
+/** Sibau Wars: answer a vassal demand. */
+export class SendVassalReplyIntentEvent implements GameEvent {
+  constructor(
+    public readonly overlord: string,
+    public readonly accept: boolean,
+  ) {}
+}
+
 export class MoveWarshipIntentEvent implements GameEvent {
   constructor(
     public readonly unitIds: number[],
@@ -379,6 +408,26 @@ export class Transport {
         troops: Math.max(0, Math.floor(e.troops)),
       });
     });
+
+    this.subscribe(SendSetGovernmentIntentEvent, (e) =>
+      this.sendIntent({ type: "set_government", government: e.government }),
+    );
+    this.subscribe(SendResearchIntentEvent, (e) =>
+      this.sendIntent({ type: "research", tech: e.tech }),
+    );
+    this.subscribe(SendSearchOilIntentEvent, (e) =>
+      this.sendIntent({ type: "search_oil", tile: e.tile }),
+    );
+    this.subscribe(SendDemandVassalIntentEvent, (e) =>
+      this.sendIntent({ type: "demand_vassal", target: e.target }),
+    );
+    this.subscribe(SendVassalReplyIntentEvent, (e) =>
+      this.sendIntent({
+        type: "vassal_reply",
+        overlord: e.overlord,
+        accept: e.accept,
+      }),
+    );
 
     this.subscribe(SendDeleteUnitIntentEvent, (e) =>
       this.onSendDeleteUnitIntent(e),

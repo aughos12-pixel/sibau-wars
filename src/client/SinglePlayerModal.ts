@@ -119,6 +119,7 @@ const TUTORIAL_DISABLED_UNITS: UnitType[] = [
   UnitType.Tank,
   UnitType.School,
   UnitType.Bank,
+  UnitType.OilDrill,
 ];
 
 const DEFAULT_OPTIONS = {

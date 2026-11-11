@@ -531,6 +531,10 @@ export class GameImpl implements Game {
     return this.startTick === null;
   }
 
+  spawnPhaseEndTick(): number | null {
+    return this.startTick;
+  }
+
   endSpawnPhase(): void {
     if (this.startTick !== null) {
       return;
@@ -883,6 +887,8 @@ export class GameImpl implements Game {
     }
     const previousOwner = this.owner(tile) as TerraNullius | PlayerImpl;
     if (previousOwner.isPlayer()) {
+      // Sibau Wars: land taken from players can rebel (PlayerExecution).
+      owner.sibauState().recordConquest(tile, this._ticks);
       previousOwner._lastTileChange = this._ticks;
       previousOwner._tileChangeVersion++;
       previousOwner._tiles.delete(tile);

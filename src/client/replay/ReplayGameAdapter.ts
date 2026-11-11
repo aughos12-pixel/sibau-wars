@@ -25,6 +25,10 @@ import type {
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
 import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
+import {
+  NO_SIBAU,
+  type SibauPlayerView,
+} from "@openfront/engine-api/game/Sibau";
 import type { Config } from "@openfront/engine-lib/configuration/Config";
 import { OWNER_MASK } from "../render/gl/utils/TileCodec";
 import type {
@@ -185,6 +189,10 @@ class ReplayPlayerView {
   /** An embargo either way, as PlayerView.hasEmbargo. */
   hasEmbargo(other: ReplayPlayerView): boolean {
     return this.hasEmbargoAgainst(other) || other.hasEmbargoAgainst(this);
+  }
+  /** Sibau Wars: government, capital, techs, exhaustion, overlord. */
+  sibau(): SibauPlayerView {
+    return this.state?.sibau ?? NO_SIBAU;
   }
   outgoingEmojis(): PlayerState["outgoingEmojis"] {
     if (!this.game.showEmojis()) return [];

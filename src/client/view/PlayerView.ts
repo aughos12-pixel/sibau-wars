@@ -21,6 +21,7 @@ import {
   PlayerUpdate,
 } from "@openfront/engine-api/game/GameUpdates";
 import { PlayerLike } from "@openfront/engine-api/game/ReadViews";
+import { NO_SIBAU, SibauPlayerView } from "@openfront/engine-api/game/Sibau";
 import { ClientID } from "@openfront/engine-api/Schemas";
 import { PatternDecoder } from "@openfront/shared/PatternDecoder";
 import { createRandomName } from "@openfront/shared/SharedUtil";
@@ -504,7 +505,32 @@ export class PlayerView implements PlayerLike {
   }
 
   isFriendly(other: PlayerView): boolean {
-    return this.isAlliedWith(other) || this.isOnSameTeam(other);
+    return (
+      this.isAlliedWith(other) ||
+      this.isOnSameTeam(other) ||
+      this.isVassalPartner(other)
+    );
+  }
+
+  /** Sibau Wars: government, capital, techs, war exhaustion, overlord. */
+  sibau(): SibauPlayerView {
+    return this.state.sibau ?? NO_SIBAU;
+  }
+
+  /** Sibau Wars: one of the two is the other's vassal. */
+  isVassalPartner(other: PlayerView): boolean {
+    return (
+      this.sibau().overlordID === other.smallID() ||
+      other.sibau().overlordID === this.smallID()
+    );
+  }
+
+  /** Sibau Wars: the player this one is a vassal of, if any. */
+  overlord(): PlayerView | null {
+    const id = this.sibau().overlordID;
+    if (id === null) return null;
+    const p = this.game.playerBySmallID(id);
+    return p.isPlayer() ? (p as PlayerView) : null;
   }
 
   isRequestingAllianceWith(other: PlayerView) {

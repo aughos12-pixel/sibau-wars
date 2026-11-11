@@ -37,6 +37,7 @@ import { NationAttackBehavior } from "./nation/NationAttackBehavior";
 import { NationEmojiBehavior } from "./nation/NationEmojiBehavior";
 import { NationMIRVBehavior } from "./nation/NationMIRVBehavior";
 import { NationNukeBehavior } from "./nation/NationNukeBehavior";
+import { NationSibauBehavior } from "./nation/NationSibauBehavior";
 import { NationStructureBehavior } from "./nation/NationStructureBehavior";
 import { NationTankBehavior } from "./nation/NationTankBehavior";
 import { NationWarshipBehavior } from "./nation/NationWarshipBehavior";
@@ -239,10 +240,13 @@ export class NationExecution implements Execution {
     this.allianceBehavior.handleAllianceRequests();
     this.allianceBehavior.handleAllianceExtensionRequests();
     this.mirvBehavior.considerMIRV();
-    this.structureBehavior.handleStructures();
-    this.warshipBehavior.maybeSpawnWarship();
     // Sibau Wars: stateless, so a fresh one each turn needs no snapshot.
+    const sibau = new NationSibauBehavior(this.random, this.mg, this.player);
+    // Saving for a test well: buildings wait until we have the gold.
+    if (!sibau.isSavingForOil()) this.structureBehavior.handleStructures();
+    this.warshipBehavior.maybeSpawnWarship();
     new NationTankBehavior(this.random, this.mg, this.player).handleTanks();
+    sibau.handle();
     this.handleEmbargoesToHostileNations();
     this.attackBehavior.maybeAttack();
     this.warshipBehavior.counterWarshipInfestation();

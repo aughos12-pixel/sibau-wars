@@ -35,6 +35,11 @@ export const UT_MISSILE_SILO = "Missile Silo" as const;
 export const UT_BARRACKS = "Barracks" as const;
 export const UT_SCHOOL = "School" as const;
 export const UT_BANK = "Bank" as const;
+export const UT_OIL_DRILL = "Oil Drill" as const;
+/** A found oil field: a map marker, drawn with the structures. */
+export const UT_OIL_FIELD = "Oil Field" as const;
+/** Not a unit type: the atlas column for a player's capital City. */
+export const UT_CAPITAL = "Capital" as const;
 
 // ---------------------------------------------------------------------------
 // Derived sets
@@ -50,6 +55,8 @@ export const STRUCTURE_TYPES: ReadonlySet<string> = new Set([
   UT_BARRACKS,
   UT_SCHOOL,
   UT_BANK,
+  UT_OIL_DRILL,
+  UT_OIL_FIELD,
 ]);
 
 export const NUKE_TYPES: ReadonlySet<string> = new Set([
@@ -112,4 +119,6 @@ export const ALL_UNIT_TYPES = [
   UT_TANK,
   UT_SCHOOL,
   UT_BANK,
+  UT_OIL_FIELD,
+  UT_OIL_DRILL,
 ] as const;

@@ -1,10 +1,13 @@
 import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
 import {
   Cell,
+  MessageType,
+  PlayerInfo,
   PlayerType,
   Structures,
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
+import { Government } from "@openfront/engine-api/game/Sibau";
 import { zInt, zPlayerRef } from "@openfront/engine-lib/snapshot/SnapshotType";
 import { getMode, simpleHash } from "@openfront/engine-lib/Util";
 import { z } from "zod";
@@ -21,6 +24,8 @@ import type {
   SnapshotReader,
   SnapshotWriter,
 } from "../snapshot/SnapshotContext";
+import { GOVERNMENT_GRACE_TICKS } from "./SibauExecutions";
+import { TribeExecution } from "./TribeExecution";
 
 const TICKS_PER_CLUSTER_CALC = 20;
 
@@ -98,13 +103,22 @@ export class PlayerExecution implements Execution {
 
     const troopInc = this.config.troopIncreaseRate(this.player);
     this.player.addTroops(troopInc);
-    const goldFromWorkers = this.config.goldAdditionRate(this.player);
+    let goldFromWorkers = this.config.goldAdditionRate(this.player);
+    // Sibau Wars: a vassal hands part of its income to its overlord.
+    const overlord = this.player.sibauState().overlord();
+    if (overlord !== null && overlord.isAlive()) {
+      const share = BigInt(Math.round(this.config.vassalTributeShare() * 1000));
+      const tribute = (goldFromWorkers * share) / 1000n;
+      goldFromWorkers -= tribute;
+      overlord.addGold(tribute);
+    }
     this.player.addGold(goldFromWorkers);
 
     // Record stats
     this.mg.stats().goldWork(this.player, goldFromWorkers);
 
     this.payBankInterest(ticks);
+    this.sibauTick(ticks);
 
     for (const alliance of this.player.alliances()) {
       if (alliance.expiresAt() <= this.mg.ticks()) {
@@ -1100,6 +1114,158 @@ export class PlayerExecution implements Execution {
   }
 
   /**
+   * Sibau Wars: capital loss, default government, research, war
+   * exhaustion, oil income, vassal independence and rebellions.
+   */
+  private sibauTick(ticks: number): void {
+    const player = this.player;
+    const state = player.sibauState();
+    const config = this.config;
+
+    // Capital: lost when destroyed or captured. A new City picks it up
+    // again (ConstructionExecution).
+    const capital = state.capital();
+    if (
+      capital !== null &&
+      (!capital.isActive() || capital.owner() !== player)
+    ) {
+      state.loseCapital();
+      this.tell(player, "events_display.capital_lost");
+      if (capital.isActive() && capital.owner() !== player) {
+        this.tell(capital.owner(), "events_display.capital_captured", {
+          name: player.displayName(),
+        });
+      }
+    }
+
+    // Players who never picked a government get one shortly after spawning.
+    if (
+      state.government() === null &&
+      player.type() !== PlayerType.Bot &&
+      this.mg.ticks() - (this.mg.spawnPhaseEndTick() ?? this.mg.ticks()) >
+        GOVERNMENT_GRACE_TICKS
+    ) {
+      state.setGovernment(Government.Monarchy);
+    }
+
+    // Research: a trickle, more with Schools and oil.
+    if (ticks % 100 === 0 && player.type() !== PlayerType.Bot) {
+      state.addResearch(config.researchPerTenSeconds(player));
+    }
+
+    // War exhaustion builds while fighting players and fades in peace.
+    const atWar =
+      player.outgoingAttacks().some((a) => a.target().isPlayer()) ||
+      player.incomingAttacks().some((a) => a.attacker().isPlayer());
+    state.setExhaustion(
+      state.exhaustion() +
+        (atWar
+          ? 1 / config.warExhaustionBuildTicks()
+          : -1 / config.warExhaustionRecoverTicks()),
+    );
+
+    // Oil drills pump gold.
+    let drills = 0;
+    for (const d of player.units(UnitType.OilDrill)) {
+      if (d.isActive() && !d.isUnderConstruction() && !d.isDisabled()) drills++;
+    }
+    if (drills > 0) {
+      player.addGold(config.oilDrillGoldPerTick() * BigInt(drills));
+    }
+
+    // A vassal goes free when its overlord falls or it outgrows them.
+    const overlord = state.overlord();
+    if (
+      overlord !== null &&
+      (!overlord.isAlive() || player.numTilesOwned() > overlord.numTilesOwned())
+    ) {
+      state.setOverlord(null);
+      this.tell(player, "events_display.vassal_free", {
+        name: overlord.displayName(),
+      });
+      if (overlord.isAlive()) {
+        this.tell(overlord, "events_display.vassal_lost", {
+          name: player.displayName(),
+        });
+      }
+    }
+    state.dropExpiredDemands(this.mg.ticks());
+
+    if (ticks % 100 === 50 && player.type() !== PlayerType.Bot) {
+      this.maybeRebel(ticks);
+    }
+  }
+
+  /**
+   * Sibau Wars: land taken from other players too fast can break away as a
+   * hostile rebel tribe.
+   */
+  private maybeRebel(ticks: number): void {
+    const player = this.player;
+    const state = player.sibauState();
+    const config = this.config;
+    const window = config.rebellionWindowTicks();
+    state.pruneConquests(ticks - window);
+    if (ticks - state.lastRebellionTick() < window) return;
+    const sample = state.conquests();
+    if (sample.length === 0) return;
+    const recent = sample.filter((t) => this.mg.owner(t) === player);
+    // The sample only keeps the newest tiles; scale what's still held up to
+    // everything taken in the window.
+    const stillHeld = state.conquestCount() * (recent.length / sample.length);
+    if (
+      recent.length === 0 ||
+      stillHeld < config.rebellionMinTiles() ||
+      stillHeld < player.numTilesOwned() * config.rebellionConquestShare()
+    ) {
+      return;
+    }
+    // Not every overstretch ends in revolt (1 in 3 checks).
+    if (simpleHash(`${player.id()}:${ticks}`) % 3 !== 0) return;
+
+    const center =
+      recent[simpleHash(`${player.id()}/${ticks}`) % recent.length];
+    const radius = 25;
+    const chunk = recent
+      .filter((t) => this.mg.euclideanDistSquared(t, center) <= radius * radius)
+      .slice(0, Math.max(50, Math.floor(recent.length * 0.6)));
+    if (chunk.length < 20) return;
+
+    const id = `rebels-${player.smallID()}-${ticks}`;
+    const rebels = this.mg.addPlayer(
+      new PlayerInfo(
+        `Rebels of ${player.displayName()}`,
+        PlayerType.Bot,
+        null,
+        id,
+      ),
+    );
+    for (const t of chunk) rebels.conquer(t);
+    rebels.addTroops(chunk.length * 60);
+    rebels.setSpawnTile(center);
+    this.mg.addExecution(new PlayerExecution(rebels));
+    this.mg.addExecution(new TribeExecution(rebels));
+    state.setLastRebellionTick(ticks);
+    state.clearConquests();
+    this.tell(player, "events_display.rebellion", { count: chunk.length });
+  }
+
+  private tell(
+    player: Player,
+    key: string,
+    params?: Record<string, string | number>,
+  ) {
+    if (player.type() !== PlayerType.Human) return;
+    this.mg.displayMessage(
+      key,
+      MessageType.SIBAU_EVENT,
+      player.id(),
+      undefined,
+      params,
+    );
+  }
+
+  /**
    * Sibau Wars: every bankInterestIntervalTicks each working Bank (at most 5)
    * pays bankInterestPerBank() of the gold the player holds, capped at
    * bankInterestCapPerBank() per Bank.
@@ -1110,7 +1276,7 @@ export class PlayerExecution implements Execution {
     if (banks === 0) return;
     // In basis points (1/100 of a percent) so 0.25% isn't rounded away.
     const basisPoints = BigInt(
-      Math.round(this.config.bankInterestPerBank() * 10_000 * banks),
+      Math.round(this.config.bankInterestPerBank(this.player) * 10_000 * banks),
     );
     let interest = (this.player.gold() * basisPoints) / 10_000n;
     const cap = this.config.bankInterestCapPerBank() * BigInt(banks);

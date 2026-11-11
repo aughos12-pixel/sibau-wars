@@ -222,6 +222,9 @@ export enum UnitType {
   // interest on saved gold.
   School = "School",
   Bank = "Bank",
+  // Sibau Wars: a found oil field (a marker, never built) and the drill on it.
+  OilField = "Oil Field",
+  OilDrill = "Oil Drill",
 }
 
 export enum TrainType {
@@ -255,6 +258,7 @@ export const Structures = unitTypeGroup([
   UnitType.Barracks,
   UnitType.School,
   UnitType.Bank,
+  UnitType.OilDrill,
 ] as const);
 
 export const BuildMenus = unitTypeGroup([
@@ -492,6 +496,8 @@ export enum MessageType {
   RENEW_ALLIANCE,
   // Sibau Wars
   NATURAL_DISASTER,
+  VASSAL_REQUEST,
+  SIBAU_EVENT,
 }
 
 // Message categories used for filtering events in the EventsDisplay
@@ -521,6 +527,8 @@ export const MESSAGE_TYPE_CATEGORIES: Record<MessageType, MessageCategory> = {
   [MessageType.ALLIANCE_ACCEPTED]: MessageCategory.ALLIANCE,
   [MessageType.ALLIANCE_REJECTED]: MessageCategory.ALLIANCE,
   [MessageType.NATURAL_DISASTER]: MessageCategory.ATTACK,
+  [MessageType.VASSAL_REQUEST]: MessageCategory.ALLIANCE,
+  [MessageType.SIBAU_EVENT]: MessageCategory.ATTACK,
   [MessageType.ALLIANCE_REQUEST]: MessageCategory.ALLIANCE,
   [MessageType.ALLIANCE_BROKEN]: MessageCategory.ALLIANCE,
   [MessageType.ALLIANCE_EXPIRED]: MessageCategory.ALLIANCE,

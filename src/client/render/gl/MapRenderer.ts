@@ -248,6 +248,9 @@ export class MapRenderer {
   updateStructures(units: Map<number, UnitState>): void {
     this.renderer?.updateStructures(units);
   }
+  setCapitals(ids: ReadonlySet<number>): void {
+    this.renderer?.setCapitals(ids);
+  }
   applyDeadUnits(deadUnits: DeadUnitFx[]): void {
     this.renderer?.applyDeadUnits(deadUnits);
   }

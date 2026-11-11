@@ -4,6 +4,7 @@ import {
   AllianceRequestReplyUpdate,
   AllianceRequestUpdate,
   BrokeAllianceUpdate,
+  DisplayMessageUpdate,
   GameUpdateType,
 } from "@openfront/engine-api/game/GameUpdates";
 import { EventBus } from "@openfront/shared/EventBus";
@@ -16,6 +17,7 @@ import {
   SendAllianceExtensionIntentEvent,
   SendAllianceRejectIntentEvent,
   SendAllianceRequestIntentEvent,
+  SendVassalReplyIntentEvent,
 } from "../../Transport";
 import { UIState } from "../../UIState";
 import { getMessageTypeClasses, translateText } from "../../Utils";
@@ -61,6 +63,7 @@ export class ActionableEvents extends LitElement implements Controller {
       GameUpdateType.AllianceExtension,
       this.onAllianceExtensionEvent.bind(this),
     ],
+    [GameUpdateType.DisplayEvent, this.onVassalDemandEvent.bind(this)],
   ] as const;
 
   createRenderRoot() {
@@ -258,6 +261,58 @@ export class ActionableEvents extends LitElement implements Controller {
       duration: this.game.config().allianceRequestDuration(),
       focusID: update.requestorID,
       requestorID: update.requestorID,
+    });
+  }
+
+  /** Sibau Wars: a bigger player demands that we become their vassal. */
+  private onVassalDemandEvent(update: DisplayMessageUpdate) {
+    if (update.messageType !== MessageType.VASSAL_REQUEST) return;
+    const myPlayer = this.game.myPlayer();
+    if (
+      !myPlayer ||
+      update.playerID !== myPlayer.smallID() ||
+      update.focusPlayerID === undefined
+    ) {
+      return;
+    }
+    const overlord = this.game.playerBySmallID(update.focusPlayerID);
+    if (!overlord.isPlayer()) return;
+    const demander = overlord as PlayerView;
+    this.eventBus.emit(new PlaySoundEffectEvent("alliance-suggested"));
+    this.addEvent({
+      description: translateText("events_display.vassal_demand", {
+        name: demander.displayName(),
+      }),
+      buttons: [
+        {
+          text: translateText("events_display.focus"),
+          className: "btn-gray",
+          action: () => this.eventBus.emit(new GoToPlayerEvent(demander)),
+          preventClose: true,
+        },
+        {
+          text: translateText("events_display.vassal_accept"),
+          className: "btn",
+          action: () =>
+            this.eventBus.emit(
+              new SendVassalReplyIntentEvent(demander.id(), true),
+            ),
+        },
+        {
+          text: translateText("events_display.vassal_refuse"),
+          className: "btn-info",
+          action: () =>
+            this.eventBus.emit(
+              new SendVassalReplyIntentEvent(demander.id(), false),
+            ),
+        },
+      ],
+      type: MessageType.VASSAL_REQUEST,
+      createdAt: this.game.ticks(),
+      priority: 0,
+      duration: this.game.config().vassalRequestTicks(),
+      focusID: update.focusPlayerID,
+      requestorID: update.focusPlayerID,
     });
   }
 

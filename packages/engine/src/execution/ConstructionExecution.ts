@@ -1,5 +1,10 @@
 import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { Tick, UnitType } from "@openfront/engine-api/game/GameTypes";
+import {
+  MessageType,
+  PlayerType,
+  Tick,
+  UnitType,
+} from "@openfront/engine-api/game/GameTypes";
 import {
   zInt,
   zPlayerRef,
@@ -159,9 +164,23 @@ export class ConstructionExecution implements Execution {
           new SAMLauncherExecution(player, null, this.structure!),
         );
         break;
-      case UnitType.City:
+      case UnitType.City: {
         this.mg.addExecution(new CityExecution(this.structure!));
+        // Sibau Wars: the first City, or the first one built after losing
+        // the capital, becomes the capital.
+        const state = player.sibauState();
+        if (state.capital() === null) {
+          state.setCapital(this.structure!);
+          if (player.type() === PlayerType.Human) {
+            this.mg.displayMessage(
+              "events_display.capital_founded",
+              MessageType.SIBAU_EVENT,
+              player.id(),
+            );
+          }
+        }
         break;
+      }
       case UnitType.Factory:
         this.mg.addExecution(new FactoryExecution(this.structure!));
         break;
@@ -172,6 +191,7 @@ export class ConstructionExecution implements Execution {
       // PlayerExecution's bank interest).
       case UnitType.School:
       case UnitType.Bank:
+      case UnitType.OilDrill:
         break;
       case UnitType.Tank:
         this.mg.addExecution(
@@ -197,6 +217,7 @@ export class ConstructionExecution implements Execution {
       case UnitType.Barracks:
       case UnitType.School:
       case UnitType.Bank:
+      case UnitType.OilDrill:
         return true;
       default:
         return false;

@@ -33,6 +33,7 @@ import { DisasterExecution } from "./execution/DisasterExecution";
 import { DoomsdayClockExecution } from "./execution/DoomsdayClockExecution";
 import { Executor } from "./execution/ExecutionManager";
 import { RecomputeRailClusterExecution } from "./execution/RecomputeRailClusterExecution";
+import { SibauWorldExecution } from "./execution/SibauWorldExecution";
 import { SpawnTimerExecution } from "./execution/SpawnTimerExecution";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
 import { Game, Player } from "./game/Game";
@@ -211,6 +212,10 @@ export class GameRunner {
         new RecomputeRailClusterExecution(this.game.railNetwork()),
       );
     }
+    // Sibau Wars: hidden oil fields and AI coalitions.
+    this.game.addExecution(
+      new SibauWorldExecution(simpleHash(this.execManager.gameID()) + 3),
+    );
   }
 
   public addTurn(turn: Turn): void {

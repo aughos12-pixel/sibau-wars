@@ -18,10 +18,13 @@ import type { GhostPreviewData, RendererConfig, UnitState } from "../../types";
 import {
   UT_BANK,
   UT_BARRACKS,
+  UT_CAPITAL,
   UT_CITY,
   UT_DEFENSE_POST,
   UT_FACTORY,
   UT_MISSILE_SILO,
+  UT_OIL_DRILL,
+  UT_OIL_FIELD,
   UT_PORT,
   UT_SAM_LAUNCHER,
   UT_SCHOOL,
@@ -59,7 +62,15 @@ const STRUCTURE_ORDER = [
   UT_BARRACKS,
   UT_SCHOOL,
   UT_BANK,
+  UT_OIL_DRILL,
+  UT_OIL_FIELD,
+  // Sibau Wars: a player's capital City is drawn with a crown.
+  UT_CAPITAL,
 ] as const;
+
+const CAPITAL_COL = STRUCTURE_ORDER.indexOf(UT_CAPITAL);
+/** A found oil field's marker is hidden once a drill stands this close. */
+const OIL_FIELD_HIDE_RANGE = 3;
 
 const ATLAS_COLS = STRUCTURE_ORDER.length;
 
@@ -124,6 +135,10 @@ export class StructurePass {
   /** unitType string → atlas column index (0–5) */
   private typeToAtlasCol = new Map<string, number>();
   private mapW: number;
+
+  /** Sibau Wars: unit ids of capital Cities (drawn with a crown). */
+  private capitals: ReadonlySet<number> = new Set();
+  private lastUnits: Map<number, UnitState> | null = null;
 
   /** Build-button hover highlight: bitmask of atlas columns (0 = off). */
   private highlightMask = 0;
@@ -310,13 +325,42 @@ export class StructurePass {
     this.hoverOwner = ownerID;
   }
 
+  /** Sibau Wars: which Cities are capitals. Redraws if it changed. */
+  setCapitals(ids: ReadonlySet<number>): void {
+    if (
+      ids.size === this.capitals.size &&
+      [...ids].every((id) => this.capitals.has(id))
+    ) {
+      return;
+    }
+    this.capitals = ids;
+    if (this.lastUnits !== null) this.updateStructures(this.lastUnits);
+  }
+
   updateStructures(units: Map<number, UnitState>): void {
+    this.lastUnits = units;
     let count = 0;
+
+    // Oil drills, so the field markers under them can be hidden.
+    const drills: number[] = [];
+    for (const unit of units.values()) {
+      if (unit.isActive && unit.unitType === UT_OIL_DRILL)
+        drills.push(unit.pos);
+    }
 
     for (const unit of units.values()) {
       if (!unit.isActive) continue;
-      const atlasIdx = this.typeToAtlasCol.get(unit.unitType);
+      let atlasIdx = this.typeToAtlasCol.get(unit.unitType);
       if (atlasIdx === undefined) continue;
+      if (unit.unitType === UT_CITY && this.capitals.has(unit.id)) {
+        atlasIdx = CAPITAL_COL;
+      }
+      if (
+        unit.unitType === UT_OIL_FIELD &&
+        drills.some((d) => this.tileDist(d, unit.pos) <= OIL_FIELD_HIDE_RANGE)
+      ) {
+        continue;
+      }
 
       this.instanceBuf.ensureCapacity(count + 1);
 
@@ -355,6 +399,14 @@ export class StructurePass {
     }
   }
 
+  private tileDist(a: number, b: number): number {
+    const ax = a % this.mapW;
+    const bx = b % this.mapW;
+    const ay = (a - ax) / this.mapW;
+    const by = (b - bx) / this.mapW;
+    return Math.max(Math.abs(ax - bx), Math.abs(ay - by));
+  }
+
   updateGhostPreview(data: GhostPreviewData | null): void {
     this.ghost = data;
   }
@@ -370,6 +422,7 @@ export class StructurePass {
       for (const t of unitTypes) {
         const col = this.typeToAtlasCol.get(t);
         if (col !== undefined) mask |= 1 << col;
+        if (t === UT_CITY) mask |= 1 << CAPITAL_COL;
       }
     }
     this.highlightMask = mask;

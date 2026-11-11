@@ -28,6 +28,13 @@ import { NoOpExecution } from "./NoOpExecution";
 import { PauseExecution } from "./PauseExecution";
 import { QuickChatExecution } from "./QuickChatExecution";
 import { RetreatExecution } from "./RetreatExecution";
+import {
+  DemandVassalExecution,
+  ResearchExecution,
+  SearchOilExecution,
+  SetGovernmentExecution,
+  VassalReplyExecution,
+} from "./SibauExecutions";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
@@ -85,6 +92,16 @@ export class Executor {
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "focus_tank":
         return new FocusTankExecution(player, intent.unitId, intent.troops);
+      case "set_government":
+        return new SetGovernmentExecution(player, intent.government);
+      case "research":
+        return new ResearchExecution(player, intent.tech);
+      case "search_oil":
+        return new SearchOilExecution(player, intent.tile);
+      case "demand_vassal":
+        return new DemandVassalExecution(player, intent.target);
+      case "vassal_reply":
+        return new VassalReplyExecution(player, intent.overlord, intent.accept);
       case "spawn":
         // fromIntent: this one came off the wire, so it is subject to the
         // spawn-phase gate that internal spawns are not.

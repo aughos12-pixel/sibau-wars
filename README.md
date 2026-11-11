@@ -24,6 +24,12 @@ Sibau Wars is a fork of [OpenFront](https://github.com/openfrontio/OpenFrontIO),
 - **Sibau Wars only:** **Barracks and tanks** (hotkeys J and Z). Tanks drive over any land, shoot enemy tanks, wreck enemy buildings and make your attacks nearby about 15% cheaper and faster. Defense posts shoot them, and you can right-click an enemy tank near your land and pick **Focus** to throw troops at it
 - **Sibau Wars only:** AI nations use all of it: they build Schools, Banks and Barracks, send tanks, Focus enemy tanks and aim precise attacks
 - **Sibau Wars only:** **General Albin**, an advisor in the bottom-left corner who gives a tip when something important happens (enemy tank in your land, gold piling up, an attack running dry...). Players can turn him off in Settings
+- **Sibau Wars only: governments.** At the start you pick Monarchy (+10% troops), Republic (+25% gold), Military Junta (cheaper tanks and warships, cheaper attacks) or Theocracy (stronger defence). You pick once
+- **Sibau Wars only: tech tree.** 9 techs in 3 branches (Economy, Military, Defense). Research points trickle in, faster with Schools and Oil Drills. Open it with the Nation button on the left
+- **Sibau Wars only: capitals.** Your first City is your capital (crown icon). Lose it and troop growth halves until you build a new City
+- **Sibau Wars only: oil.** Right-click your land and search for oil for 5M gold. Oil hides mostly in plains; if none is within 20 tiles, the money is gone. On a hit, build an Oil Drill (1M) that pays 20k gold a second forever and speeds up research
+- **Sibau Wars only: vassals.** Right-click a smaller player and demand they become your vassal. Humans get Accept/Refuse; AI nations accept only if you have 3x their troops. Vassals pay 20% of their income and go free if they grow bigger than you
+- **Sibau Wars only: war exhaustion, rebels and coalitions.** Long wars slowly lower troop growth. Land taken too fast can rebel and break away as a rebel bot. If one player gets far ahead, AI nations team up against them
 - Free-for-all, teams and other game modes
 
 ## Changing General Albin's picture

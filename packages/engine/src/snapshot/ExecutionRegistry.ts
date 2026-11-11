@@ -34,6 +34,14 @@ import { RetreatExecutionSnapshot } from "../execution/RetreatExecution";
 import { SAMLauncherExecutionSnapshot } from "../execution/SAMLauncherExecution";
 import { SAMMissileExecutionSnapshot } from "../execution/SAMMissileExecution";
 import { ShellExecutionSnapshot } from "../execution/ShellExecution";
+import {
+  DemandVassalSnapshot,
+  ResearchSnapshot,
+  SearchOilSnapshot,
+  SetGovernmentSnapshot,
+  VassalReplySnapshot,
+} from "../execution/SibauExecutions";
+import { SibauWorldExecutionSnapshot } from "../execution/SibauWorldExecution";
 import { SpawnExecutionSnapshot } from "../execution/SpawnExecution";
 import { SpawnTimerExecutionSnapshot } from "../execution/SpawnTimerExecution";
 import { TankExecutionSnapshot } from "../execution/TankExecution";
@@ -94,6 +102,12 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   SpawnExecutionSnapshot,
   SpawnTimerExecutionSnapshot,
   TankExecutionSnapshot,
+  SibauWorldExecutionSnapshot,
+  SetGovernmentSnapshot,
+  ResearchSnapshot,
+  SearchOilSnapshot,
+  DemandVassalSnapshot,
+  VassalReplySnapshot,
   TargetPlayerExecutionSnapshot,
   TradeShipExecutionSnapshot,
   TrainExecutionSnapshot,

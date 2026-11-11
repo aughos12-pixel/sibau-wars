@@ -38,6 +38,7 @@ const tankIcon = assetUrl("images/TankIconWhite.svg");
 const barracksIcon = assetUrl("images/BarracksIconWhite.svg");
 const schoolIcon = assetUrl("images/SchoolIconWhite.svg");
 const bankIcon = assetUrl("images/BankIconWhite.svg");
+const oilDrillIcon = assetUrl("images/OilDrillIconWhite.svg");
 const portIcon = assetUrl("images/PortIcon.svg");
 const samlauncherIcon = assetUrl("images/SamLauncherIconWhite.svg");
 const shieldIcon = assetUrl("images/ShieldIconWhite.svg");
@@ -148,6 +149,13 @@ const buildTable: BuildItemDisplay[][] = [
       icon: bankIcon,
       description: "build_menu.desc.bank",
       key: "unit_type.bank",
+      countable: true,
+    },
+    {
+      unitType: UnitType.OilDrill,
+      icon: oilDrillIcon,
+      description: "build_menu.desc.oil_drill",
+      key: "unit_type.oil_drill",
       countable: true,
     },
   ],

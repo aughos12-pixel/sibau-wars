@@ -39,6 +39,7 @@ import {
   UnitLike,
   UnitPredicate,
 } from "@openfront/engine-api/game/ReadViews";
+import type { SibauPlayerView } from "@openfront/engine-api/game/Sibau";
 import { AllPlayersStats, ClientID } from "@openfront/engine-api/Schemas";
 import { MotionPlanRecord } from "@openfront/engine-lib/game/MotionPlans";
 import type { EngineConfig } from "../configuration/EngineConfig";
@@ -46,6 +47,7 @@ import { AbstractGraph } from "../pathfinding/algorithms/AbstractGraph";
 import { PathFinder } from "../pathfinding/types";
 import type { ExecRecord, SnapshotWriter } from "../snapshot/SnapshotContext";
 import { RailNetwork } from "./RailNetwork";
+import type { SibauPlayerState } from "./SibauPlayerState";
 import { Stats } from "./Stats";
 
 export interface OwnerComp {
@@ -113,6 +115,10 @@ export interface UnitParamsMap {
   [UnitType.School]: Record<string, never>;
 
   [UnitType.Bank]: Record<string, never>;
+
+  [UnitType.OilDrill]: Record<string, never>;
+
+  [UnitType.OilField]: Record<string, never>;
 
   [UnitType.Tank]: {
     targetTile?: TileRef;
@@ -439,6 +445,12 @@ export interface Player extends PlayerLike {
   // Relations & Diplomacy
   nearby(): (Player | TerraNullius)[];
   sharesBorderWith(other: Player | TerraNullius): boolean;
+  /** Sibau Wars: the cached view the rules read. */
+  sibau(): SibauPlayerView;
+  /** Sibau Wars: the mutable state behind it. */
+  sibauState(): SibauPlayerState;
+  /** Sibau Wars: this player is the other's vassal or overlord. */
+  isVassalPartner(other: Player): boolean;
   relation(other: Player): Relation;
   allRelationsSorted(): { player: Player; relation: Relation }[];
   updateRelation(other: Player, delta: number): void;
@@ -573,6 +585,8 @@ export interface Game extends GameLike {
   ticks(): Tick;
   inSpawnPhase(): boolean;
   endSpawnPhase(): void;
+  /** Sibau Wars: the tick the spawn phase ended, or null during it. */
+  spawnPhaseEndTick(): number | null;
   queueViewResync(): void;
   executeNextTick(): GameUpdates;
   drainPackedTileUpdates(): Uint32Array;

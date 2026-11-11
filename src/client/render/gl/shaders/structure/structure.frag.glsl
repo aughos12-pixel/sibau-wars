@@ -115,7 +115,7 @@ float sdPolygon(vec2 p, float R, float n, float rot) {
 
 // Per-structure-type shape SDF.
 // Atlas indices: 0=City, 1=Port, 2=Factory, 3=DefensePost, 4=SAM, 5=Silo,
-// 6=Barracks, 7=School, 8=Bank
+// 6=Barracks, 7=School, 8=Bank, 9=Oil Drill, 10=Oil Field, 11=Capital City
 float shapeSDF(vec2 p, float R) {
   if (vAtlasIdx < 0.5)
     return length(p) - R;                     // City → circle
@@ -133,7 +133,12 @@ float shapeSDF(vec2 p, float R) {
     return sdPolygon(p, R, 4.0, PI * 0.25);   // Barracks → diamond (Sibau Wars)
   if (vAtlasIdx < 7.5)
     return sdPolygon(p, R, 6.0, PI * 0.5);    // School → hexagon (Sibau Wars)
-  return sdPolygon(p, R, 5.0, PI * 0.5);      // Bank → pentagon (Sibau Wars)
+  if (vAtlasIdx < 8.5)
+    return sdPolygon(p, R, 5.0, PI * 0.5);    // Bank → pentagon (Sibau Wars)
+  if (vAtlasIdx < 9.5)
+    return sdPolygon(p, R, 7.0, PI * 0.5);    // Oil Drill → heptagon (Sibau Wars)
+  return length(p) - R;                       // Oil Field, Capital → circle
+
 }
 
 void main() {

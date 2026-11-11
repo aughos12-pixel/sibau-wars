@@ -39,6 +39,7 @@ import { ImmunityTimer } from "./layers/ImmunityTimer";
 import { InGamePromo } from "./layers/InGamePromo";
 import { MainRadialMenu } from "./layers/MainRadialMenu";
 import { MultiTabModal } from "./layers/MultiTabModal";
+import { NationPanel } from "./layers/NationPanel";
 import { NewLobbyPrompt } from "./layers/NewLobbyPrompt";
 import { OnboardingOverlay } from "./layers/OnboardingOverlay";
 import { PerformanceOverlay } from "./layers/PerformanceOverlay";
@@ -279,6 +280,13 @@ export function createRenderer(
   }
   albinAdvisor.game = game;
 
+  const nationPanel = document.querySelector("nation-panel") as NationPanel;
+  if (!(nationPanel instanceof NationPanel)) {
+    console.error("nation panel not found");
+  }
+  nationPanel.game = game;
+  nationPanel.eventBus = eventBus;
+
   const performanceOverlay = document.querySelector(
     "performance-overlay",
   ) as PerformanceOverlay;
@@ -391,6 +399,7 @@ export function createRenderer(
     playerPanel,
     headsUpMessage,
     albinAdvisor,
+    nationPanel,
     multiTabModal,
     inGamePromo,
     tutorialPanel,

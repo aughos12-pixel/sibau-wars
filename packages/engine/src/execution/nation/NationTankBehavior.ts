@@ -65,7 +65,9 @@ export class NationTankBehavior {
       if (!FocusTankExecution.canFocus(this.game, me, tank)) continue;
       // Only once it's inside our land: tanks passing by aren't worth it.
       if (this.game.owner(tank.tile()) !== me) continue;
-      const perHealth = this.game.config().focusTroopsPerHealth();
+      const perHealth = this.game
+        .config()
+        .focusTroopsPerHealth(me, tank.owner());
       const needed = tank.health() * perHealth;
       const troops = Math.min(
         needed,

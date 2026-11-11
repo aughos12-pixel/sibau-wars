@@ -11,6 +11,7 @@ import {
 import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
 import { assertNever, calculateBoundingBox } from "@openfront/engine-lib/Util";
 import { Game, Player } from "../../game/Game";
+import { sibauWorld } from "../SibauWorldExecution";
 
 /** Starting gold from which nations place many structures at once, ballooning their max troops */
 const HIGH_STARTING_GOLD = 3_000_000n;
@@ -163,6 +164,9 @@ function runawayLeadFactor(difficulty: Difficulty): number | null {
 // The FFA player (not a bot) owning the most land, if it is far enough ahead
 // of the runner-up that nations should stop helping it and start pressuring it
 export function findRunawayLeader(game: Game): Player | null {
+  // Sibau Wars: a coalition's target is the leader everyone goes after.
+  const coalition = sibauWorld(game).coalitionTarget;
+  if (coalition !== null && coalition.isAlive()) return coalition;
   const { difficulty, gameMode } = game.config().gameConfig();
   if (gameMode !== GameMode.FFA) return null;
   const factor = runawayLeadFactor(difficulty);

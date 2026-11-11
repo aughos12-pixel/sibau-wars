@@ -7,6 +7,11 @@ import {
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
 import { PlayerLike } from "@openfront/engine-api/game/ReadViews";
+import {
+  Government,
+  hasTechInMask,
+  Tech,
+} from "@openfront/engine-api/game/Sibau";
 import { GameConfig } from "@openfront/engine-api/Schemas";
 import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
@@ -240,6 +245,12 @@ export class Config {
       case UnitType.Bank:
         info = { constructionDuration: this.instantBuild() ? 0 : 6 * 10 };
         break;
+      case UnitType.OilDrill:
+        info = { constructionDuration: this.instantBuild() ? 0 : 10 * 10 };
+        break;
+      case UnitType.OilField:
+        info = {};
+        break;
       case UnitType.Tank:
         info = { maxHealth: 1000 };
         break;
@@ -344,12 +355,17 @@ export class Config {
   }
 
   maxTroops(player: PlayerLike): number {
-    return this.troopCap(player, true);
+    return this.troopCap(player, true) * this.governmentTroopCap(player);
   }
 
   /** maxTroops without what cities add */
   maxTroopsWithoutCities(player: PlayerLike): number {
-    return this.troopCap(player, false);
+    return this.troopCap(player, false) * this.governmentTroopCap(player);
+  }
+
+  /** Sibau Wars: Monarchy raises the troop cap. */
+  private governmentTroopCap(player: PlayerLike): number {
+    return player.sibau().government === Government.Monarchy ? 1.1 : 1;
   }
 
   private troopCap(player: PlayerLike, withCities: boolean): number {
@@ -403,6 +419,7 @@ export class Config {
 
     // Sibau Wars: each working School speeds troop regrowth up.
     toAdd *= 1 + this.schoolBonusPerSchool() * this.effectiveSchools(player);
+    toAdd *= this.sibauTroopGrowth(player);
 
     if (player.type() === PlayerType.Bot) {
       toAdd *= 0.5;
@@ -445,6 +462,52 @@ export class Config {
     throw new Error(`Unknown nuke type: ${unitType}`);
   }
 
+  // --- Sibau Wars: government, capital, war exhaustion, research ---
+
+  /** Troop growth multiplier from government, a lost capital and war. */
+  sibauTroopGrowth(player: PlayerLike): number {
+    const s = player.sibau();
+    let m = 1;
+    if (s.government === Government.Monarchy) m *= 1.1;
+    if (s.capitalLost) m *= this.capitalLostTroopGrowth();
+    m *= 1 - this.maxWarExhaustionPenalty() * (s.exhaustion / 100);
+    return m;
+  }
+
+  /** Troop growth while the capital is lost (until a new City stands). */
+  capitalLostTroopGrowth(): number {
+    return 0.5;
+  }
+
+  /** Full war exhaustion cuts troop growth by this much. */
+  maxWarExhaustionPenalty(): number {
+    return 0.4;
+  }
+
+  /** A pending vassal demand to a human expires after this many ticks. */
+  vassalRequestTicks(): number {
+    return 30 * 10;
+  }
+
+  /** Ticks of war to go from no exhaustion to full. */
+  warExhaustionBuildTicks(): number {
+    return 8 * 60 * 10;
+  }
+
+  /** Ticks of peace to recover from full exhaustion. */
+  warExhaustionRecoverTicks(): number {
+    return 4 * 60 * 10;
+  }
+
+  /** Research points gained every 10 seconds. */
+  researchPerTenSeconds(player: PlayerLike): number {
+    return (
+      1 +
+      this.effectiveSchools(player) +
+      2 * workingCount(player, UnitType.OilDrill)
+    );
+  }
+
   // --- Sibau Wars: Schools and Banks ---
 
   /** Schools and Banks past this many give no extra bonus. */
@@ -483,8 +546,10 @@ export class Config {
   }
 
   /** Each Bank pays this share of the gold you hold, per payout (0.25%)... */
-  bankInterestPerBank(): number {
-    return 0.0025;
+  bankInterestPerBank(player?: PlayerLike): number {
+    const banking =
+      player !== undefined && hasTechInMask(player.sibau().techs, Tech.Banking);
+    return banking ? 0.00375 : 0.0025;
   }
 
   /** ...but never more than this much gold per Bank per payout. */

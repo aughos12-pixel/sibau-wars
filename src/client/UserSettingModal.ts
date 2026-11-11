@@ -1525,6 +1525,16 @@ export class UserSettingModal extends BaseModal {
       ></setting-keybind>
 
       <setting-keybind
+        action="buildOilDrill"
+        label=${translateText("user_setting.build_oil_drill")}
+        description=${translateText("user_setting.build_oil_drill_desc")}
+        defaultKey=${this.defaultKeybinds.buildOilDrill}
+        .value=${this.getKeyValue("buildOilDrill")}
+        .display=${this.getKeyChar("buildOilDrill")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
+      <setting-keybind
         action="buildMIRV"
         label=${translateText("user_setting.build_mirv")}
         description=${translateText("user_setting.build_mirv_desc")}

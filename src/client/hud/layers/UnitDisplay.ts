@@ -39,6 +39,7 @@ import {
   tankIcon,
   schoolIcon,
   bankIcon,
+  oilDrillIcon,
 } from "../HotbarIcons";
 import { TutorialHighlight, TutorialHighlightEvent } from "../Tutorial";
 
@@ -74,6 +75,7 @@ export class UnitDisplay extends LitElement implements Controller {
   private _tanks = 0;
   private _schools = 0;
   private _banks = 0;
+  private _oilDrills = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -491,6 +493,7 @@ export class UnitDisplay extends LitElement implements Controller {
     this._tanks = player.totalUnitLevels(UnitType.Tank);
     this._schools = player.totalUnitLevels(UnitType.School);
     this._banks = player.totalUnitLevels(UnitType.Bank);
+    this._oilDrills = player.totalUnitLevels(UnitType.OilDrill);
     this.requestUpdate();
   }
 
@@ -631,6 +634,15 @@ export class UnitDisplay extends LitElement implements Controller {
         hotkey: "buildBank",
         defaultKey: "KeyO",
         count: () => this._banks,
+      },
+      {
+        tab: "buildings",
+        icon: oilDrillIcon,
+        type: UnitType.OilDrill,
+        key: "oil_drill",
+        hotkey: "buildOilDrill",
+        defaultKey: "KeyV",
+        count: () => this._oilDrills,
       },
       {
         tab: "military",

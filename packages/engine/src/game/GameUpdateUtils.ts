@@ -7,6 +7,7 @@ import {
   GameUpdateType,
   PlayerUpdate,
 } from "@openfront/engine-api/game/GameUpdates";
+import { sibauViewEqual } from "@openfront/engine-api/game/Sibau";
 
 /**
  * Build a partial PlayerUpdate containing only fields whose value differs
@@ -63,6 +64,7 @@ export function diffPlayerUpdate(
     prev.betrayals === next.betrayals &&
     prev.lastDeleteUnitTick === next.lastDeleteUnitTick &&
     prev.isLobbyCreator === next.isLobbyCreator &&
+    sibauViewEqual(prev.sibau, next.sibau) &&
     numberArrayEqual(prev.allies, next.allies) &&
     numberArrayEqual(prev.targets, next.targets) &&
     stringArrayEqual(
@@ -130,6 +132,7 @@ export function diffPlayerUpdate(
     prev.lastDeleteUnitTick === next.lastDeleteUnitTick,
   );
   setIfDifferent("isLobbyCreator", prev.isLobbyCreator === next.isLobbyCreator);
+  setIfDifferent("sibau", sibauViewEqual(prev.sibau, next.sibau));
   setIfDifferent("allies", numberArrayEqual(prev.allies, next.allies));
   setIfDifferent("targets", numberArrayEqual(prev.targets, next.targets));
   setIfDifferent(

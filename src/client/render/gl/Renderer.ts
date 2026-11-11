@@ -948,6 +948,11 @@ export class GPURenderer {
     this.affiliationPalette.updateRelations(data, size);
   }
 
+  /** Sibau Wars: unit ids of capital Cities (drawn with a crown). */
+  setCapitals(ids: ReadonlySet<number>): void {
+    this.structurePass.setCapitals(ids);
+  }
+
   updateStructures(units: Map<number, UnitState>): void {
     this.lastStructures = units;
     this.structurePass.updateStructures(units);

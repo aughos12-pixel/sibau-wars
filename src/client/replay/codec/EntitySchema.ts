@@ -12,6 +12,10 @@
  */
 
 import type {
+  Government,
+  SibauPlayerView,
+} from "@openfront/engine-api/game/Sibau";
+import type {
   AllianceData,
   AttackData,
   EmojiData,
@@ -268,6 +272,17 @@ const EMOJI = struct<EmojiData>({
 });
 
 /** `false` (not marked) or the tick the unit was marked for deletion. */
+/** Sibau Wars: government, capital, techs, exhaustion, overlord. */
+const SIBAU = struct<SibauPlayerView>({
+  government: maybe(STRING, null) as ValueCodec<Government | null>,
+  capitalUnitID: maybe(U32, null),
+  capitalLost: BOOL,
+  research: U32,
+  techs: U16,
+  exhaustion: U8,
+  overlordID: maybe(U16, null),
+});
+
 const MARKED_FOR_DELETION: ValueCodec<number | false> = {
   write: (w, v) => w.writeI32(v === false ? -1 : v),
   read: (r) => {
@@ -387,6 +402,7 @@ export const PLAYER_FIELDS: readonly FieldDef<PlayerFields>[] = [
   field(["outgoingAllianceRequests", list(STRING)]),
   field(["alliances", list(ALLIANCE)]),
   field(["outgoingEmojis", list(EMOJI)]),
+  field(["sibau", maybe(SIBAU, undefined)]),
 ];
 
 export const UNIT_FIELDS: readonly FieldDef<UnitFields>[] = [

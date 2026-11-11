@@ -16,6 +16,7 @@ import {
   Trios,
   UnitType,
 } from "./game/GameTypes";
+import { Government, Tech } from "./game/Sibau";
 import { PlayerStatsSchema } from "./StatsSchemas";
 
 export type GameID = string;
@@ -47,7 +48,12 @@ export type Intent =
   | TogglePauseIntent
   | UpdateGameConfigIntent
   | ToggleGameStartTimer
-  | FocusTankIntent;
+  | FocusTankIntent
+  | SetGovernmentIntent
+  | ResearchIntent
+  | SearchOilIntent
+  | DemandVassalIntent
+  | VassalReplyIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
@@ -69,6 +75,11 @@ export type UpgradeStructureIntent = z.infer<
 >;
 export type MoveWarshipIntent = z.infer<typeof MoveWarshipIntentSchema>;
 export type FocusTankIntent = z.infer<typeof FocusTankIntentSchema>;
+export type SetGovernmentIntent = z.infer<typeof SetGovernmentIntentSchema>;
+export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
+export type SearchOilIntent = z.infer<typeof SearchOilIntentSchema>;
+export type DemandVassalIntent = z.infer<typeof DemandVassalIntentSchema>;
+export type VassalReplyIntent = z.infer<typeof VassalReplyIntentSchema>;
 export type QuickChatIntent = z.infer<typeof QuickChatIntentSchema>;
 export type MarkDisconnectedIntent = z.infer<
   typeof MarkDisconnectedIntentSchema
@@ -537,6 +548,37 @@ export const FocusTankIntentSchema = z.object({
   troops: zb.uint(),
 });
 
+// Sibau Wars: pick a government during the spawn phase.
+export const SetGovernmentIntentSchema = z.object({
+  type: z.literal("set_government"),
+  government: z.enum(Government),
+});
+
+// Sibau Wars: buy a tech with research points.
+export const ResearchIntentSchema = z.object({
+  type: z.literal("research"),
+  tech: z.enum(Tech),
+});
+
+// Sibau Wars: spend gold searching own land for oil.
+export const SearchOilIntentSchema = z.object({
+  type: z.literal("search_oil"),
+  tile: zb.uint(),
+});
+
+// Sibau Wars: ask a smaller player to become your vassal.
+export const DemandVassalIntentSchema = z.object({
+  type: z.literal("demand_vassal"),
+  target: MappedID,
+});
+
+// Sibau Wars: accept or refuse becoming someone's vassal.
+export const VassalReplyIntentSchema = z.object({
+  type: z.literal("vassal_reply"),
+  overlord: MappedID,
+  accept: z.boolean(),
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -610,6 +652,11 @@ export const IntentSchema = z.discriminatedUnion("type", [
   UpdateGameConfigIntentSchema,
   ToggleGameStartTimerIntentSchema,
   FocusTankIntentSchema,
+  SetGovernmentIntentSchema,
+  ResearchIntentSchema,
+  SearchOilIntentSchema,
+  DemandVassalIntentSchema,
+  VassalReplyIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

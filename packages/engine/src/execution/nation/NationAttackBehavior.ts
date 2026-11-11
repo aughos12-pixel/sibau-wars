@@ -33,6 +33,7 @@ import type {
 } from "../../snapshot/SnapshotContext";
 import { AttackExecution } from "../AttackExecution";
 import { DonateTroopsExecution } from "../DonateTroopExecution";
+import { sibauWorld } from "../SibauWorldExecution";
 import { TransportShipExecution } from "../TransportShipExecution";
 import { AiAttackBehavior, BoatRoute } from "../utils/AiAttackBehavior";
 import { planBotAttacks, walledInBots } from "./BotAnnexation";
@@ -697,6 +698,15 @@ export class NationAttackBehavior extends AiAttackBehavior {
   // already under way.
   private findCrownTarget(borderingEnemies: Player[]): Player | null {
     const leader = findRunawayLeader(this.game);
+    // Sibau Wars: coalition members always join in.
+    if (
+      leader !== null &&
+      sibauWorld(this.game).coalitionMembers.has(this.player) &&
+      borderingEnemies.includes(leader) &&
+      this.player.sharesBorderWith(leader)
+    ) {
+      return leader;
+    }
     if (
       leader === null ||
       !borderingEnemies.includes(leader) ||
@@ -1080,6 +1090,13 @@ export class NationAttackBehavior extends AiAttackBehavior {
   }
 
   override shouldAttack(other: Player | TerraNullius): boolean {
+    // Sibau Wars: coalition members leave each other alone, and always go
+    // after the coalition's target.
+    const world = sibauWorld(this.game);
+    if (other.isPlayer() && world.coalitionMembers.has(this.player)) {
+      if (world.coalitionMembers.has(other)) return false;
+      if (world.coalitionTarget === other) return true;
+    }
     if (
       // Always attack Terra Nullius, non-humans and traitors
       other.isPlayer() === false ||

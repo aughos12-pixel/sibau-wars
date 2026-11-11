@@ -33,6 +33,7 @@ import {
   PlayerUpdate,
 } from "@openfront/engine-api/game/GameUpdates";
 import { ReadonlyTileSet } from "@openfront/engine-api/game/ReadViews";
+import type { SibauPlayerView } from "@openfront/engine-api/game/Sibau";
 import { ClientID } from "@openfront/engine-api/Schemas";
 import { renderNumber } from "@openfront/engine-lib/Format";
 import { andFN, manhattanDistFN } from "@openfront/engine-lib/game/GameMapImpl";
@@ -81,6 +82,7 @@ import {
 } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { diffPlayerUpdate, packAttackTroopDeltas } from "./GameUpdateUtils";
+import { SibauPlayerState, SibauPlayerStateSchema } from "./SibauPlayerState";
 import {
   bumpTraversalGeneration,
   tileTraversalScratch,
@@ -418,6 +420,7 @@ export class PlayerImpl implements Player {
       betrayals: this._betrayalCount,
       lastDeleteUnitTick: this.lastDeleteUnitTick,
       isLobbyCreator: this.isLobbyCreator(),
+      sibau: this._sibau.view(),
     };
   }
 
@@ -1306,10 +1309,31 @@ export class PlayerImpl implements Player {
     if (other === this) {
       return true;
     }
+    // Sibau Wars: a vassal and its overlord never fight.
+    if (this.isVassalPartner(other)) {
+      return true;
+    }
     if (other.isDisconnected() && !treatAFKFriendly) {
       return false;
     }
     return this.isOnSameTeam(other) || this.isAlliedWith(other);
+  }
+
+  // --- Sibau Wars ---
+  private _sibau = new SibauPlayerState();
+
+  sibau(): SibauPlayerView {
+    return this._sibau.view();
+  }
+
+  sibauState(): SibauPlayerState {
+    return this._sibau;
+  }
+
+  isVassalPartner(other: Player): boolean {
+    return (
+      this._sibau.overlord() === other || other.sibauState().overlord() === this
+    );
   }
 
   gold(): Gold {
@@ -1657,6 +1681,10 @@ export class PlayerImpl implements Player {
         return this.landBasedUnitSpawn(targetTile);
       case UnitType.Tank:
         return this.tankSpawn(targetTile);
+      case UnitType.OilField:
+        return targetTile;
+      case UnitType.OilDrill:
+        return this.oilDrillSpawn(targetTile, validTiles);
       case UnitType.Barracks:
       case UnitType.School:
       case UnitType.Bank:
@@ -1771,6 +1799,24 @@ export class PlayerImpl implements Player {
       (b) => b.isActive() && !b.isUnderConstruction() && !b.isDisabled(),
     );
     return barracks?.tile() ?? false;
+  }
+
+  /**
+   * Sibau Wars: a drill goes on own land next to a found oil field, one
+   * drill per field.
+   */
+  oilDrillSpawn(tile: TileRef, validTiles: TileRef[] | null): TileRef | false {
+    const range = this.mg.config().oilDrillRange();
+    const field = this.mg
+      .nearbyUnits(tile, range, UnitType.OilField)
+      .map(({ unit }) => unit)
+      .find((u) => u.isActive());
+    if (field === undefined) return false;
+    const taken = this.mg
+      .nearbyUnits(field.tile(), range, UnitType.OilDrill, undefined, true)
+      .some(({ unit }) => unit.isActive());
+    if (taken) return false;
+    return this.landBasedStructureSpawn(tile, validTiles);
   }
 
   landBasedUnitSpawn(tile: TileRef): TileRef | false {
@@ -2090,6 +2136,7 @@ export class PlayerImpl implements Player {
       numUnitsConstructed: Object.entries(this.numUnitsConstructed).map(
         ([type, n]) => [type as UnitType, n],
       ),
+      sibau: this._sibau.snapshot(w),
     };
   }
 
@@ -2164,12 +2211,34 @@ export class PlayerImpl implements Player {
       : (box as null);
     this.numUnitsConstructed = Object.fromEntries(s.numUnitsConstructed);
     this.nearbyMemo = null;
+    this._sibau = SibauPlayerState.restore(s.sibau, r);
   }
 }
 
 export const PlayerSnapshot = snapshotType({
   name: "Player",
-  version: 1,
+  version: 2,
+  // v1 players predate Sibau Wars' governments, capitals, techs and vassals.
+  migrations: {
+    1: (d) => ({
+      ...d,
+      sibau: {
+        government: null,
+        capital: null,
+        capitalLost: false,
+        research: 0,
+        techs: 0,
+        exhaustion: 0,
+        overlord: null,
+        vassalDemands: [],
+        conquestTiles: [],
+        conquestTicks: [],
+        conquestBuckets: [],
+        lastRebellionTick: -1_000_000,
+        oilSearches: 0,
+      },
+    }),
+  },
   schema: z.object({
     smallID: zInt(),
     info: PlayerInfoSchema,
@@ -2233,6 +2302,7 @@ export const PlayerSnapshot = snapshotType({
       .nullable()
       .optional(),
     numUnitsConstructed: z.array(z.tuple([UnitTypeSchema, zInt()])),
+    sibau: SibauPlayerStateSchema,
   }),
 });
 export type PlayerState = z.infer<typeof PlayerSnapshot.schema>;

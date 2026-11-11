@@ -590,6 +590,8 @@ export class AttackExecution implements Execution {
     const config = this.mg.config();
     return {
       preciseAttack: this.attack?.isDirectional() === true,
+      attackerSibau: this._owner.sibau(),
+      defenderSibau: this.target.isPlayer() ? this.target.sibau() : undefined,
       attackerHasTank,
       attackerSchools: config.effectiveSchools(this._owner),
       defenderSchools: this.target.isPlayer()

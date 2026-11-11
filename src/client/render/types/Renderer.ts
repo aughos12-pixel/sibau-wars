@@ -1,4 +1,5 @@
 import type { TileRef } from "@openfront/engine-api/game/GameMap";
+import type { SibauPlayerView } from "@openfront/engine-api/game/Sibau";
 
 /** TrainType enum — numeric values matching UnitState.trainType. */
 export enum TrainType {
@@ -93,6 +94,8 @@ export interface PlayerState {
   outgoingAllianceRequests: string[];
   alliances: AllianceData[];
   outgoingEmojis: EmojiData[];
+  /** Sibau Wars: government, capital, techs, exhaustion, overlord. */
+  sibau?: SibauPlayerView;
 }
 
 export interface UnitState {

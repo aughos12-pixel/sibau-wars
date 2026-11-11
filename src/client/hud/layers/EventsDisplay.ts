@@ -291,6 +291,8 @@ export class EventsDisplay extends LitElement implements Controller {
     if (event.message === "events_display.received_gold_from_captured_ship") {
       return;
     }
+    // Sibau Wars: vassal demands get Accept/Refuse buttons (actionable-events).
+    if (event.messageType === MessageType.VASSAL_REQUEST) return;
 
     let description: string = event.message;
     if (event.message.startsWith("events_display.")) {

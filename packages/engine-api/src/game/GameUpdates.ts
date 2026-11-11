@@ -17,6 +17,7 @@ import {
   UnitType,
   WarshipState,
 } from "./GameTypes";
+import type { SibauPlayerView } from "./Sibau";
 
 export interface GameUpdateViewData {
   tick: number;
@@ -308,6 +309,8 @@ export interface PlayerUpdate {
   betrayals?: number;
   lastDeleteUnitTick?: Tick;
   isLobbyCreator?: boolean;
+  /** Sibau Wars: government, capital, research, exhaustion, overlord. */
+  sibau?: SibauPlayerView;
 }
 
 export interface AllianceView {

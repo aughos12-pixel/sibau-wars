@@ -151,6 +151,8 @@ const DERIVED_FIELDS = new Set<string>([
   "myUnitCountMemo",
   "myUnitsOwnedMemo",
   "nearbyMemo",
+  // SibauPlayerState: the view the rules read, rebuilt after a change
+  "viewMemo",
   // GameMapImpl BFS scratch buffers
   "bfsVisited",
   "bfsQueue",
