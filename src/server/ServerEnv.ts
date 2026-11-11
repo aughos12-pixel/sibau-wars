@@ -358,6 +358,11 @@ export class ServerEnv {
     const v = process.env.ADMIN_BOT_API_KEY;
     return v && v.length > 0 ? v : undefined;
   }
+  // Sibau Wars: the admin panel password. Unset switches admin off.
+  static sibauAdminPassword(): string | undefined {
+    const v = process.env.SIBAU_ADMIN_PASSWORD;
+    return v && v.length > 0 ? v : undefined;
+  }
   static adminBotHeader(): string {
     return "x-admin-bot-key";
   }

@@ -27,6 +27,7 @@ import { setNoStoreHeaders } from "./NoStoreHeaders";
 import { startPolling } from "./PollingLoop";
 import { renderAppShell } from "./RenderHtml";
 import { ServerEnv } from "./ServerEnv";
+import { SibauAdmin } from "./SibauAdmin";
 import { applyStaticAssetCacheControl } from "./StaticAssetCache";
 
 const playlist = new MapPlaylist();
@@ -160,6 +161,9 @@ app.use("/api", (_req, res, next) => {
   setNoStoreHeaders(res);
   next();
 });
+
+// Sibau Wars: admin announcements (password in SIBAU_ADMIN_PASSWORD).
+new SibauAdmin(() => ServerEnv.sibauAdminPassword()).register(app);
 
 // Start the master process
 export async function startMaster() {

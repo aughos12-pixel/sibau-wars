@@ -2444,6 +2444,23 @@
     "capacity_note": "Receiver can accept only {amount} right now.",
     "title_with_name": "Send Troops to {name}"
   },
+  "sibau_admin": {
+    "announce_help": "Everyone playing Sibau Wars right now sees it in a banner, in every game and on the homepage.",
+    "announce_label": "Announcement",
+    "announcement": "Announcement",
+    "close": "Close",
+    "failed": "Something went wrong. Try again.",
+    "locked": "Too many wrong passwords. Wait 10 minutes and try again.",
+    "log_in": "Log in",
+    "log_out": "Log out",
+    "not_set_up": "Admin is not set up: add SIBAU_ADMIN_PASSWORD in Render's Environment settings.",
+    "password": "Admin password",
+    "send": "Announce",
+    "sent": "Sent! Everyone sees it within about 10 seconds.",
+    "title": "Sibau Wars admin",
+    "working": "Working…",
+    "wrong_password": "Wrong password."
+  },
   "single_modal": {
     "max_timer_invalid": "Please enter a valid max timer value (1-120 minutes)",
     "medals_earned": "Medals",

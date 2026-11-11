@@ -48,6 +48,20 @@ If the file is ever missing, Albin shows a blue "A" instead.
 
 Albin sits in the bottom-left corner as a small portrait during a game. He opens up when he has a tip; click his portrait to hear his last tip again.
 
+## Admin: announcements
+
+You can send a message that everyone playing sees in a big banner (in every game and on the homepage).
+
+1. **Pick a long, secret password** (at least 12 characters, not one you use anywhere else).
+2. On https://render.com open your **sibau-wars** service → **Environment** → **Add Environment Variable**:
+   - Key: `SIBAU_ADMIN_PASSWORD`
+   - Value: your password
+   Save. Render restarts the game by itself.
+3. Open your game's address with `#admin` at the end, e.g. `https://sibau-wars.onrender.com/#admin`.
+4. Type the password and click **Log in** (it's remembered on that computer), write your message and click **Announce**. Everyone sees it within about 10 seconds; it shows for 15 seconds.
+
+Without `SIBAU_ADMIN_PASSWORD` the admin panel is switched off. After 10 wrong passwords from one place, logging in is blocked for 10 minutes.
+
 ## Play locally
 
 You need **Node.js 24** and **npm 12** (the versions OpenFront targets).
