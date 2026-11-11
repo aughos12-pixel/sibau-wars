@@ -47,7 +47,8 @@ export class NationTankBehavior {
     private player: Player,
   ) {}
 
-  handleTanks(): void {
+  /** `canBuy` false: still fight with the tanks we have, buy no new ones. */
+  handleTanks(canBuy = true): void {
     const config = this.game.config();
     if (config.isUnitDisabled(UnitType.Tank)) return;
     if (this.focusEnemyTank()) return;
@@ -56,7 +57,7 @@ export class NationTankBehavior {
     const target = this.targetTile(enemy);
     if (target === null) return;
     this.sendIdleTanks(target);
-    this.maybeBuildTank(target);
+    if (canBuy) this.maybeBuildTank(target);
   }
 
   private focusEnemyTank(): boolean {

@@ -96,6 +96,56 @@ describe("precise attacks (Sibau Wars)", () => {
     expect(attackerTilesIn(50, 120, 0, 40)).toBe(0);
   });
 
+  test("troops come home soon after the last point is reached", async () => {
+    // Regression: they used to wait ~60 s for the corridor to reach full
+    // width before going home, and looked lost.
+    game = await setup(
+      "big_plains",
+      { infiniteGold: true, instantBuild: true },
+      [],
+      undefined,
+      UseRealAttackLogic,
+    );
+    attacker = addPlayer("attacker", 20, 100);
+    defender = addPlayer("defender", 120, 100);
+    executeTicks(game, 2);
+    for (let x = 0; x < 200; x++) {
+      for (let y = 0; y < 200; y++) {
+        (x < 50 ? attacker : defender).conquer(game.ref(x, y));
+      }
+    }
+    attacker.addTroops(500_000);
+    defender.addTroops(50_000);
+    const aim = game.ref(70, 100);
+    launch([aim]);
+    executeTicks(game, 1);
+    let ticks = 0;
+    let before = attacker.troops();
+    let returned = 0;
+    while (attacker.outgoingAttacks().length > 0 && ticks < 600) {
+      before = attacker.troops();
+      executeTicks(game, 1);
+      ticks++;
+      if (attacker.outgoingAttacks().length === 0) {
+        returned = attacker.troops() - before;
+      }
+    }
+    expect(game.owner(aim)).toBe(attacker);
+    // Home within 10 s (it was over a minute)...
+    expect(ticks).toBeLessThan(100);
+    // ...with the survivors.
+    expect(returned).toBeGreaterThan(100_000);
+  });
+
+  test("an attack isn't sent home before it reaches its last point", async () => {
+    await frontGame();
+    launch([game.ref(150, 100)]);
+    // The test config takes one tile per tick: 100 tiles away is far off.
+    executeTicks(game, 30);
+    expect(game.owner(game.ref(150, 100))).toBe(defender);
+    expect(attacker.outgoingAttacks()).toHaveLength(1);
+  });
+
   test("precise attacks are never merged with other attacks", async () => {
     await frontGame();
     launch(null);

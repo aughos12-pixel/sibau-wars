@@ -242,10 +242,14 @@ export class NationExecution implements Execution {
     this.mirvBehavior.considerMIRV();
     // Sibau Wars: stateless, so a fresh one each turn needs no snapshot.
     const sibau = new NationSibauBehavior(this.random, this.mg, this.player);
-    // Saving for a test well: buildings wait until we have the gold.
-    if (!sibau.isSavingForOil()) this.structureBehavior.handleStructures();
-    this.warshipBehavior.maybeSpawnWarship();
-    new NationTankBehavior(this.random, this.mg, this.player).handleTanks();
+    // Saving for a test well: buildings, warships and new tanks wait until
+    // we have the gold (existing tanks still fight).
+    const saving = sibau.isSavingForOil();
+    if (!saving) this.structureBehavior.handleStructures();
+    if (!saving) this.warshipBehavior.maybeSpawnWarship();
+    new NationTankBehavior(this.random, this.mg, this.player).handleTanks(
+      !saving,
+    );
     sibau.handle();
     this.handleEmbargoesToHostileNations();
     this.attackBehavior.maybeAttack();

@@ -133,11 +133,14 @@ export class NationSibauBehavior {
       .some((f) => f.isActive() && f.owner() === this.player);
   }
 
-  /** True while we hold gold back from buildings for a test well. */
+  /**
+   * True while we hold gold back for a test well. Only from halfway there,
+   * so a nation doesn't stop buying for minutes on end.
+   */
   isSavingForOil(): boolean {
-    return (
-      this.wantsOil() && this.player.gold() < this.game.config().oilSearchCost()
-    );
+    const cost = this.game.config().oilSearchCost();
+    const gold = this.player.gold();
+    return this.wantsOil() && gold < cost && gold * 2n >= cost;
   }
 
   private searchOil() {

@@ -49,8 +49,9 @@ const DIRECTIONAL_MIN_FRONT = 12;
 /**
  * Precise attacks only take land in a corridor around their route: this
  * many tiles either side at first, one more every CORRIDOR_WIDEN_TICKS, up
- * to CORRIDOR_MAX_HALF_WIDTH. A full corridor waits to widen; at full width
- * the attack is over and its troops go home.
+ * to CORRIDOR_MAX_HALF_WIDTH. Once the last route point is reached and the
+ * corridor is taken, the troops go home at once. A push blocked before
+ * that waits for the corridor to widen; at full width it gives up too.
  */
 const CORRIDOR_START_HALF_WIDTH = 5;
 const CORRIDOR_WIDEN_TICKS = 25;
@@ -286,6 +287,25 @@ export class AttackExecution implements Execution {
     this.target.updateRelation(this._owner, relationChange);
   }
 
+  /**
+   * Has a precise attack reached the last point of its route? Then there is
+   * nothing to wait for once the corridor is taken: its troops go home.
+   * Worked out from saved state, so snapshots need nothing new.
+   */
+  private routeFinished(): boolean {
+    if (this.waypoints === null || this.waypoints.length === 0) return true;
+    if (this.waypointIndex < this.waypoints.length - 1) return false;
+    const last = this.waypoints[this.waypointIndex];
+    // Taken by us, or no longer the target's land to take at all.
+    if (this.map.ownerID(last) !== this.targetSmallID) return true;
+    const near = WAYPOINT_REACHED * WAYPOINT_REACHED;
+    return this.conquered.some(
+      (t) =>
+        this.map.ownerID(t) === this.ownerSmallID &&
+        this.map.euclideanDistSquared(t, last) <= near,
+    );
+  }
+
   /** The aim point a precise attack is heading for. */
   private aim(): TileRef | null {
     if (this.waypoints === null || this.waypoints.length === 0) return null;
@@ -503,11 +523,14 @@ export class AttackExecution implements Execution {
       if (this.toConquer.size() === 0) {
         if (
           this.attack.isDirectional() &&
-          this.corridorHalfWidth() < CORRIDOR_MAX_HALF_WIDTH
+          this.corridorHalfWidth() < CORRIDOR_MAX_HALF_WIDTH &&
+          !this.routeFinished()
         ) {
-          // Corridor taken: hold position until it widens.
+          // Blocked before the last point: hold position until the
+          // corridor widens, so the push can find a way around.
           return;
         }
+        // Done (or out of room): the survivors go home right away.
         this.refreshToConquer();
         this.retreat();
         return;
