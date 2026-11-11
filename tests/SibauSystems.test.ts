@@ -5,6 +5,10 @@ import {
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
 import { Government, Tech } from "@openfront/engine-api/game/Sibau";
+import {
+  AttackIntentSchema,
+  GAME_ID_REGEX,
+} from "@openfront/engine-api/Schemas";
 import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
 import {
   DemandVassalExecution,
@@ -299,6 +303,8 @@ describe("War exhaustion and rebels (Sibau Wars)", () => {
   test("long wars build exhaustion, which cuts troop growth", async () => {
     await halves();
     left.sibauState().setGovernment(Government.Republic);
+    // A defender strong enough that the war lasts the whole test.
+    right.addTroops(3_000_000);
     left.addTroops(500_000);
     game.addExecution(new AttackExecution(400_000, left, right.id()));
     executeTicks(game, 5);
@@ -334,6 +340,23 @@ describe("War exhaustion and rebels (Sibau Wars)", () => {
     expect(game.allPlayers().length).toBeGreaterThan(playersBefore);
     expect(rebels.length).toBeGreaterThan(0);
     expect(rebels[0].numTilesOwned()).toBeGreaterThan(0);
+
+    // Regression: the rebels' id must be a valid player id, or every intent
+    // naming them (an attack, an alliance request...) is rejected and the
+    // game freezes.
+    const rebel = rebels[0];
+    expect(rebel.id()).toMatch(GAME_ID_REGEX);
+    expect(
+      AttackIntentSchema.safeParse({
+        type: "attack",
+        targetID: rebel.id(),
+        troops: 1000,
+      }).success,
+    ).toBe(true);
+    left.addTroops(200_000);
+    game.addExecution(new AttackExecution(150_000, left, rebel.id()));
+    executeTicks(game, 300);
+    expect(rebel.numTilesOwned()).toBe(0);
   });
 });
 

@@ -34,8 +34,8 @@ const BRANCH_ORDERS: readonly TechBranch[][] = [
  * Sibau Wars: how nations use governments, research, oil and vassals.
  * Stateless (read from the game each turn), so it needs no snapshot.
  */
-/** Nations only gamble on oil this long after the spawn phase (8 min). */
-const NATION_OIL_AFTER_TICKS = 8 * 60 * 10;
+/** Nations only gamble on oil this long after the spawn phase (6 min). */
+const NATION_OIL_AFTER_TICKS = 6 * 60 * 10;
 /** Most test wells a nation will drill in a game. */
 const MAX_NATION_OIL_SEARCHES = 2;
 
@@ -119,7 +119,7 @@ export class NationSibauBehavior {
     if (game.config().gameConfig().difficulty === Difficulty.Easy) return false;
     if (game.config().isUnitDisabled(UnitType.OilDrill)) return false;
     if (simpleHash(this.player.id() + "oil") % 3 !== 0) return false;
-    if (this.player.numTilesOwned() < 2000) return false;
+    if (this.player.numTilesOwned() < 1500) return false;
     const start = game.spawnPhaseEndTick();
     if (start === null || game.ticks() - start < NATION_OIL_AFTER_TICKS) {
       return false;

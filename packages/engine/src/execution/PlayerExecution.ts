@@ -1231,7 +1231,10 @@ export class PlayerExecution implements Execution {
       .slice(0, Math.max(50, Math.floor(recent.length * 0.6)));
     if (chunk.length < 20) return;
 
-    const id = `rebels-${player.smallID()}-${ticks}`;
+    // Player ids must match GAME_ID_REGEX (8-10 letters and digits), or
+    // every intent naming the rebels (attacks, alliances...) is rejected.
+    // One rebellion per player per window, so smallID + tick is unique.
+    const id = rebelPlayerID(player.smallID(), ticks);
     const rebels = this.mg.addPlayer(
       new PlayerInfo(
         `Rebels of ${player.displayName()}`,
@@ -1451,3 +1454,10 @@ export const PlayerExecutionSnapshot = execSnapshotType({
   schema: PlayerExecStateSchema,
   cls: () => PlayerExecution,
 });
+
+/** Sibau Wars: a valid, deterministic player id for a rebel faction. */
+export function rebelPlayerID(smallID: number, tick: number): string {
+  return `R${smallID.toString(36)}x${tick.toString(36)}`
+    .padEnd(8, "0")
+    .slice(0, 10);
+}
